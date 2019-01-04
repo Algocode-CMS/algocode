@@ -58,3 +58,15 @@ a {
 .clear {
 
 }
+
+.courses {
+    float: left;
+}
+
+.course {
+    margin-bottom: 1em;
+    border-left: 1px solid #487de5;
+    padding-left: 0.5em;
+    font-size: 1.5em;
+    font-style: bold;
+}

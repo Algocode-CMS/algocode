@@ -34,6 +34,11 @@ class LeftLinkInline(admin.TabularInline):
     show_change_link = True
 
 
+class LeftMainLinkInline(admin.TabularInline):
+    model = LeftMainLink
+    show_change_link = True
+
+
 class ContestLinkInline(admin.TabularInline):
     model = ContestLink
     show_change_link = True
@@ -52,6 +57,12 @@ class ShipPositionInline(admin.TabularInline):
 class BattleshipTeamInline(admin.TabularInline):
     model = BattleshipTeam
     show_change_link = True
+
+
+@admin.register(Main)
+class MainAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title']
+    inlines = [LeftMainLinkInline]
 
 
 @admin.register(Course)

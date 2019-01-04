@@ -10,33 +10,23 @@ class Course(models.Model):
     subtitle = models.TextField(blank=True)
     ejudge_url = models.CharField(max_length=1000, blank=True)
     proxy_pass_links = models.BooleanField(default=False)
+    logo = models.FileField(upload_to='docs', blank=True)
+    url = models.CharField(max_length=300, blank=True)
+    name_in_main = models.CharField(max_length=300, blank=True)
+    color = models.CharField(max_length=30, default="#000000")
 
     def __str__(self):
         return self.title
 
 
-class Battleship(models.Model):
-    name = models.CharField(max_length=500, blank=True)
-    contest = models.IntegerField()
+class Main(models.Model):
+    title = models.CharField(max_length=1000, blank=True)
+    subtitle = models.TextField(blank=True)
+    logo = models.FileField(upload_to='docs', blank=True)
+    courses = models.ManyToManyField(Course)
 
     def __str__(self):
-        return self.name
-
-
-class BattleshipTeam(models.Model):
-    battleship = models.ForeignKey(Battleship, on_delete=models.CASCADE, related_name='teams')
-    name = models.CharField(max_length=500, blank=True)
-
-
-class UserId(models.Model):
-    team = models.ForeignKey(BattleshipTeam, on_delete=models.CASCADE, related_name='ids')
-    user = models.IntegerField()
-
-
-class ShipPosition(models.Model):
-    team = models.ForeignKey(BattleshipTeam, on_delete=models.CASCADE, related_name='ships')
-    x = models.IntegerField()
-    y = models.IntegerField()
+        return self.title
 
 
 class ContestType(models.Model):
@@ -81,6 +71,14 @@ class ContestLink(models.Model):
 
 class LeftLink(models.Model):
     Course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='links')
+    text = models.CharField(max_length=300)
+    file = models.FileField(upload_to='docs', blank=True)
+    link = models.CharField(max_length=300, blank=True)
+    hidden = models.BooleanField(default=False)
+
+
+class LeftMainLink(models.Model):
+    main = models.ForeignKey(Main, on_delete=models.CASCADE, related_name='links')
     text = models.CharField(max_length=300)
     file = models.FileField(upload_to='docs', blank=True)
     link = models.CharField(max_length=300, blank=True)
@@ -143,6 +141,90 @@ def auto_delete_file_on_change_1(sender, instance, **kwargs):
         pass
 
 
+@receiver(models.signals.post_delete, sender=LeftMainLink)
+def auto_delete_file_on_delete_11(sender, instance, **kwargs):
+    try:
+        if instance.file:
+            if os.path.isfile(instance.file.path):
+                os.remove(instance.file.path)
+    except:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=LeftMainLink)
+def auto_delete_file_on_change_11(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = LeftMainLink.objects.get(pk=instance.pk).file
+    except LeftMainLink.DoesNotExist:
+        return False
+    try:
+        new_file = instance.file
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except:
+        pass
+
+
+@receiver(models.signals.post_delete, sender=Main)
+def auto_delete_file_on_delete_12(sender, instance, **kwargs):
+    try:
+        if instance.logo:
+            if os.path.isfile(instance.logo.path):
+                os.remove(instance.logo.path)
+    except:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=Main)
+def auto_delete_file_on_change_12(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Main.objects.get(pk=instance.pk).logo
+    except Main.DoesNotExist:
+        return False
+    try:
+        new_file = instance.logo
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except:
+        pass
+
+
+@receiver(models.signals.post_delete, sender=Course)
+def auto_delete_file_on_delete_13(sender, instance, **kwargs):
+    try:
+        if instance.logo:
+            if os.path.isfile(instance.logo.path):
+                os.remove(instance.logo.path)
+    except:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=Course)
+def auto_delete_file_on_change_13(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Course.objects.get(pk=instance.pk).logo
+    except Course.DoesNotExist:
+        return False
+    try:
+        new_file = instance.logo
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except:
+        pass
+
+
 @receiver(models.signals.post_delete, sender=Contest)
 def auto_delete_file_on_delete_2(sender, instance, **kwargs):
     if instance.statments:
@@ -168,3 +250,27 @@ def auto_delete_file_on_change_2(sender, instance, **kwargs):
                 os.remove(old_statements.path)
     except:
         pass
+
+
+class Battleship(models.Model):
+    name = models.CharField(max_length=500, blank=True)
+    contest = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+
+class BattleshipTeam(models.Model):
+    battleship = models.ForeignKey(Battleship, on_delete=models.CASCADE, related_name='teams')
+    name = models.CharField(max_length=500, blank=True)
+
+
+class UserId(models.Model):
+    team = models.ForeignKey(BattleshipTeam, on_delete=models.CASCADE, related_name='ids')
+    user = models.IntegerField()
+
+
+class ShipPosition(models.Model):
+    team = models.ForeignKey(BattleshipTeam, on_delete=models.CASCADE, related_name='ships')
+    x = models.IntegerField()
+    y = models.IntegerField()
