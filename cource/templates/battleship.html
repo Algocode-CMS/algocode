@@ -1,0 +1,105 @@
+<html>
+<head>
+    {% load static %}
+    {% load js %}
+    {% load attr %}
+    {% load clr %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+        
+    <meta http-equiv="content-language" content="ru-ru">
+    <link rel="stylesheet" href="{% static 'battleship_style.css' %}">
+    <title>Морской бой</title>
+    <style>
+        td.broken {
+            background-image: url({% static 'battleship/broken.png' %});
+        }
+
+        td.empty {
+            background-image: url({% static 'battleship/empty.png' %});
+        }
+
+        td.unsuccess {
+            background-image: url({% static 'battleship/unsuccess.png' %});
+        }
+
+        td.unknown {
+            background-image: url({% static 'battleship/unknown.png' %});
+        }
+    </style>
+</head>
+<body>
+    <p class="header">
+        {{ name }}
+    </p>
+    {% for field in fields %}
+    <div class="results">
+        <p class="team_header self">{{ field.name }}</p>
+        <table>
+            <tbody>
+            <tr>
+                <td class="problem"></td>
+                {% for problem in problem_names %}
+                <td class="problem" title="{{ problem.long }}">{{ problem.short }}</td>
+                {% endfor %}
+            </tr>
+            {% for user in field.field %}
+            <tr>
+                <td class="name">{{ user.name }}</td>
+                {% for problem in user.problems %}
+                    {% if problem == 1 %}
+                        <td class="map_cell empty"></td>
+                    {% endif %}
+                    {% if problem == 2 %}
+                        <td class="map_cell broken"></td>
+                    {% endif %}
+                    {% if problem == 0 %}
+                        <td class="map_cell unknown"></td>
+                    {% endif %}
+                    {% if problem == -1 %}
+                        <td class="map_cell unsuccess"></td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <ul>
+            <li>Успешные попытки: {{ field.success }}</li>
+            <ul>
+                <li>из них в цель: {{ field.ship_success }}</li>
+                <li>из них мимо: {{ field.ship_fail }}</li>
+            </ul>
+            <li>Безуспешные попытки: {{ field.fail }}</li>
+        </ul>
+    </div>
+    {% endfor %}
+
+    <div class="results">
+        <p class="team_header">Легенда</p>
+        <table>
+            <tbody>
+            <tr>
+                <td class="map_cell unknown"></td><td>Клетка, по которой не стреляли</td>
+            </tr>
+            <tr>
+                <td class="map_cell unsuccess"></td>
+                <td>Клетка, по которой безуспешно пытались стрелять</td>
+            </tr>
+            <tr>
+                <td class="map_cell empty"></td>
+                <td>"Мимо"</td>
+            </tr>
+            <tr>
+                <td class="map_cell broken"></td>
+                <td>"Ранен/убит"</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    
+
+</body>
+</html>
