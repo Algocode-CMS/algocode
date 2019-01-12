@@ -13,7 +13,7 @@
 </head>
 
 <body>
-
+{% autoescape off %}
 <div class="main">
     <div class="title">
         <h1>{{ course.title }}</h1>
@@ -88,7 +88,7 @@
     </div>
 
 </div>
-
+{% endautoescape %}
 </body>
 </html>
 

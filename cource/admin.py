@@ -68,7 +68,7 @@ class MainAdmin(admin.ModelAdmin):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = [ContestTypeInline, LeftLinkInline, ContestInline]
-    list_display = ['id', 'title']
+    list_display = ['id', 'title', 'subtitle']
 
 
 @admin.register(ContestType)

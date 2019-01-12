@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 
-from cource.models import Course, Battleship, Main
+from cource.models import Course, Battleship, Main, Contest
 from cource.templates import *
 
 # Create your views here.
@@ -21,10 +21,15 @@ def users_cmp(a):
     return (-a['score'], a['penalty'])
 
 
+def contest_cmp(a):
+    contest = get_object_or_404(Contest, ejudge_id=a)
+    return contest.id
+
+
 class MainView(View):
     def get(self, request, main_id):
         main = get_object_or_404(Main, id=main_id)
-        courses_list = Course.objects.order_by("id")
+        courses_list = main.courses.order_by("id")
         links = main.links.filter(hidden=False)
         return render(
             request,

@@ -13,6 +13,7 @@
 </head>
 
 <body>
+{% autoescape off %}
 
 <div class="main">
     <div class="title">
@@ -23,7 +24,6 @@
     <div class="sidebar">
         <h3>Полезная информация</h3>
         {% for link in links %}
-            {% autoescape off %}
             {% if link.file %}
                 <a href="{{ link.file.url }}">{{ link.text }}</a><br>
             {% elif link.link %}
@@ -31,7 +31,6 @@
             {% else %}
                 {{ link.text }} <br>
             {% endif %}
-            {% endautoescape %}
         {% endfor %}
     </div>
 
@@ -47,7 +46,7 @@
     </div>
 
 </div>
-
+{% endautoescape %}
 </body>
 </html>
 
