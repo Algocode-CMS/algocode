@@ -1,2 +1,5 @@
 django
 untangle
+requests
+bs4
+lxml

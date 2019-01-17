@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <title>{{ standings.title }}</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'standings.css' %}">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+    <script>
+        var standings_id = {{ standings.id }};
+        var contest_id = {{ contest_id }};
+    </script>
+    <script src="{% static 'standings.js' %}"></script>
+    <script>
+        {{ standings.js }}
+    </script>
+    <base href="/standings/{{ standings.id }}/" />
+</head>
+
+<body>
+<!-- <h1 align="center">{{ standings.title }}</h1>-->
+
+<div class="wrapper">
+    <table id="standings"></table>
+</div>
+
+</body>
+</html>

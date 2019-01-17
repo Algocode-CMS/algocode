@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <title>{{ main.title }}</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'course_style.css' %}">
+</head>
+
+<body>
+{% autoescape off %}
+
+<div class="main">
+    <header>
+        <h1>{{ main.title }}</h1>
+        <h2>{{ main.subtitle }}</h2>
+    </header>
+
+    <div class="sidebar">
+        <h3>Полезная информация</h3>
+        {% for link in links %}
+            {% if link.file %}
+                <a href="{{ link.file.url }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
+            {% elif link.link %}
+                <a href="{{ link.link }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
+            {% else %}
+                {{ link.text }} <br>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="courses">
+        <h3>Курсы</h3>
+        {% for course in courses %}
+            <a href="{{ course.url }}">
+                <div class="course">
+                    {{ course.name_in_main }}
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+</div>
+{% endautoescape %}
+</body>
+</html>
+

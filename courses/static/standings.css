@@ -1,0 +1,63 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+.wrapper {
+    width: 100%;
+    overflow-x: scroll;
+}
+
+table {
+    border-collapse: collapse;
+    border: none;
+}
+
+thead {
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+}
+
+td {
+    background: white;
+    border: 1px solid gray;
+    padding: 2px;
+    text-align: center;
+    height: 1.5em;
+    white-space: nowrap;
+    border-top: none;
+    border-left: none;
+}
+
+td.name {
+    text-align: left;
+}
+
+td.problem_letter {
+    min-width: 1.5em;
+    width: 1.5em;
+}
+
+td.ok {
+    background-color: lightgreen;
+}
+
+td.bad {
+    background-color: lightcoral;
+}
+
+td.gray {
+    background-color: rgb(240, 240, 240);
+}
+
+a {
+    color: #2a6478;
+    text-decoration: none;
+}
+
+p.small {
+    font-size: 0.5em;
+}

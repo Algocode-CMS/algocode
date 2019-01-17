@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'course_style.css' %}">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+</head>
+
+<body>
+{% autoescape off %}
+    <div class="wrapper">
+        <div class="main">
+            <header>
+                <h1>{{ page.title }}</h1>
+                <h2>{{ page.subtitle }}</h2>
+            </header>
+
+            <div class="content">
+                {{ page.content }}
+            </div>
+
+        </div>
+    </div>
+{% endautoescape %}
+</body>
+</html>
+
