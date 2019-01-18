@@ -3,7 +3,6 @@ secrets/
 configs/
 files/
 .idea/
-courses/migrations/
 static/
 pyenv/
 venv/
