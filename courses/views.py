@@ -104,3 +104,6 @@ class PageView(View):
                 'page': page,
             }
         )
+
+
+# TODO Battleship

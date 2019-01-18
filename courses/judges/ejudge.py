@@ -22,7 +22,6 @@ def load_ejudge_contest(contest, users):
         data = untangle.parse(os.path.join(JUDGES_DIR, ejudge_id, 'var/status/dir/external.xml'))
     except:
         return None
-
     ejudge_ids = {}
     for user in users:
         ejudge_ids[user.ejudge_id] = user.id

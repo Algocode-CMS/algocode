@@ -35,10 +35,10 @@
             {% endif %}
             <b>{{ teacher.name }}</b>
             {% if teacher.telegram_id %}
-                <br>Telegram: @{{ teacher.telegram_id }}
+                <br>Telegram: <a href="tg://resolve?domain={{ teacher.telegram_id }}">@{{ teacher.telegram_id }}</a>
             {% endif %}
             {% if teacher.vk_id %}
-                <br><a href="vk.com/{{ teacher.vk_id }}">ВКонтакте</a>
+                <br><a href="https://vk.com/{{ teacher.vk_id }}">ВКонтакте</a>
             {% endif %}
             <br><br>
         {% endfor %}
@@ -92,7 +92,7 @@
                     {% endif %}
                 </div>
                 <div class="contest_link">
-                    {% if contest.contest.show_statements_link %}
+                    {% if contest.contest.show_statements %}
                         <a href="{{ contest.contest.statements.url }}">Условия</a>
                     {% endif %}
                 </div>

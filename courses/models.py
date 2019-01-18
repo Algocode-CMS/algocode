@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 
 def get_main_file_path(instance, filename):
-    return filename
+    return 'main_{0}/{1}'.format(instance.id, filename)
 
 
 def get_course_file_path(instance, filename):
@@ -106,7 +106,7 @@ class CourseLink(models.Model):
 class MainLink(models.Model):
     main = models.ForeignKey(Main, on_delete=models.CASCADE, related_name='links')
     text = models.TextField()
-    file = models.TextField(get_main_file_path, blank=True)
+    file = models.FileField(upload_to=get_main_file_path, blank=True)
     link = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
     new_tab = models.BooleanField(default=False)
@@ -135,6 +135,10 @@ class Standings(models.Model):
     title = models.TextField()
     groups = models.ManyToManyField(ParticipantsGroup)
     contests = models.ManyToManyField(Contest)
+    olymp = models.BooleanField(default=False)
+    enable_marks = models.BooleanField(default=False)
+    js_for_contest_mark = models.TextField(blank=True)
+    js_for_total_mark = models.TextField(blank=True)
     js = models.TextField(blank=True)
 
     class Meta:

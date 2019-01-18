@@ -6,7 +6,6 @@ from algocode import settings
 
 def load_external_contest(contest, users):
     file_path = os.path.join(settings.BASE_DIR, 'judges_data', contest.judge.lower(), str(contest.id))
-    print(file_path)
     if not os.path.exists(file_path):
         return None
 

@@ -1,9 +1,7 @@
 import os
+from importlib import import_module
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-DEBUG = True
-JUDGES_DIR = '/tmp/judges/'
 
 
 def load_secret(secret):
@@ -13,11 +11,20 @@ def load_secret(secret):
     return result
 
 
+def load_config(config):
+    config = import_module('configs.' + config)
+    return config.value
+
+
 CODEFORCES_KEY = load_secret('codeforces_key.txt')
 CODEFORCES_SECRET = load_secret('codeforces_secret.txt')
 INFORMATICS_LOGIN = load_secret('informatics_login.txt')
 INFORMATICS_PASSWORD = load_secret('informatics_password.txt')
 SECRET_KEY = load_secret('django_secret.txt')
+DEBUG = load_config('django_debug')
+JUDGES_DIR = load_secret('ejudge_dir.txt')
+DATABASES = load_config('django_db')
+
 
 ALLOWED_HOSTS = ['*']
 
@@ -63,13 +70,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 MEDIA_URL = '/files/'
 
 WSGI_APPLICATION = 'algocode.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
