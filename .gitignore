@@ -9,3 +9,9 @@ pyenv/
 venv/
 *.pyc
 *.pyo
+algocode/__pycache__/
+courses/__pychache__/
+courses/judges/__pycache__/
+courses/management/__pycache__/
+courses/managment/commands/__pycache__/
+
