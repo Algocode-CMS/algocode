@@ -4,3 +4,9 @@ configs/
 files/
 .idea/
 courses/migrations/
+static/
+pyenv/
+venv/
+*.pyc
+*.pyo
+
