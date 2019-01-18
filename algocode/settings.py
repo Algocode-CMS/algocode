@@ -22,7 +22,7 @@ INFORMATICS_LOGIN = load_secret('informatics_login.txt')
 INFORMATICS_PASSWORD = load_secret('informatics_password.txt')
 SECRET_KEY = load_secret('django_secret.txt')
 DEBUG = load_config('django_debug')
-JUDGES_DIR = load_secret('ejudge_dir.txt')
+JUDGES_DIR = load_config('ejudge_dir')
 DATABASES = load_config('django_db')
 
 
