@@ -113,6 +113,7 @@ class MainLink(models.Model):
 
 
 class ParticipantsGroup(models.Model):
+    course = models.ForeignKey(Course, related_name="groups", on_delete=models.CASCADE)
     name = models.TextField()
     short_name = models.TextField()
 
@@ -122,13 +123,18 @@ class ParticipantsGroup(models.Model):
 
 class Participant(models.Model):
     name = models.TextField()
+    group = models.ForeignKey(ParticipantsGroup, related_name='participants', on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, related_name='participants', on_delete=models.CASCADE)
     ejudge_id = models.IntegerField(blank=True, null=True)
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
-    groups = models.ManyToManyField(ParticipantsGroup, related_name='participants')
+    comment = models.TextField(blank=True)
+    email = models.TextField(blank=True)
+    telegram_id = models.TextField(blank=True)
+    vk_id = models.TextField(blank=True)
 
     def __str__(self):
-        return self.name
+        return self.name + " - " + self.group.short_name
 
 
 class Standings(models.Model):
