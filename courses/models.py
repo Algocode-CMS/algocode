@@ -44,7 +44,7 @@ class Course(models.Model):
     ejudge_url = models.TextField(blank=True)
     url = models.TextField(blank=True)
     name_in_main = models.TextField(blank=True)
-    teachers = models.ManyToManyField(Teacher, related_name='courses')
+    teachers = models.ManyToManyField(Teacher, related_name='courses', blank=True)
 
     def __str__(self):
         return self.title
@@ -84,6 +84,20 @@ class Contest(models.Model):
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)
+
+
+class Standings(models.Model):
+    title = models.TextField()
+    contests = models.ManyToManyField(Contest, related_name="standings")
+    course = models.ForeignKey(Course, related_name="standings", on_delete=models.CASCADE)
+    olymp = models.BooleanField(default=False)
+    enable_marks = models.BooleanField(default=False)
+    js_for_contest_mark = models.TextField(blank=True)
+    js_for_total_mark = models.TextField(blank=True)
+    js = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = "Standings"
 
 
 class ContestLink(models.Model):
@@ -135,20 +149,6 @@ class Participant(models.Model):
 
     def __str__(self):
         return self.name + " - " + self.group.short_name
-
-
-class Standings(models.Model):
-    title = models.TextField()
-    groups = models.ManyToManyField(ParticipantsGroup)
-    contests = models.ManyToManyField(Contest)
-    olymp = models.BooleanField(default=False)
-    enable_marks = models.BooleanField(default=False)
-    js_for_contest_mark = models.TextField(blank=True)
-    js_for_total_mark = models.TextField(blank=True)
-    js = models.TextField(blank=True)
-
-    class Meta:
-        verbose_name_plural = "Standings"
 
 
 class Page(models.Model):

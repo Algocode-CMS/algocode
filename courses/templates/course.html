@@ -18,31 +18,32 @@
     </header>
 
     <div class="sidebar">
-        <h3>Полезные ссылки</h3>
-        {% autoescape off %}
-        {% for link in links %}
-            {% if link.file %}
-                <a href="{{ link.file.url }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
-            {% else %}
-                <a href="{{ link.link }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
-            {% endif %}
-        {% endfor %}
-
-        <h3>Преподаватели</h3>
-        {% for teacher in teachers %}
-            {% if teacher.photo %}
-                <img class="photo" src="{{ teacher.photo.url }}" alt="{{ teacher.name }}"><br>
-            {% endif %}
-            <b>{{ teacher.name }}</b>
-            {% if teacher.telegram_id %}
-                <br>Telegram: <a href="tg://resolve?domain={{ teacher.telegram_id }}">@{{ teacher.telegram_id }}</a>
-            {% endif %}
-            {% if teacher.vk_id %}
-                <br><a href="https://vk.com/{{ teacher.vk_id }}">ВКонтакте</a>
-            {% endif %}
-            <br><br>
-        {% endfor %}
-        {% endautoescape %}
+        {% if links %}
+            <h3>Полезные ссылки</h3>
+            {% for link in links %}
+                {% if link.file %}
+                    <a href="{{ link.file.url }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
+                {% else %}
+                    <a href="{{ link.link }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if teachers %}
+            <h3>Преподаватели</h3>
+            {% for teacher in teachers %}
+                {% if teacher.photo %}
+                    <img class="photo" src="{{ teacher.photo.url }}" alt="{{ teacher.name }}"><br>
+                {% endif %}
+                <b>{{ teacher.name }}</b>
+                {% if teacher.telegram_id %}
+                    <br>Telegram: <a href="tg://resolve?domain={{ teacher.telegram_id }}">@{{ teacher.telegram_id }}</a>
+                {% endif %}
+                {% if teacher.vk_id %}
+                    <br><a href="https://vk.com/{{ teacher.vk_id }}">ВКонтакте</a>
+                {% endif %}
+                <br><br>
+            {% endfor %}
+        {% endif %}
     </div>
 
     <div class="lessons">

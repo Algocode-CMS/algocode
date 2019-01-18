@@ -67,11 +67,11 @@ class StandingsDataView(View):
         standings = get_object_or_404(Standings, id=standings_id)
 
         users = []
-        for group in standings.groups.all():
+        for group in standings.course.groups.all():
             users.extend(group.participants.all())
 
         users_data = []
-        for group in standings.groups.all():
+        for group in standings.course.groups.all():
             for user in group.participants.all():
                 users_data.append({
                     'id': user.id,
