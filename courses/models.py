@@ -92,6 +92,7 @@ class ContestLink(models.Model):
     file = models.FileField(upload_to=get_contest_file_path, blank=True)
     link = models.TextField(blank=True)
     new_tab = models.BooleanField(default=False)
+    priority = models.IntegerField(default=0)
 
 
 class CourseLink(models.Model):
@@ -101,6 +102,7 @@ class CourseLink(models.Model):
     link = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
     new_tab = models.BooleanField(default=False)
+    priority = models.IntegerField(default=0)
 
 
 class MainLink(models.Model):
@@ -110,6 +112,7 @@ class MainLink(models.Model):
     link = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
     new_tab = models.BooleanField(default=False)
+    priority = models.IntegerField(default=0)
 
 
 class ParticipantsGroup(models.Model):
@@ -121,7 +124,7 @@ class ParticipantsGroup(models.Model):
 
 
 class Participant(models.Model):
-    name = models.TextField()
+    name = models.TextField(verbose_name='Surname and name')
     ejudge_id = models.IntegerField(blank=True, null=True)
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
@@ -147,9 +150,9 @@ class Standings(models.Model):
 
 class Page(models.Model):
     label = models.TextField(unique=True)
-    title = models.TextField()
-    subtitle = models.TextField()
-    content = models.TextField()
+    title = models.TextField(blank=True)
+    subtitle = models.TextField(blank=True)
+    content = models.TextField(blank=True)
 
 
 @receiver(models.signals.post_delete, sender=ContestLink)

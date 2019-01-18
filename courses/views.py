@@ -11,7 +11,7 @@ class MainView(View):
     def get(self, request, main_id=1):
         main = get_object_or_404(Main, id=main_id)
         courses_list = main.courses.order_by("id")
-        links = main.links.filter(hidden=False)
+        links = main.links.filter(hidden=False).order_by("priority")
         return render(
             request,
             'main.html',
@@ -27,13 +27,13 @@ class CourseView(View):
     def get(self, request, course_label):
         course = get_object_or_404(Course, label=course_label)
         contests_list = course.contests.order_by('-date', '-id')
-        links = course.links.filter(hidden=False)
+        links = course.links.filter(hidden=False).order_by("priority")
         contests = []
 
         for contest in contests_list:
             contests.append({
                 'contest': contest,
-                'links': contest.links.order_by('id'),
+                'links': contest.links.order_by('id').order_by("priority"),
             })
 
         return render(
@@ -104,6 +104,5 @@ class PageView(View):
                 'page': page,
             }
         )
-
 
 # TODO Battleship

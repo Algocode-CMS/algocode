@@ -1,5 +1,5 @@
 function addCell(row, text, klass, rowSpan, colSpan) {
-    var cell = row.insertCell();
+    let cell = row.insertCell();
     cell.innerHTML = text;
     cell.className = klass || '';
     cell.rowSpan = rowSpan || 1;
@@ -7,14 +7,11 @@ function addCell(row, text, klass, rowSpan, colSpan) {
     return cell;
 }
 
-var is_olymp = false;
-var enable_marks = true;
-
-var loadFailed = function() {
+let loadFailed = function() {
     alert('Не удалось получить таблицу результатов!');
 };
 
-var compareUsers = function(a, b) {
+let compareUsers = function(a, b) {
     if (a['mark'] !== b['mark']) {
         return b['mark'] - a['mark'];
     }
@@ -27,7 +24,7 @@ var compareUsers = function(a, b) {
     return a['name'].localeCompare(b['name']);
 };
 
-var getMarkColor = function(mark) {
+let getMarkColor = function(mark) {
     if (mark >= 7.5) {
         return 'lightgreen';
     } else if (mark >= 5.5) {
@@ -39,13 +36,13 @@ var getMarkColor = function(mark) {
     }
 };
 
-var calculateMark = function(users, contests) {
+let calculateMark = function(users, contests) {
     if (is_olymp) {
-        var max_score = {};
+        let max_score = {};
         users.forEach(function(user) {
-            var id = user['id'];
+            let id = user['id'];
             contests.forEach(function(contest, idx) {
-                var score = 0;
+                let score = 0;
                 contest['users'][id].forEach(function(result) {
                     score += result['score'];
                 });
@@ -57,10 +54,10 @@ var calculateMark = function(users, contests) {
             });
         });
         users.forEach(function(user) {
-            var id = user['id'];
+            let id = user['id'];
             user['mark'] = 0.0;
             contests.forEach(function(contest, idx) {
-                var score = 0;
+                let score = 0;
                 contest['users'][id].forEach(function(result) {
                     score += result['score'];
                 });
@@ -74,11 +71,11 @@ var calculateMark = function(users, contests) {
         });
     } else {
         users.forEach(function(user) {
-            var id = user['id'];
+            let id = user['id'];
             user['mark'] = 0.0;
             contests.forEach(function(contest) {
-                var solved = 0;
-                var problems = 0;
+                let solved = 0;
+                let problems = 0;
                 contest['users'][id].forEach(function(result) {
                     if (result['verdict'] === 'OK') {
                         solved++;
@@ -96,9 +93,9 @@ var calculateMark = function(users, contests) {
     }
 };
 
-var calculateInformation = function(users, contests) {
+let calculateInformation = function(users, contests) {
     users.forEach(function(user) {
-        var id = user['id'];
+        let id = user['id'];
         user['score'] = 0.0;
         user['penalty'] = 0;
         contests.forEach(function(contest) {
@@ -110,18 +107,18 @@ var calculateInformation = function(users, contests) {
     });
 };
 
-var getScoreColor = function(score) {
-    var red = parseInt(240 + (144 - 240) * Math.sqrt(score / 100));
-    var green = parseInt(128 + (238 - 128) * Math.sqrt(score / 100));
-    var blue = parseInt(128 + (144 - 128) * Math.sqrt(score / 100));
+let getScoreColor = function(score) {
+    let red = parseInt(240 + (144 - 240) * Math.sqrt(score / 100));
+    let green = parseInt(128 + (238 - 128) * Math.sqrt(score / 100));
+    let blue = parseInt(128 + (144 - 128) * Math.sqrt(score / 100));
     return 'rgba(' + red + ',' + green + ',' + blue + ')';
 };
 
-var addProblemCell = function(row, problem) {
-    var score = problem['score'];
-    var penalty = problem['penalty'];
+let addProblemCell = function(row, problem) {
+    let score = problem['score'];
+    let penalty = problem['penalty'];
     if (is_olymp) {
-        var text;
+        let text;
         if (score === 100) {
             text = '<p class="small">100</p>';
         } else {
@@ -131,13 +128,13 @@ var addProblemCell = function(row, problem) {
                 text = score;
             }
         }
-        var cell = addCell(row, text, 'gray');
+        let cell = addCell(row, text, 'gray');
         if (text !== '') {
             cell.style.backgroundColor = getScoreColor(score);
-        }
+        }V
     } else {
         if (problem['verdict'] === 'OK') {
-            var text = '+';
+            let text = '+';
             if (penalty > 0) {
                 if (penalty <= 9) {
                     text += penalty;
@@ -145,7 +142,7 @@ var addProblemCell = function(row, problem) {
                     text += '&#8734;';
                 }
             }
-            var cell = addCell(row, text, 'ok');
+            let cell = addCell(row, text, 'ok');
             if (penalty > 9) {
                 cell.title = '+' + penalty;
             }
@@ -153,13 +150,13 @@ var addProblemCell = function(row, problem) {
             if (penalty === 0) {
                 addCell(row, '', 'gray');
             } else {
-                var text = '-';
+                let text = '-';
                 if (penalty <= 9) {
                     text += penalty;
                 } else {
                     text += '&infin;';
                 }
-                var cell = addCell(row, text, 'bad');
+                let cell = addCell(row, text, 'bad');
                 if (penalty > 0) {
                     cell.title = '-' + penalty;
                 }
@@ -168,9 +165,9 @@ var addProblemCell = function(row, problem) {
     }
 };
 
-var addHeading = function(data, holder) {
-    var header_row1 = holder.insertRow();
-    var header_row2 = holder.insertRow();
+let addHeading = function(data, holder) {
+    let header_row1 = holder.insertRow();
+    let header_row2 = holder.insertRow();
     addCell(header_row1, 'Место', '', 2, 1);
     addCell(header_row1, 'Гр.', '', 2, 1);
     addCell(header_row1, 'Фамилия и имя', '', 2, 1);
@@ -182,10 +179,10 @@ var addHeading = function(data, holder) {
         addCell(header_row1, 'Оценка', '', 2, 1);
     }
 
-    var contests = data['contests'];
+    let contests = data['contests'];
     contests.forEach(function(contest, idx) {
-        var problems = contest['problems'];
-        var title;
+        let problems = contest['problems'];
+        let title;
         if (contest_id === -1) {
             title = '<a href="./' + idx + '/">' + contest['title'] + '</a>';
         } else {
@@ -193,20 +190,20 @@ var addHeading = function(data, holder) {
         }
         addCell(header_row1, title, 'gray', 1, problems.length);
         problems.forEach(function(problem) {
-            var cell = addCell(header_row2, problem['short'], 'problem_letter gray');
+            let cell = addCell(header_row2, problem['short'], 'problem_letter gray');
             cell.title = problem['long'];
         });
     });
 };
 
 function fixColumnWidths(head, body) {
-    var results_pos = head.childNodes[0].childNodes.length;
+    let results_pos = head.childNodes[0].childNodes.length;
     head.childNodes[0].childNodes.forEach(function (column, idx) {
         if (column.classList.contains('gray')) {
             results_pos = Math.min(results_pos, idx);
         }
     });
-    var max_width = {};
+    let max_width = {};
     [head, body].forEach(function(obj) {
         obj.childNodes.forEach(function(row, row_idx) {
             if (row_idx === 1) {
@@ -216,7 +213,7 @@ function fixColumnWidths(head, body) {
                 if (idx >= results_pos) {
                     return;
                 }
-                var width = column.clientWidth;
+                let width = column.clientWidth;
                 if (idx in max_width) {
                     max_width[idx] = Math.max(max_width[idx], width);
                 } else {
@@ -240,8 +237,8 @@ function fixColumnWidths(head, body) {
     });
 }
 
-var buildStandings = function(data) {
-    var contests = data['contests'];
+let buildStandings = function(data) {
+    let contests = data['contests'];
     if (contest_id !== -1) {
         if (contest_id < 0 || contest_id >= contests.length) {
             alert('Wrong contest id!');
@@ -250,24 +247,24 @@ var buildStandings = function(data) {
         data['contests'] = contests;
     }
 
-    var table = document.getElementById('standings');
-    var header = document.createElement('thead');
-    var body = document.createElement('tbody');
+    let table = document.getElementById('standings');
+    let header = document.createElement('thead');
+    let body = document.createElement('tbody');
     table.appendChild(header);
     table.appendChild(body);
     addHeading(data, header);
     addHeading(data, body);
 
-    var users = data['users'];
+    let users = data['users'];
     calculateInformation(users, contests);
     calculateMark(users, contests);
     users.sort(compareUsers);
 
-    for (var j = 0; j < 30; j++) {
-        for (var i = 0; i < users.length; i++) {
-            var user = users[i];
-            var id = user['id'];
-            var row = body.insertRow();
+    for (let j = 0; j < 30; j++) {
+        for (let i = 0; i < users.length; i++) {
+            let user = users[i];
+            let id = user['id'];
+            let row = body.insertRow();
             addCell(row, i + 1);
             addCell(row, user['group_short']);
             addCell(row, user['name'], 'name');
@@ -276,12 +273,12 @@ var buildStandings = function(data) {
                 addCell(row, user['penalty']);
             }
             if (enable_marks) {
-                var cell = addCell(row, user['mark'].toFixed(2));
+                let cell = addCell(row, user['mark'].toFixed(2));
                 cell.style.backgroundColor = getMarkColor(user['mark']);
             }
 
             contests.forEach(function (contest) {
-                var problems = contest['users'][id];
+                let problems = contest['users'][id];
                 problems.forEach(function (problem) {
                     addProblemCell(row, problem);
                 });
@@ -296,11 +293,11 @@ var buildStandings = function(data) {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.open('GET', '/standings_data/' + standings_id, true);
     xhr.responseType = 'json';
     xhr.onload = function() {
-        var status = xhr.status;
+        let status = xhr.status;
         if (status === 200) {
             buildStandings(xhr.response);
         } else {
