@@ -7,11 +7,11 @@ function addCell(row, text, klass, rowSpan, colSpan) {
     return cell;
 }
 
-let loadFailed = function() {
+var loadFailed = function() {
     alert('Не удалось получить таблицу результатов!');
 };
 
-let compareUsers = function(a, b) {
+var compareUsers = function(a, b) {
     if (a['mark'] !== b['mark']) {
         return b['mark'] - a['mark'];
     }
@@ -24,7 +24,7 @@ let compareUsers = function(a, b) {
     return a['name'].localeCompare(b['name']);
 };
 
-let getMarkColor = function(mark) {
+var getMarkColor = function(mark) {
     if (mark >= 7.5) {
         return 'lightgreen';
     } else if (mark >= 5.5) {
@@ -36,7 +36,7 @@ let getMarkColor = function(mark) {
     }
 };
 
-let calculateMark = function(users, contests) {
+var calculateMark = function(users, contests) {
     if (is_olymp) {
         let max_score = {};
         users.forEach(function(user) {
@@ -93,7 +93,7 @@ let calculateMark = function(users, contests) {
     }
 };
 
-let calculateInformation = function(users, contests) {
+var calculateInformation = function(users, contests) {
     users.forEach(function(user) {
         let id = user['id'];
         user['score'] = 0.0;
@@ -107,14 +107,14 @@ let calculateInformation = function(users, contests) {
     });
 };
 
-let getScoreColor = function(score) {
+var getScoreColor = function(score) {
     let red = parseInt(240 + (144 - 240) * Math.sqrt(score / 100));
     let green = parseInt(128 + (238 - 128) * Math.sqrt(score / 100));
     let blue = parseInt(128 + (144 - 128) * Math.sqrt(score / 100));
     return 'rgba(' + red + ',' + green + ',' + blue + ')';
 };
 
-let addProblemCell = function(row, problem) {
+var addProblemCell = function(row, problem) {
     let score = problem['score'];
     let penalty = problem['penalty'];
     if (is_olymp) {
@@ -165,7 +165,7 @@ let addProblemCell = function(row, problem) {
     }
 };
 
-let addHeading = function(data, holder) {
+var addHeading = function(data, holder) {
     let header_row1 = holder.insertRow();
     let header_row2 = holder.insertRow();
     addCell(header_row1, 'Место', '', 2, 1);
@@ -237,7 +237,7 @@ function fixColumnWidths(head, body) {
     });
 }
 
-let buildStandings = function(data) {
+var buildStandings = function(data) {
     let contests = data['contests'];
     if (contest_id !== -1) {
         if (contest_id < 0 || contest_id >= contests.length) {

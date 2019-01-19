@@ -9,10 +9,10 @@
     <link rel="stylesheet" type="text/css" href="{% static 'standings.css' %}">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
     <script>
-        let standings_id = {{ standings.id }};
-        let contest_id = {{ contest_id }};
-        let is_olymp = {% if standings.olymp %}true{% else %}false{% endif %};
-        let enable_marks = {% if standings.enable_marks %}true{% else %}false{% endif %};
+        var standings_id = {{ standings.id }};
+        var contest_id = {{ contest_id }};
+        var is_olymp = {% if standings.olymp %}true{% else %}false{% endif %};
+        var enable_marks = {% if standings.enable_marks %}true{% else %}false{% endif %};
     </script>
     <script src="{% static 'standings.js' %}"></script>
     <script>
