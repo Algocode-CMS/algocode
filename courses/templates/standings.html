@@ -11,8 +11,8 @@
     <script>
         let standings_id = {{ standings.id }};
         let contest_id = {{ contest_id }};
-        let is_olymp = {% if standings.olymp %}{{ true }}{% else %}{{ false }}{% endif %};
-        let enable_marks = {% if standings.enable_marks %}{{ true }}{% else %}{{ false }}{% endif %};
+        let is_olymp = {% if standings.olymp %}true{% else %}false{% endif %};
+        let enable_marks = {% if standings.enable_marks %}true{% else %}false{% endif %};
     </script>
     <script src="{% static 'standings.js' %}"></script>
     <script>
