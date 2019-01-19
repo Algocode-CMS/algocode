@@ -133,7 +133,7 @@ var addProblemCell = function(row, problem) {
         let cell = addCell(row, text, 'gray');
         if (text !== '') {
             cell.style.backgroundColor = getScoreColor(score);
-        }V
+        }
     } else {
         if (problem['verdict'] === 'OK') {
             let text = '+';
@@ -184,11 +184,13 @@ var addHeading = function(data, holder) {
     let contests = data['contests'];
     contests.forEach(function(contest, idx) {
         let problems = contest['problems'];
+        let coefficient = contest['coefficient'];
+        let title_text = contest['title'] + ' (' + coefficient.toString() + ')';
         let title;
         if (contest_id === -1) {
-            title = '<a href="./' + idx + '/">' + contest['title'] + '</a>';
+            title = '<a href="./' + idx + '/">' + title_text + '</a>';
         } else {
-            title = contest['title'];
+            title = title_text;
         }
         addCell(header_row1, title, 'gray', 1, problems.length);
         problems.forEach(function(problem) {
