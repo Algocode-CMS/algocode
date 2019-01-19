@@ -19,7 +19,7 @@ var compareUsers = function(a, b) {
         return b['score'] - a['score'];
     }
     if (a['penalty'] !== b['penalty']) {
-        return b['penalty'] - a['penalty'];
+        return a['penalty'] - b['penalty'];
     }
     return a['name'].localeCompare(b['name']);
 };
