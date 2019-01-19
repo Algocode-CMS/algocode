@@ -101,7 +101,9 @@ var calculateInformation = function(users, contests) {
         contests.forEach(function(contest) {
             contest['users'][id].forEach(function(result) {
                 user['score'] += result['score'];
-                user['penalty'] += result['penalty'];
+                if (result['score'] !== 0) {
+                    user['penalty'] += result['penalty'];
+                }
             });
         });
     });
