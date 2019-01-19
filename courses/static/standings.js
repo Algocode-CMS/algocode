@@ -260,30 +260,28 @@ var buildStandings = function(data) {
     calculateMark(users, contests);
     users.sort(compareUsers);
 
-    for (let j = 0; j < 30; j++) {
-        for (let i = 0; i < users.length; i++) {
-            let user = users[i];
-            let id = user['id'];
-            let row = body.insertRow();
-            addCell(row, i + 1);
-            addCell(row, user['group_short']);
-            addCell(row, user['name'], 'name');
-            addCell(row, user['score']);
-            if (!is_olymp) {
-                addCell(row, user['penalty']);
-            }
-            if (enable_marks) {
-                let cell = addCell(row, user['mark'].toFixed(2));
-                cell.style.backgroundColor = getMarkColor(user['mark']);
-            }
-
-            contests.forEach(function (contest) {
-                let problems = contest['users'][id];
-                problems.forEach(function (problem) {
-                    addProblemCell(row, problem);
-                });
-            });
+    for (let i = 0; i < users.length; i++) {
+        let user = users[i];
+        let id = user['id'];
+        let row = body.insertRow();
+        addCell(row, i + 1);
+        addCell(row, user['group_short']);
+        addCell(row, user['name'], 'name');
+        addCell(row, user['score']);
+        if (!is_olymp) {
+            addCell(row, user['penalty']);
         }
+        if (enable_marks) {
+            let cell = addCell(row, user['mark'].toFixed(2));
+            cell.style.backgroundColor = getMarkColor(user['mark']);
+        }
+
+        contests.forEach(function (contest) {
+            let problems = contest['users'][id];
+            problems.forEach(function (problem) {
+                addProblemCell(row, problem);
+            });
+        });
     }
 
     fixColumnWidths(header, body);
