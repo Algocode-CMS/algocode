@@ -3,7 +3,6 @@ secrets/
 configs/
 files/
 .idea/
-static/
 pyenv/
 venv/
 *.pyc
