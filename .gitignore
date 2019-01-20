@@ -2,6 +2,7 @@ db.sqlite3
 secrets/
 configs/
 files/
+judges_data/
 .idea/
 pyenv/
 venv/

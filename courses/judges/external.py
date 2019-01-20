@@ -5,7 +5,7 @@ from algocode import settings
 
 
 def load_external_contest(contest, users):
-    file_path = os.path.join(settings.BASE_DIR, 'judges_data', contest.judge.lower(), str(contest.id))
+    file_path = os.path.join(settings.BASE_DIR, 'judges_data', contest.judge, str(contest.id))
     if not os.path.exists(file_path):
         return None
 
@@ -63,7 +63,7 @@ def load_external_contest(contest, users):
     return {
         'id': contest.id,
         'date': contest.date,
-        'informatics_id': contest.contest_id,
+        'external_id': contest.contest_id,
         'title': contest.title,
         'coefficient': contest.coefficient,
         'problems': problems,
