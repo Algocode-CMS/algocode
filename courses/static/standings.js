@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
     xhr.send();
 })();
 
-function addCell(row, text, klass, rowSpan, colSpan) {
+var addCell = function(row, text, klass, rowSpan, colSpan) {
     let cell = row.insertCell();
     cell.innerHTML = text;
     cell.className = klass || '';
@@ -141,7 +141,7 @@ var getScoreColor = function(score) {
     let red = parseInt(240 + (144 - 240) * Math.sqrt(score / 100));
     let green = parseInt(128 + (238 - 128) * Math.sqrt(score / 100));
     let blue = parseInt(128 + (144 - 128) * Math.sqrt(score / 100));
-    return 'rgba(' + red + ',' + green + ',' + blue + ')';
+    return 'rgb(' + red + ',' + green + ',' + blue + ')';
 };
 
 var addProblemCell = function(row, problem) {
@@ -198,7 +198,7 @@ var addProblemCell = function(row, problem) {
     }
 };
 
-var addHeading = function(data, holder) {
+var addHeader = function(holder, contests) {
     let header_row1 = holder.insertRow();
     let header_row2 = holder.insertRow();
     addCell(header_row1, 'Место', '', 2, 1);
@@ -212,7 +212,11 @@ var addHeading = function(data, holder) {
         addCell(header_row1, 'Оценка', '', 2, 1);
     }
 
-    let contests = data['contests'];
+    if (contests.length === 0) {
+        addCell(header_row1, '', 'invisible');
+        addCell(header_row2, '', 'invisible');
+    }
+
     contests.forEach(function(contest, idx) {
         let problems = contest['problems'];
         let coefficient = contest['coefficient'];
@@ -231,15 +235,15 @@ var addHeading = function(data, holder) {
     });
 };
 
-function fixColumnWidths(head, body) {
-    let results_pos = head.childNodes[0].childNodes.length;
-    head.childNodes[0].childNodes.forEach(function (column, idx) {
+var fixColumnWidths = function (objs) {
+    let results_pos = objs[0].childNodes[0].childNodes.length;
+    objs[0].childNodes[0].childNodes.forEach(function (column, idx) {
         if (column.classList.contains('gray')) {
             results_pos = Math.min(results_pos, idx);
         }
     });
     let max_width = {};
-    [head, body].forEach(function(obj) {
+    objs.forEach(function(obj) {
         obj.childNodes.forEach(function(row, row_idx) {
             if (row_idx === 1) {
                 return;
@@ -257,7 +261,7 @@ function fixColumnWidths(head, body) {
             });
         });
     });
-    [head, body].forEach(function(obj) {
+    objs.forEach(function(obj) {
         obj.childNodes.forEach(function(row, row_idx) {
             if (row_idx === 1) {
                 return;
@@ -270,38 +274,9 @@ function fixColumnWidths(head, body) {
             });
         });
     });
-}
+};
 
-var buildStandings = function() {
-    if (!_dom_loaded) {
-        return;
-    }
-    if (!_data) {
-        return;
-    }
-    let data = _data;
-    let contests = data['contests'];
-    if (contest_id !== -1) {
-        if (contest_id < 0 || contest_id >= contests.length) {
-            alert('Wrong contest id!');
-        }
-        contests = [contests[contest_id]];
-        data['contests'] = contests;
-    }
-
-    let table = document.getElementById('standings');
-    let header = document.createElement('thead');
-    let body = document.createElement('tbody');
-    table.appendChild(header);
-    table.appendChild(body);
-    addHeading(data, header);
-    addHeading(data, body);
-
-    let users = data['users'];
-    calculateInformation(users, contests);
-    calculateMark(users, contests);
-    users.sort(compareUsers);
-
+var addBody = function(body, users, contests) {
     for (let i = 0; i < users.length; i++) {
         let user = users[i];
         let id = user['id'];
@@ -325,8 +300,45 @@ var buildStandings = function() {
             });
         });
     }
+};
 
-    fixColumnWidths(header, body);
+var buildStandings = function() {
+    if (!_dom_loaded) {
+        return;
+    }
+    if (!_data) {
+        return;
+    }
+    let data = _data;
+    let contests = data['contests'];
+    if (contest_id !== -1) {
+        if (contest_id < 0 || contest_id >= contests.length) {
+            alert('Wrong contest id!');
+        }
+        contests = [contests[contest_id]];
+        data['contests'] = contests;
+    }
+
+    let users = data['users'];
+    calculateInformation(users, contests);
+    calculateMark(users, contests);
+    users.sort(compareUsers);
+
+    let table = document.getElementById('standings');
+    let header = document.createElement('thead');
+    let body = document.createElement('tbody');
+    table.appendChild(header);
+    table.appendChild(body);
+    let table_fixed = document.getElementById('standings_fixed');
+    let body_fixed = document.createElement('tbody');
+    table_fixed.appendChild(body_fixed);
+    addHeader(header, contests);
+    addHeader(body, contests);
+    addBody(body, users, contests);
+    addHeader(body_fixed, []);
+    addBody(body_fixed, users, []);
+    fixColumnWidths([header, body_fixed, body]);
+
     document.getElementsByClassName('wrapper')[0].addEventListener('scroll', function(e) {
         header.style.marginLeft = -e.target.scrollLeft + 'px';
     });

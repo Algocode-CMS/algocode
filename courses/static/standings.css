@@ -14,9 +14,17 @@ table {
     border: none;
 }
 
-thead {
+#standings_fixed {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    margin-top: 1px;
+}
+
+#standings thead {
     position: fixed;
-    z-index: 100;
+    z-index: 10;
     left: 0;
     top: 0;
 }
@@ -51,6 +59,12 @@ td.bad {
 
 td.gray {
     background-color: rgb(240, 240, 240);
+}
+
+td.invisible {
+    width: 0;
+    border: none;
+    background: none;
 }
 
 a {
