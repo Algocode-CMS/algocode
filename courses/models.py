@@ -299,7 +299,7 @@ def auto_delete_photo_file_on_change(sender, instance, **kwargs):
         return False
 
     try:
-        old_file = ContestLink.objects.get(pk=instance.pk).photo
+        old_file = Teacher.objects.get(pk=instance.pk).photo
     except ContestLink.DoesNotExist:
         return False
     if not old_file:
