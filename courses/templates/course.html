@@ -26,7 +26,7 @@
                 {% elif link.link %}
                     <a href="{{ link.link }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
                 {% else %}
-                    {{ link.text }}
+                    {{ link.text }}<br>
                 {% endif %}
             {% endfor %}
         {% endif %}
