@@ -99,6 +99,9 @@ class Standings(models.Model):
     class Meta:
         verbose_name_plural = "Standings"
 
+    def __str__(self):
+        return self.title
+
 
 class ContestLink(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='links')
