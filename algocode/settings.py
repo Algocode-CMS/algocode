@@ -96,3 +96,5 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR,  'templates'),)
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
