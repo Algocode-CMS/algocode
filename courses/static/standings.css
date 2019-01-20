@@ -61,6 +61,10 @@ td.gray {
     background-color: rgb(240, 240, 240);
 }
 
+td.contest_title {
+
+}
+
 td.invisible {
     width: 0;
     border: none;
@@ -74,5 +78,5 @@ a {
 
 p.small {
     display: inline;
-    font-size: 0.8em;
+    font-family: monospace;
 }

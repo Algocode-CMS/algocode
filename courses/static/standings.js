@@ -213,7 +213,7 @@ var addHeader = function(holder, contests) {
     }
 
     if (contests.length === 0) {
-        addCell(header_row1, '', 'invisible');
+        addCell(header_row1, '', 'invisible contest_title');
         addCell(header_row2, '', 'invisible');
     }
 
@@ -230,7 +230,7 @@ var addHeader = function(holder, contests) {
         } else {
             title = title_text;
         }
-        addCell(header_row1, title, 'gray', 1, problems.length);
+        addCell(header_row1, title, 'gray contest_title', 1, problems.length);
         problems.forEach(function(problem) {
             let cell = addCell(header_row2, problem['short'], 'problem_letter gray');
             cell.title = problem['long'];
