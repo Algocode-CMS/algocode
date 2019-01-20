@@ -93,7 +93,7 @@
                     {% endif %}
                 </div>
                 <div class="contest_link">
-                    {% if contest.contest.show_statements %}
+                    {% if contest.contest.show_statements and contest.contest.statements %}
                         <a href="{{ contest.contest.statements.url }}">Условия</a>
                     {% endif %}
                 </div>
