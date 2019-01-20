@@ -1,3 +1,27 @@
+let _dom_loaded = false;
+let _data = null;
+
+document.addEventListener('DOMContentLoaded', function () {
+    _dom_loaded = true;
+    buildStandings();
+});
+
+(function() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', '/standings_data/' + standings_id, true);
+    xhr.responseType = 'json';
+    xhr.onload = function () {
+        let status = xhr.status;
+        if (status === 200) {
+            _data = xhr.response;
+            buildStandings();
+        } else {
+            loadFailed();
+        }
+    };
+    xhr.send();
+})();
+
 function addCell(row, text, klass, rowSpan, colSpan) {
     let cell = row.insertCell();
     cell.innerHTML = text;
@@ -248,7 +272,14 @@ function fixColumnWidths(head, body) {
     });
 }
 
-var buildStandings = function(data) {
+var buildStandings = function() {
+    if (!_dom_loaded) {
+        return;
+    }
+    if (!_data) {
+        return;
+    }
+    let data = _data;
     let contests = data['contests'];
     if (contest_id !== -1) {
         if (contest_id < 0 || contest_id >= contests.length) {
@@ -301,17 +332,3 @@ var buildStandings = function(data) {
     });
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', '/standings_data/' + standings_id, true);
-    xhr.responseType = 'json';
-    xhr.onload = function() {
-        let status = xhr.status;
-        if (status === 200) {
-            buildStandings(xhr.response);
-        } else {
-            loadFailed();
-        }
-    };
-    xhr.send();
-});
