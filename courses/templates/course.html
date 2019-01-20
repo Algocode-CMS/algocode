@@ -23,8 +23,10 @@
             {% for link in links %}
                 {% if link.file %}
                     <a href="{{ link.file.url }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
-                {% else %}
+                {% elif link.link %}
                     <a href="{{ link.link }}" {% if link.new_tab %}target="_blank"{% endif %}>{{ link.text }}</a><br>
+                {% else %}
+                    {{ link.text }}
                 {% endif %}
             {% endfor %}
         {% endif %}
