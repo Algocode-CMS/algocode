@@ -85,6 +85,10 @@ class Command(BaseCommand):
             while time.time() - last_query < CODEFORCES_API_DELAY:
                 time.sleep(0.01)
             last_query = time.time()
-            data = loader.get_data(contest.contest_id)
-            with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
-                file.write(json.dumps(data))
+            try:
+                data = loader.get_data(contest.contest_id)
+                with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
+                    file.write(json.dumps(data))
+                    print('Successfully updated contest {}'.format(contest.contest_id))
+            except requests.exceptions.RequestException as e:
+                print(e)

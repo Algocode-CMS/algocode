@@ -28,7 +28,7 @@ def load_ejudge_contest(contest, users):
 
     contest_users_start = {}
     for user in data.runlog.users.children:
-        contest_users_start[user['id']] = 0
+        contest_users_start[int(user['id'])] = 0
 
     problems = [{
         'id': problem['id'],

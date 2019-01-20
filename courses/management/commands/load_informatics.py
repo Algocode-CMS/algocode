@@ -96,6 +96,10 @@ class Command(BaseCommand):
         os.makedirs(data_dir, exist_ok=True)
 
         for contest in contests:
-            data = loader.get_data(contest.external_group_id, contest.contest_id)
-            with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
-                file.write(json.dumps(data))
+            try:
+                data = loader.get_data(contest.external_group_id, contest.contest_id)
+                with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
+                    file.write(json.dumps(data))
+                    print('Successfully updated contest {}'.format(contest.contest_id))
+            except requests.exceptions.RequestException as e:
+                print(e)
