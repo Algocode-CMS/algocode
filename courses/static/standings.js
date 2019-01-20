@@ -220,7 +220,10 @@ var addHeader = function(holder, contests) {
     contests.forEach(function(contest, idx) {
         let problems = contest['problems'];
         let coefficient = contest['coefficient'];
-        let title_text = contest['title'] + ' (' + coefficient.toString() + ')';
+        let title_text = contest['title'];
+        if (enable_marks) {
+            title_text += ' (' + coefficient.toString() + ')';
+        }
         let title;
         if (contest_id === -1) {
             title = '<a href="./' + idx + '/">' + title_text + '</a>';
