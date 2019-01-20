@@ -90,5 +90,5 @@ class Command(BaseCommand):
                 with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
                     file.write(json.dumps(data))
                     print('Successfully updated contest {}'.format(contest.contest_id))
-            except requests.exceptions.RequestException as e:
+            except Exception as e:
                 print(e)
