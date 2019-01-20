@@ -13,4 +13,4 @@ courses/__pychache__/
 courses/judges/__pycache__/
 courses/management/__pycache__/
 courses/managment/commands/__pycache__/
-
+.DS_STORE
