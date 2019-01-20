@@ -51,10 +51,10 @@ def load_ejudge_contest(contest, users):
         time = int(run['time'])
         if status == EJUDGE_VIRTUAL_STOP or ejudge_id not in ejudge_ids:
             continue
-        if contest.duration != 0 and time > contest_users_start[ejudge_id] + contest.duration * 60:
-            continue
         if status == EJUDGE_VIRTUAL_START:
             contest_users_start[ejudge_id] = time
+            continue
+        if contest.duration != 0 and time > contest_users_start[ejudge_id] + contest.duration * 60:
             continue
 
         user_id = ejudge_ids[ejudge_id]
