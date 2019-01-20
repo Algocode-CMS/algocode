@@ -122,7 +122,7 @@ var addProblemCell = function(row, problem) {
     if (is_olymp) {
         let text;
         if (score === 100) {
-            text = '<p class="small">100</p>';
+            text = '100';
         } else {
             if (score === 0 && penalty === 0) {
                 text = '';
@@ -135,13 +135,16 @@ var addProblemCell = function(row, problem) {
             cell.style.backgroundColor = getScoreColor(score);
         }
     } else {
+        const add_inf = function(text) {
+            return '<p class="small">' + text + '&infin;</p>';
+        };
         if (problem['verdict'] === 'OK') {
             let text = '+';
             if (penalty > 0) {
                 if (penalty <= 9) {
                     text += penalty;
                 } else {
-                    text += '&#8734;';
+                    text = add_inf(text);
                 }
             }
             let cell = addCell(row, text, 'ok');
@@ -156,7 +159,7 @@ var addProblemCell = function(row, problem) {
                 if (penalty <= 9) {
                     text += penalty;
                 } else {
-                    text += '&infin;';
+                    text = add_inf(text);
                 }
                 let cell = addCell(row, text, 'bad');
                 if (penalty > 0) {
