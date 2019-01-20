@@ -24,6 +24,7 @@ SECRET_KEY = load_secret('django_secret.txt')
 DEBUG = load_config('django_debug')
 JUDGES_DIR = load_config('ejudge_dir')
 DATABASES = load_config('django_db')
+CACHES = load_config('django_cache')
 
 
 ALLOWED_HOSTS = ['*']

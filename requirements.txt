@@ -3,3 +3,4 @@ untangle
 requests
 bs4
 lxml
+python-memcached
