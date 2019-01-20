@@ -56,23 +56,26 @@ var calculateMark = function(users, contests) {
         users.forEach(function(user) {
             let id = user['id'];
             user['mark'] = 0.0;
+            let sum_coef = 0.0;
             contests.forEach(function(contest, idx) {
                 let score = 0;
                 contest['users'][id].forEach(function(result) {
                     score += result['score'];
                 });
+                sum_coef += contest['coefficient'];
                 if (max_score[idx] !== 0) {
-                    user['mark'] += score / max_score[idx] * 10;
+                    user['mark'] += contest['coefficient'] * score / max_score[idx] * 10;
                 }
             });
-            if (contests.length !== 0) {
-                user['mark'] /= contests.length;
+            if (sum_coef !== 0.0) {
+                user['mark'] /= sum_coef;
             }
         });
     } else {
         users.forEach(function(user) {
             let id = user['id'];
             user['mark'] = 0.0;
+            let sum_coef = 0.0;
             contests.forEach(function(contest) {
                 let solved = 0;
                 let problems = 0;
@@ -82,12 +85,13 @@ var calculateMark = function(users, contests) {
                     }
                     problems++;
                 });
+                sum_coef += contest['coefficient'];
                 if (problems !== 0) {
-                    user['mark'] += Math.sqrt(solved / problems) * 10;
+                    user['mark'] += contest['coefficient'] * Math.sqrt(solved / problems) * 10;
                 }
             });
-            if (contests.length !== 0) {
-                user['mark'] /= contests.length;
+            if (sum_coef !== 0.0) {
+                user['mark'] /= sum_coef;
             }
         });
     }
