@@ -1,14 +1,47 @@
 from django.contrib import admin
-from django.forms import TextInput, Textarea
+from django.forms import TextInput, Textarea, NumberInput
+from django import forms
 
 from courses.models import *
 
 
+class ContestInlineForm(forms.ModelForm):
+    add_new_standings = forms.ModelChoiceField(queryset=Standings.objects.none(), required=False, label="add new standings")
+    current_standings = forms.ModelMultipleChoiceField(queryset=Standings.objects.none(), required=False, label="current standings")
+
+    def __init__(self, *args, **kwargs):
+        super(ContestInlineForm, self).__init__(*args, **kwargs)
+        if self.instance.pk is not None:
+            self.fields['add_new_standings'] = forms.ModelChoiceField(queryset=Standings.objects.filter(course=self.instance.course), required=False)
+            self.fields['current_standings'] = forms.ModelMultipleChoiceField(queryset=self.instance.standings.all(), required=False, initial=self.instance.standings.all())
+
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+    def save(self, commit=True):
+        remained_standings = self.cleaned_data.get("current_standings", None)
+        try:
+            removed_standings = self.instance.standings.difference(remained_standings)
+            for standings in removed_standings:
+                standings.contests.remove(self.instance)
+        except:
+            pass
+        new_standing = self.cleaned_data.get('add_new_standings', None)
+        print(new_standing)
+        try:
+            new_standing.contests.add(self.instance)
+        except:
+            pass
+        return super(ContestInlineForm, self).save(commit=commit)
+
+
 class ContestInline(admin.TabularInline):
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
     }
     model = Contest
+    form = ContestInlineForm
     show_change_link = True
 
 
@@ -46,7 +79,7 @@ class GroupInline(admin.TabularInline):
 
 class ParticipantInline(admin.TabularInline):
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
     }
     model = Participant
     show_change_link = True
