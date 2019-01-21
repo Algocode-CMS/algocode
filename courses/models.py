@@ -145,6 +145,7 @@ class Participant(models.Model):
     name = models.TextField(verbose_name='Surname and name')
     group = models.ForeignKey(ParticipantsGroup, related_name='participants', on_delete=models.CASCADE)
     course = models.ForeignKey(Course, related_name='participants', on_delete=models.CASCADE)
+    has_pass = models.BooleanField(default=False)
     ejudge_id = models.IntegerField(blank=True, null=True)
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)

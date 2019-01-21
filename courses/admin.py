@@ -187,7 +187,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    list_display = ['id', 'name', 'group', 'ejudge_id', 'codeforces_handle', 'informatics_id']
+    list_display = ['id', 'name', 'group', 'has_pass', 'ejudge_id', 'codeforces_handle', 'informatics_id']
     exclude = ['course']
 
     def save_form(self, request, form, change):
