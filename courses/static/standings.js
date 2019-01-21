@@ -29,15 +29,17 @@ var addCell = function(row, text, klass, rowSpan, colSpan) {
     cell.rowSpan = rowSpan || 1;
     cell.colSpan = colSpan || 1;
     return cell;
-}
+};
 
 var loadFailed = function() {
     alert('Не удалось получить таблицу результатов!');
 };
 
 var compareUsers = function(a, b) {
-    if (a['mark'] !== b['mark']) {
-        return b['mark'] - a['mark'];
+    if (enable_marks) {
+        if (a['mark'] !== b['mark']) {
+            return b['mark'] - a['mark'];
+        }
     }
     if (a['score'] !== b['score']) {
         return b['score'] - a['score'];
