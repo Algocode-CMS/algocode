@@ -62,65 +62,148 @@ var getMarkColor = function(mark) {
     }
 };
 
-var calculateMark = function(users, contests) {
+var defaultContestMark = function(total_score, problem_score) {
+    let problems = problem_score.length;
+    let max_possible_score = problems;
     if (is_olymp) {
-        let max_score = {};
-        users.forEach(function(user) {
-            let id = user['id'];
-            contests.forEach(function(contest, idx) {
-                let score = 0;
-                contest['users'][id].forEach(function(result) {
-                    score += result['score'];
-                });
-                if (idx in max_score) {
-                    max_score[idx] = Math.max(max_score[idx], score);
-                } else {
-                    max_score[idx] = score;
-                }
-            });
-        });
-        users.forEach(function(user) {
-            let id = user['id'];
-            user['mark'] = 0.0;
-            let sum_coef = 0.0;
-            contests.forEach(function(contest, idx) {
-                let score = 0;
-                contest['users'][id].forEach(function(result) {
-                    score += result['score'];
-                });
-                sum_coef += contest['coefficient'];
-                if (max_score[idx] !== 0) {
-                    user['mark'] += contest['coefficient'] * score / max_score[idx] * 10;
-                }
-            });
-            if (sum_coef !== 0.0) {
-                user['mark'] /= sum_coef;
-            }
-        });
-    } else {
-        users.forEach(function(user) {
-            let id = user['id'];
-            user['mark'] = 0.0;
-            let sum_coef = 0.0;
-            contests.forEach(function(contest) {
-                let solved = 0;
-                let problems = 0;
-                contest['users'][id].forEach(function(result) {
-                    if (result['verdict'] === 'OK') {
-                        solved++;
-                    }
-                    problems++;
-                });
-                sum_coef += contest['coefficient'];
-                if (problems !== 0) {
-                    user['mark'] += contest['coefficient'] * Math.sqrt(solved / problems) * 10;
-                }
-            });
-            if (sum_coef !== 0.0) {
-                user['mark'] /= sum_coef;
-            }
-        });
+        max_possible_score *= 100;
     }
+    return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+};
+
+var sqrtContestMark = function(total_score, problem_score) {
+    let problems = problem_score.length;
+    return (problems !== 0 ? Math.sqrt(total_score / problems) * 10 : 0.0);
+};
+
+var relativeContestMark = function(total_score, problem_score, problem_max_score) {
+    let problems = problem_score.length;
+    let max_score = 0;
+    for (let i = 0; i < problems; i++) {
+        max_score += problem_max_score[i];
+    }
+    if (max_score === 0) {
+        return 0;
+    } else {
+        return total_score / max_score * 10;
+    }
+};
+
+var defaultTotalMark = function(marks, coefficients) {
+    console.log(marks, coefficients);
+    let mean_mark = 0;
+    let total_coef = 0;
+    for (let i = 0; i < marks.length; i++) {
+        let coef = 1.0;
+        if (contest_id === -1) {
+            coef = coefficients[i];
+        }
+        mean_mark += marks[i] * coef;
+        total_coef += coef;
+    }
+    if (total_coef > 0) {
+        mean_mark /= total_coef;
+    }
+    return mean_mark;
+};
+
+// возвращает единственное число -- оценку за контест
+var calculateContestMark = function(
+    total_score,        // суммарный балл за контест
+    problem_score,      // массив баллов за задачи
+    problem_max_score,  // массив максимальных набранных баллов за задачи
+    total_users,        // общее количество участников
+    problem_accepted   // массив количества ОК по задаче
+) {
+    return defaultContestMark(total_score, problem_score);
+};
+
+var calculateTotalMark = function(
+    marks,              // массив оценок за контесты
+    coefficients,        //  массив коэффициентов контесто
+    total_score,        // суммарный балл за все контесты
+    contest_score,      // массив баллов за контесты
+    contest_max_score,  // массив максимальных набранных баллов за контесты
+    problem_score,      // двумерный массив набранных баллов за задачи
+    problem_max_score,  // двумерный массив максимальных набранных баллов за задач
+    total_users,        // общее количество участников
+    problem_accepted    // двумерный массив количества ОК по задаче
+){
+    return defaultTotalMark(marks, coefficients);
+};
+
+var calculateMark = function(users, contests) {
+    let contest_max_score = [];
+    let problem_max_score = [];
+    let problem_accepted = [];
+    let coefficients = [];
+    contests.forEach(function(contest, i) {
+        contest_max_score.push(0);
+        problem_max_score.push([]);
+        problem_accepted.push([]);
+        coefficients.push(contest['coefficient']);
+        contest['problems'].forEach(function(problem, j) {
+            problem_max_score[i].push(0);
+            problem_accepted[i].push(0);
+        });
+    });
+
+    let user_total_score = {};
+    let user_contest_score = {};
+    let user_problem_score = {};
+    users.forEach(function(user) {
+        let id = user['id'];
+        user_total_score[id] = 0;
+        user_contest_score[id] = [];
+        user_problem_score[id] = [];
+        user['marks'] = [];
+        contests.forEach(function(contest, c_id) {
+            let total_score = 0;
+            user_problem_score[id].push([]);
+            contest['users'][id].forEach(function(result, p_id) {
+                let score = result['score'];
+                let is_accepted = false;
+                if (is_olymp && score === 100) {
+                    is_accepted = true;
+                }
+                if (!is_olymp && score === 1) {
+                    is_accepted = true;
+                }
+
+                total_score += score;
+                problem_max_score[c_id][p_id] = Math.max(problem_max_score[c_id][p_id], score);
+                problem_accepted[c_id][p_id] += (+is_accepted);
+                user_problem_score[id][c_id].push(score);
+            });
+
+            contest_max_score[c_id] = Math.max(contest_max_score[c_id], total_score);
+            user_contest_score[id].push(total_score);
+            user_total_score[id] += total_score;
+        });
+    });
+
+    users.forEach(function(user) {
+        let id = user['id'];
+        user['marks'] = [];
+        contests.forEach(function(contest, c_id) {
+            user['marks'].push(calculateContestMark(
+                user_contest_score[id][c_id],
+                user_problem_score[id][c_id],
+                problem_max_score[c_id],
+                users.length,
+                problem_accepted[c_id]
+            ));
+        });
+        user['mark'] = calculateTotalMark(
+            user['marks'],
+            coefficients,
+            user_total_score[id],
+            user_problem_score[id],
+            problem_max_score,
+            users.length,
+            problem_accepted
+        );
+    });
 };
 
 var calculateInformation = function(users, contests) {
@@ -348,4 +431,3 @@ var buildStandings = function() {
         header.style.marginLeft = -e.target.scrollLeft + 'px';
     });
 };
-
