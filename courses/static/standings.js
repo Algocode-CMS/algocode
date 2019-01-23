@@ -157,6 +157,7 @@ var calculateMark = function(users, contests) {
         user_contest_score[id] = [];
         user_problem_score[id] = [];
         user['marks'] = [];
+        user['scores'] = [];
         contests.forEach(function(contest, c_id) {
             let total_score = 0;
             user_problem_score[id].push([]);
@@ -178,6 +179,7 @@ var calculateMark = function(users, contests) {
 
             contest_max_score[c_id] = Math.max(contest_max_score[c_id], total_score);
             user_contest_score[id].push(total_score);
+            user['scores'].push(total_score);
             user_total_score[id] += total_score;
         });
     });
@@ -315,50 +317,63 @@ var addHeader = function(holder, contests) {
         } else {
             title = title_text;
         }
-        addCell(header_row1, title, 'gray contest_title', 1, problems.length);
+        addCell(header_row1, title, 'gray contest_title', 1, problems.length + 1);
         problems.forEach(function(problem) {
             let cell = addCell(header_row2, problem['short'], 'problem_letter gray');
             cell.title = problem['long'];
         });
+        if (enable_marks && !is_olymp) {
+            addCell(header_row2, 'Mark', 'problem_letter gray');
+        }
+        else {
+            let cell = addCell(header_row2, 'Σ', 'problem_letter gray');
+            // cell.style.backgroundColor = "White"
+        }
+        console.log(contest, idx)
     });
 };
 
-var fixColumnWidths = function (objs) {
+var fixColumnWidths = function (objs, contests) {
     let results_pos = objs[0].childNodes[0].childNodes.length;
+    console.log(objs);
     objs[0].childNodes[0].childNodes.forEach(function (column, idx) {
         if (column.classList.contains('gray')) {
             results_pos = Math.min(results_pos, idx);
         }
     });
     let max_width = {};
-    objs.forEach(function(obj) {
-        obj.childNodes.forEach(function(row, row_idx) {
+    objs.forEach(function (obj) {
+        obj.childNodes.forEach(function (row, row_idx) {
+            let add = 0;
             if (row_idx === 1) {
-                return;
+               add = results_pos
             }
+            let first = row_idx === 0;
             row.childNodes.forEach(function (column, idx) {
-                if (idx >= results_pos) {
+                if (first && idx >= results_pos) {
                     return;
                 }
                 let width = column.clientWidth;
-                if (idx in max_width) {
-                    max_width[idx] = Math.max(max_width[idx], width);
+                if ((idx + add) in max_width) {
+                    max_width[idx + add] = Math.max(max_width[idx + add], width);
                 } else {
-                    max_width[idx] = width;
+                    max_width[idx + add] = width;
                 }
             });
-        });
+        })
     });
     objs.forEach(function(obj) {
         obj.childNodes.forEach(function(row, row_idx) {
+            let add = 0;
             if (row_idx === 1) {
-                return;
+               add = results_pos
             }
+            let first = row_idx === 0;
             row.childNodes.forEach(function (column, idx) {
-                if (idx >= results_pos) {
+                if (first && idx >= results_pos) {
                     return;
                 }
-                column.style.minWidth = max_width[idx] + 'px';
+                column.style.minWidth = max_width[idx + add] + 'px';
             });
         });
     });
@@ -380,12 +395,28 @@ var addBody = function(body, users, contests) {
             let cell = addCell(row, user['mark'].toFixed(2));
             cell.style.backgroundColor = getMarkColor(user['mark']);
         }
-
-        contests.forEach(function (contest) {
+        contests.forEach(function (contest, idx) {
             let problems = contest['users'][id];
             problems.forEach(function (problem) {
                 addProblemCell(row, problem);
             });
+            if (!is_olymp && enable_marks) {
+                let cell = addCell(row, user['marks'][idx].toFixed(2));
+                cell.style.backgroundColor = getMarkColor(user['marks'][idx]);
+            }
+            else {
+                let text = user['scores'][idx];
+                if (user['scores'][idx] === 0) {
+                    text = ""
+                }
+                let cell = addCell(row, text, 'gray');
+                if (is_olymp && user['scores'][idx] > 0) {
+                    cell.style.backgroundColor = getScoreColor(user['scores'][idx] / problems.length);
+                }
+                else if (!is_olymp && user['scores'][idx] > 0) {
+                    cell.style.backgroundColor = getMarkColor(10 * user['scores'][idx] / problems.length);
+                }
+            }
         });
     }
 };
@@ -425,7 +456,7 @@ var buildStandings = function() {
     addBody(body, users, contests);
     addHeader(body_fixed, []);
     addBody(body_fixed, users, []);
-    fixColumnWidths([header, body_fixed, body]);
+    fixColumnWidths([header, body_fixed, body], contests);
 
     document.getElementsByClassName('wrapper')[0].addEventListener('scroll', function(e) {
         header.style.marginLeft = -e.target.scrollLeft + 'px';

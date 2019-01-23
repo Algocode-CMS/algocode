@@ -129,6 +129,8 @@ class StandingsInline(admin.TabularInline):
     }
     model = Standings
     show_change_link = True
+    # exclude = ["js_for_contest_mark", "js_for_total_mark", "js"]
+    extra = 0
 
     def get_formset(self, request, obj=None, **kwargs):
         self.parent_obj = obj
