@@ -90,7 +90,6 @@ var relativeContestMark = function(total_score, problem_score, problem_max_score
 };
 
 var defaultTotalMark = function(marks, coefficients) {
-    console.log(marks, coefficients);
     let mean_mark = 0;
     let total_coef = 0;
     for (let i = 0; i < marks.length; i++) {
@@ -327,15 +326,12 @@ var addHeader = function(holder, contests) {
         }
         else {
             let cell = addCell(header_row2, 'Σ', 'problem_letter gray');
-            // cell.style.backgroundColor = "White"
         }
-        console.log(contest, idx)
     });
 };
 
-var fixColumnWidths = function (objs, contests) {
+var fixColumnWidths = function (objs) {
     let results_pos = objs[0].childNodes[0].childNodes.length;
-    console.log(objs);
     objs[0].childNodes[0].childNodes.forEach(function (column, idx) {
         if (column.classList.contains('gray')) {
             results_pos = Math.min(results_pos, idx);
