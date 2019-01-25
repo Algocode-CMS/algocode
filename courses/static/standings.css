@@ -50,11 +50,11 @@ td.problem_letter {
 }
 
 td.ok {
-    background-color: #90ee90;
+    background-color: lightgreen;
 }
 
 td.bad {
-    background-color: #f08080;
+    background-color: lightcoral;
 }
 
 td.gray {
