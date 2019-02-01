@@ -249,7 +249,7 @@ var addProblemCell = function(row, problem) {
             cell.style.backgroundColor = getScoreColor(score);
         }
     } else {
-        const add_inf = function(text) {
+        const add_inf = function (text) {
             return '<p class="small">' + text + '&infin;</p>';
         };
         if (problem['verdict'] === 'OK') {
@@ -265,6 +265,12 @@ var addProblemCell = function(row, problem) {
             if (penalty > 9) {
                 cell.title = '+' + penalty;
             }
+        } else if (problem['verdict'] === 'RJ') {
+            let cell = addCell(row, 'D:', 'gray');
+            cell.style.backgroundColor = '#f7943c';
+        } else if (problem['verdict'] === 'PR') {
+            let cell = addCell(row, '?', 'gray');
+            cell.style.backgroundColor = '#ffdc33';
         } else {
             if (penalty === 0) {
                 addCell(row, '', 'gray');
