@@ -269,7 +269,7 @@ var addProblemCell = function(row, problem) {
             let cell = addCell(row, 'D:', 'gray');
             cell.style.backgroundColor = '#f7943c';
         } else if (problem['verdict'] === 'PR') {
-            let cell = addCell(row, '?', 'gray');
+            let cell = addCell(row, '?', 'gray rotating');
             cell.style.backgroundColor = '#ffdc33';
         } else {
             if (penalty === 0) {
@@ -463,4 +463,15 @@ var buildStandings = function() {
     document.getElementsByClassName('wrapper')[0].addEventListener('scroll', function(e) {
         header.style.marginLeft = -e.target.scrollLeft + 'px';
     });
+
+    let rotating_elements = document.getElementsByClassName("rotating");
+    for (let i = 0; i < rotating_elements.length; i++) {
+        let el = rotating_elements[i];
+        let ang = 0;
+        setInterval(function() {
+            ang += 1;
+            ang %= 360;
+            el.style.transform = "rotate(-" + ang + "deg)";
+        }, 10);
+    }
 };
