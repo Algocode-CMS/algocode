@@ -266,10 +266,10 @@ var addProblemCell = function(row, problem) {
                 cell.title = '+' + penalty;
             }
         } else if (problem['verdict'] === 'RJ') {
-            let cell = addCell(row, 'D:', 'gray');
+            let cell = addCell(row, 'D:', 'gray rotating');
             cell.style.backgroundColor = '#f7943c';
         } else if (problem['verdict'] === 'PR') {
-            let cell = addCell(row, '?', 'gray rotating');
+            let cell = addCell(row, '?', 'gray');
             cell.style.backgroundColor = '#ffdc33';
         } else {
             if (penalty === 0) {
