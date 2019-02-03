@@ -267,10 +267,15 @@ var addProblemCell = function(row, problem) {
             }
         } else if (problem['verdict'] === 'RJ') {
             let cell = addCell(row, 'D:', 'gray rotating');
+            cell.title = 'Отклонено';
             cell.style.backgroundColor = '#f7943c';
         } else if (problem['verdict'] === 'PR') {
             let cell = addCell(row, '?', 'gray');
+            cell.title = 'Ожидает подтверждения';
             cell.style.backgroundColor = '#ffdc33';
+        } else if (problem['verdict'] === 'SM') {
+            let cell = addCell(row, '<div class="big_image"></div>', 'gray defense');
+            cell.title = 'Призван на защиту';
         } else {
             if (penalty === 0) {
                 addCell(row, '', 'gray');

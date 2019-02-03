@@ -80,3 +80,33 @@ p.small {
     display: inline;
     font-family: monospace;
 }
+
+.defense {
+    background-image: url('/static/defense_mini.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: white !important;
+}
+
+.defense .big_image {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s, opacity 0.25s ease-in-out;
+    border: 1px solid black;
+}
+
+.defense:hover .big_image {
+    visibility: visible;
+    opacity: 1;
+    position: fixed;
+    z-index: 200;
+    left: 50%;
+    margin-left: -128px;
+    top: 50%;
+    margin-top: -150px;
+    background-image: url('/static/defense_big.png');
+    background-size: contain;
+    width: 256px;
+    height: 319px;
+}
