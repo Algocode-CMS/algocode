@@ -62,8 +62,10 @@ class InformaticsLoader:
                 new_problem_descriptor.append(column.get_text())
             problem_names.append(new_problem_descriptor)
 
+        problems_count = len(problem_names)
+
         for contest_descriptor in new_table[1:]:
-            contest_descriptor = contest_descriptor[1:-2]
+            contest_descriptor = contest_descriptor[1:1+problems_count]
             new_contest_descriptor = []
             user_id = ""
             for j in range(len(contest_descriptor)):
