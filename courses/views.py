@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 from courses.models import Course, Main, Standings, Page
 from courses.judges.judges import load_contest
@@ -93,6 +93,8 @@ class StandingsDataView(View):
 class PageView(View):
     def get(self, request, page_label):
         page = get_object_or_404(Page, label=page_label)
+        if page.is_raw:
+            return HttpResponse(page.content)
         return render(
             request,
             'page.html',
