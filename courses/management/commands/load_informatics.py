@@ -102,4 +102,7 @@ class Command(BaseCommand):
                     file.write(json.dumps(data))
                     print('Successfully updated contest {}'.format(contest.contest_id))
             except Exception as e:
+                print('Error, contest {}'.format(contest.contest_id))
                 print(e)
+
+        print('Informatics loaded!')
