@@ -163,6 +163,7 @@ class Page(models.Model):
     title = models.TextField(blank=True)
     subtitle = models.TextField(blank=True)
     content = models.TextField(blank=True)
+    is_raw = models.BooleanField(default=False)
 
 
 @receiver(models.signals.post_delete, sender=ContestLink)
