@@ -25,8 +25,16 @@ def get_photo_path(instance, filename):
     return 'photos/{0}'.format(filename)
 
 
+class Person(models.Model):
+    name = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
 class Teacher(models.Model):
     name = models.TextField()
+    person = models.ForeignKey(Person, related_name="teachers", blank=True, null=True, on_delete=models.SET_NULL)
     description = models.TextField(blank=True)
     photo = models.FileField(upload_to=get_photo_path, blank=True)
     vk_id = models.TextField(blank=True)
@@ -149,6 +157,8 @@ class Participant(models.Model):
     ejudge_id = models.IntegerField(blank=True, null=True)
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
+    photo = models.FileField(upload_to=get_photo_path, blank=True)
+    person = models.ForeignKey(Person, related_name="participants", blank=True, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(blank=True)
     email = models.TextField(blank=True)
     telegram_id = models.TextField(blank=True)
@@ -286,7 +296,7 @@ def auto_delete_statement_file_on_change(sender, instance, **kwargs):
 
 
 @receiver(models.signals.post_delete, sender=Teacher)
-def auto_delete_photo_file_on_delete(sender, instance, **kwargs):
+def auto_delete_teacher_photo_file_on_delete(sender, instance, **kwargs):
     try:
         if instance.photo:
             if os.path.isfile(instance.photo.path):
@@ -296,13 +306,13 @@ def auto_delete_photo_file_on_delete(sender, instance, **kwargs):
 
 
 @receiver(models.signals.pre_save, sender=Teacher)
-def auto_delete_photo_file_on_change(sender, instance, **kwargs):
+def auto_delete_teacher_photo_file_on_change(sender, instance, **kwargs):
     if not instance.pk:
         return False
 
     try:
         old_file = Teacher.objects.get(pk=instance.pk).photo
-    except ContestLink.DoesNotExist:
+    except Teacher.DoesNotExist:
         return False
     if not old_file:
         return False
@@ -313,3 +323,47 @@ def auto_delete_photo_file_on_change(sender, instance, **kwargs):
                 os.remove(old_file.path)
     except OSError:
         pass
+
+
+@receiver(models.signals.post_delete, sender=Participant)
+def auto_delete_participant_photo_file_on_delete(sender, instance, **kwargs):
+    try:
+        if instance.photo:
+            if os.path.isfile(instance.photo.path):
+                os.remove(instance.photo.path)
+    except OSError:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=Participant)
+def auto_delete_participant_photo_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = Participant.objects.get(pk=instance.pk).photo
+    except Participant.DoesNotExist:
+        return False
+    if not old_file:
+        return False
+    try:
+        new_file = instance.photo
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except OSError:
+        pass
+
+
+@receiver(models.signals.pre_save, sender=Participant)
+def auto_assign_person_for_participant(sender, instance, **kwargs):
+    if instance.person is None:
+        try:
+            person = Person.objects.get(name=instance.name)
+        except Person.DoesNotExist:
+            person = Person.objects.create(name=instance.name)
+            person.save()
+        instance.person = person
+
+    if instance.group.course != instance.course:
+        instance.course = instance.group.course

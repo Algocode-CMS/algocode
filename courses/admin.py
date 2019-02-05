@@ -97,7 +97,7 @@ class ParticipantInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-class GroupParticipantInline(admin.TabularInline):
+class NotCourseParticipantInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
@@ -152,6 +152,14 @@ class TeacherInline(admin.TabularInline):
 
 class CourseInline(admin.TabularInline):
     model = Main.courses.through
+    show_change_link = True
+
+
+class TeacherInPersonInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = Teacher
     show_change_link = True
 
 
@@ -216,7 +224,7 @@ class ParticipantsGroupAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'course', 'name', 'short_name']
-    inlines = [GroupParticipantInline]
+    inlines = [NotCourseParticipantInline]
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
@@ -250,3 +258,12 @@ class TeachersAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'name', 'description']
+
+
+@admin.register(Person)
+class PersonAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'name']
+    inlines = [NotCourseParticipantInline, TeacherInPersonInline]
