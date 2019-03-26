@@ -76,12 +76,15 @@ var sqrtContestMark = function(total_score, problem_score) {
     return (problems !== 0 ? Math.sqrt(total_score / problems) * 10 : 0.0);
 };
 
-var relativeContestMark = function(total_score, problem_score, problem_max_score) {
+var relativeContestMark = function(
+    total_score,        // суммарный балл за контест
+    problem_score,      // массив баллов за задачи
+    problem_max_score,  // массив максимальных набранных баллов за задачи
+    total_users,        // общее количество участников
+    problem_accepted,   // массив количества ОК по задаче
+    max_score           // максимальный набранный балл за контест
+) {
     let problems = problem_score.length;
-    let max_score = 0;
-    for (let i = 0; i < problems; i++) {
-        max_score += problem_max_score[i];
-    }
     if (max_score === 0) {
         return 0;
     } else {
@@ -112,14 +115,15 @@ var calculateContestMark = function(
     problem_score,      // массив баллов за задачи
     problem_max_score,  // массив максимальных набранных баллов за задачи
     total_users,        // общее количество участников
-    problem_accepted   // массив количества ОК по задаче
+    problem_accepted,   // массив количества ОК по задаче
+    max_score           // максимальный набранный балл за контест
 ) {
     return defaultContestMark(total_score, problem_score);
 };
 
 var calculateTotalMark = function(
     marks,              // массив оценок за контесты
-    coefficients,        //  массив коэффициентов контесто
+    coefficients,       // массив коэффициентов контестов
     total_score,        // суммарный балл за все контесты
     contest_score,      // массив баллов за контесты
     contest_max_score,  // массив максимальных набранных баллов за контесты
@@ -192,7 +196,8 @@ var calculateMark = function(users, contests) {
                 user_problem_score[id][c_id],
                 problem_max_score[c_id],
                 users.length,
-                problem_accepted[c_id]
+                problem_accepted[c_id],
+                contest_max_score[c_id]
             ));
         });
         user['mark'] = calculateTotalMark(
@@ -224,6 +229,7 @@ var calculateInformation = function(users, contests) {
 };
 
 var getScoreColor = function(score) {
+    score = Math.min(score, 100);
     let red = parseInt(240 + (144 - 240) * Math.sqrt(score / 100));
     let green = parseInt(128 + (238 - 128) * Math.sqrt(score / 100));
     let blue = parseInt(128 + (144 - 128) * Math.sqrt(score / 100));
@@ -380,7 +386,9 @@ var fixColumnWidths = function (objs) {
                 if (first && idx >= results_pos) {
                     return;
                 }
-                column.style.minWidth = max_width[idx + add] + 'px';
+                if (!column.classList.contains("invisible")) {
+                    column.style.minWidth = max_width[idx + add] + 'px';
+                }
             });
         });
     });
