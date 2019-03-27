@@ -12,7 +12,11 @@ from courses.models import Contest
 
 class InformaticsLoader:
     LOGIN_PAGE = 'https://informatics.msk.ru/login/index.php'
-    STANDINGS_TEMPLATE = 'https://informatics.msk.ru/mod/statements/view3.php?id={}&standing&group_id={}'
+    CONTEST_TEMPLATE = 'https://informatics.msk.ru/mod/statements/view3.php?id={}'
+    SUBMISSIONS_TEMPLATE = 'https://informatics.msk.ru/py/problem/0/filter-runs?' + \
+                           'problem_id=0&from_timestamp=-1&to_timestamp=-1&' + \
+                           'user_id=0&with_comment=&lang_id=-1&status_id=-1&' + \
+                           'page={}&statement_id={}&group_id={}&count=100'
 
     def __init__(self, login, password):
         self.login = login
@@ -20,71 +24,79 @@ class InformaticsLoader:
         self.WAS_AUTHORIZED = False
         self.session = requests.Session()
 
-    def get_html(self, group_id, contest_id):
+    def get_html(self, url):
         if not self.WAS_AUTHORIZED:
             self.session.get(self.LOGIN_PAGE)
             post_data = {'username': self.login, 'password': self.password}
             self.session.post(self.LOGIN_PAGE, post_data)
             self.WAS_AUTHORIZED = True
-        url = self.STANDINGS_TEMPLATE.format(contest_id, group_id)
-        text = self.session.get(url).text
-        return text
+        return self.session.get(url).text
+
+    def get_submission_page_json(self, page_id, group_id, contest_id):
+        url = self.SUBMISSIONS_TEMPLATE.format(page_id, contest_id, group_id)
+        text = self.get_html(url)
+        return json.loads(text)
+
+    def get_problems(self, contest_id):
+        url = self.CONTEST_TEMPLATE.format(contest_id)
+        contest_html = self.get_html(url)
+        soup = BeautifulSoup(contest_html, 'lxml')
+        result = []
+        for problem_part in statements.find_all('li'):
+            problem_name = problem_part.get_text()
+            problem_id = int(re.search(r'chapterid=(\d+)',
+                problem_part.find_all('a')[0]['href']).group(1))
+            result.append([problem_name[7:8], problem_name[10:], problem_id])
+        return result
 
     def get_data(self, group_id, contest_id):
-        html = self.get_html(group_id, contest_id)
-        soup = BeautifulSoup(html, 'lxml')
-        table = soup.find_all('table')[1].find_all('table')[1]
-        new_table = []
+        problems = self.get_problems(contest_id)
+        num_problems = len(problems)
+        problem_id_to_order_id = {x[2]: i for i, x in enumerate(problems)}
 
-        contest_descriptor_marker = 0
-        for contest_descriptor in table.find_all('tr'):
-            column_marker = 0
-            columns = contest_descriptor.find_all('td')
-            new_contest_descriptor = []
-            for column in columns:
-                if column_marker == 1:
-                    text = column
-                else:
-                    text = column.get_text()
-                new_contest_descriptor.append(text)
-                column_marker += 1
-            contest_descriptor_marker += 1
-            new_table.append(new_contest_descriptor)
+        first_page = self.get_submission_page_json(1, group_id, contest_id)
+        num_pages = first_page['metadata']['page_count']
+
+        user_stat = {}
+        for page_id in range(1, num_pages + 1):
+            if page_id == 1:
+                page_data = first_page
+            else:
+                page_data = self.get_submission_page_json(page_id, group_id, contest_id)
+            for submission in page_data['data']:
+                user_id = submission['user']['id']
+                problem_id = submission['problem']['id']
+                problem_order_id = problem_id_to_order_id[problem_id]
+                if user_id not in user_stat:
+                    user_stat[user_id] = {'ok': [0 for _ in range(num_problems)],
+                                          'wrong_tries': [0 for _ in range(num_problems)]}
+                if (submission['ejudge_status'] == 0):
+                    user_stat[user_id]['ok'][problem_order_id] = 1
+                    user_stat[user_id]['wrong_tries'][problem_order_id] = 0
+                if (submission['ejudge_score'] is not None and \
+                    submission['ejudge_score'] < 100):
+                    user_stat[user_id]['wrong_tries'][problem_order_id] += 1
 
         results = {}
-
-        problem_names = []
-        problems_table = soup.find_all('table')[1].find_all('table')[-1]
-        for problem_descriptor in problems_table.find_all('tr'):
-            columns = problem_descriptor.find_all('td')
-            new_problem_descriptor = []
-            for column in columns:
-                new_problem_descriptor.append(column.get_text())
-            problem_names.append(new_problem_descriptor)
-
-        problems_count = len(problem_names)
-
-        for contest_descriptor in new_table[1:]:
-            contest_descriptor = contest_descriptor[1:1+problems_count]
-            new_contest_descriptor = []
-            user_id = ""
-            for j in range(len(contest_descriptor)):
-                if j == 0:
-                    user_id = int(re.findall(r'user_id=(\d*)', str(contest_descriptor[j]))[0])
-                elif contest_descriptor[j].startswith(u'+') or contest_descriptor[j].startswith(u'-'):
-                    new_contest_descriptor.append(str(contest_descriptor[j]))
+        for user_id, user_data in user_stat.items():
+            user_line = []
+            for ok, wrong_tries in zip(user_data['ok'], user_data['wrong_tries']):
+                if ok:
+                    if wrong_tries:
+                        user_line.append('+{}'.format(wrong_tries))
+                    else:
+                        user_line.append('+')
                 else:
-                    new_contest_descriptor.append(".")
-            results[user_id] = new_contest_descriptor
-
-        problem_names = problem_names[1:]
-        for i in range(len(problem_names)):
-            problem_names[i][0] = problem_names[i][0].rstrip()
-            problem_names[i][1] = problem_names[i][1].rstrip()
+                    if wrong_tries:
+                        user_line.append('-{}'.format(wrong_tries))
+                    else:
+                        user_line.append('.')
+            results[user_id] = user_line
+        problem_names = [[x[0], x[1]] for x in problems]
 
         return {
-            'problems': problem_names,
-            'results': results,
+            'problems': problem_names, # [["A", "Название"], ...]
+            'results': results, # словарь user_id: ["+4", ".", ...]
         }
 
 
