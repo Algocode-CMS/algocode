@@ -42,6 +42,7 @@ class InformaticsLoader:
         contest_html = self.get_html(url)
         soup = BeautifulSoup(contest_html, 'lxml')
         result = []
+        statements = soup.find_all("div", class_='statements_toc_alpha')[0]
         for problem_part in statements.find_all('li'):
             problem_name = problem_part.get_text()
             problem_id = int(re.search(r'chapterid=(\d+)',
