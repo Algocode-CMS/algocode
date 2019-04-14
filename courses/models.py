@@ -176,6 +176,17 @@ class Page(models.Model):
     is_raw = models.BooleanField(default=False)
 
 
+class InformaticsToken(models.Model):
+    contest_ids = models.TextField()
+    group_id = models.TextField()
+    token = models.TextField()
+
+    class Meta:
+        index_together = [
+            ('contest_ids', 'group_id'),
+        ]
+
+
 @receiver(models.signals.post_delete, sender=ContestLink)
 def auto_delete_contest_link_file_on_delete(sender, instance, **kwargs):
     try:
