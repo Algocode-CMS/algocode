@@ -1,8 +1,6 @@
 import requests
-import re
 import os
 import json
-from collections import defaultdict
 
 from django.core.management.base import BaseCommand
 
@@ -13,8 +11,7 @@ from courses.models import Contest, InformaticsToken
 class InformaticsLoader:
     LOGIN_PAGE = 'https://informatics.msk.ru/login/index.php'
     STANDINGS_TEMPLATE = 'https://informatics.msk.ru/py/monitor/{}'
-    GET_NEW_TOKEN_TEMPLATE = 'https://informatics.msk.ru/py/monitor?' + \
-                             'group_id={}&{}'
+    GET_NEW_TOKEN_TEMPLATE = 'https://informatics.msk.ru/py/monitor?group_id={}&contest_id={}'
 
     def __init__(self, login, password):
         self.login = login
@@ -25,7 +22,10 @@ class InformaticsLoader:
     def authorize(self):
         if not self.WAS_AUTHORIZED:
             self.session.get(self.LOGIN_PAGE)
-            post_data = {'username': self.login, 'password': self.password}
+            post_data = {
+                'username': self.login,
+                'password': self.password
+            }
             self.session.post(self.LOGIN_PAGE, post_data)
             self.WAS_AUTHORIZED = True
 
@@ -33,22 +33,24 @@ class InformaticsLoader:
         self.authorize()
         return json.loads(self.session.get(url).text)
 
-    def get_contest_data(self, problems):
-        problems = sorted(problems, key=lambda x: x['problem']['rank'])
+    def get_contest_data(self, token):
+        problems = self.get_json_data(self.STANDINGS_TEMPLATE.format(token))
+        problems.sort(key=lambda x: x['problem']['rank'])
         num_problems = len(problems)
 
         user_stat = {}
         for problem_id, problem in enumerate(problems):
-            for run in problem['runs'][::-1]:
+            for run in reversed(problem['runs']):
                 user_id = run['user']['id']
                 if user_id not in user_stat:
-                    user_stat[user_id] = {'ok': [0 for _ in range(num_problems)],
-                                          'wrong_tries': [0 for _ in range(num_problems)]}
-                if (run['ejudge_status'] == 0):
+                    user_stat[user_id] = {
+                        'ok': [0 for _ in range(num_problems)],
+                        'wrong_tries': [0 for _ in range(num_problems)]
+                    }
+                if run['ejudge_status'] == 0:
                     user_stat[user_id]['ok'][problem_id] = 1
                     user_stat[user_id]['wrong_tries'][problem_id] = 0
-                if (run['ejudge_score'] is not None and \
-                    run['ejudge_score'] < 100):
+                if run['ejudge_score'] is not None and run['ejudge_score'] < 100:
                     user_stat[user_id]['wrong_tries'][problem_id] += 1
 
         results = {}
@@ -65,31 +67,18 @@ class InformaticsLoader:
                         user_line.append('-{}'.format(wrong_tries))
                     else:
                         user_line.append('.')
-            results[user_id] = user_line
+            results[str(user_id)] = user_line
+
         problem_names = [[chr(ord('A') + x['problem']['rank'] - 1),
                           x['problem']['name']] for x in problems]
-
         return {
-            'problems': problem_names, # [["A", "Название"], ...]
-            'results': results, # словарь user_id: ["+4", ".", ...]
+            'problems': problem_names,  # [["A", "Название"], ...]
+            'results': results,  # словарь user_id: ["+4", ".", ...]
         }
 
-    def get_all_data(self, token):
-        json_data = self.get_json_data(self.STANDINGS_TEMPLATE.format(token))
-
-        contest_to_problems = defaultdict(list)
-        for problem in json_data:
-            contest_to_problems[problem['contest_id']].append(problem)
-        contests = {}
-        for contest, problems in contest_to_problems.items():
-            contests[contest] = self.get_contest_data(problems))
-        return contests
-    
-    def get_new_token(self, group_id, contest_ids):
+    def get_new_token(self, group_id, contest_id):
         self.authorize()
-        and_contests = '&'.join(['contest_id=' + str(t) for t in contest_ids])
-        url = self.GET_NEW_TOKEN_TEMPLATE.format(group_id,
-                                            and_contests)
+        url = self.GET_NEW_TOKEN_TEMPLATE.format(group_id, contest_id)
         return json.loads(self.session.post(url).text)
 
 
@@ -102,34 +91,36 @@ class Command(BaseCommand):
         data_dir = os.path.join(settings.BASE_DIR, 'judges_data', Contest.INFORMATICS)
         os.makedirs(data_dir, exist_ok=True)
 
-        if contests:
+        for contest in contests:
             try:
-                group_id = contests[0].external_group_id
-                for contest in contests:
-                    if contest.external_group_id != group_id:
-                        raise Exception('group_ids must be the same in one table')
-                contest_ids = [str(contest.contest_id) for contest in contests]
-                str_contest_ids = ','.join(sorted(contest_ids))
-                tokens = InformaticsToken.objects.filter(group_id=group_id,
-                                                         contest_ids=str_contest_ids)
-                if len(tokens) == 0:
-                    token = loader.get_new_token(group_id, contest_ids)['link']
-                    InformaticsToken.objects.create(group_id=group_id,
-                                                    contest_ids=str_contest_ids,
+                token = InformaticsToken.objects.filter(
+                    group_id=contest.external_group_id,
+                    contest_id=contest.contest_id
+                ).first()
+                if token is None:
+                    token = loader.get_new_token(contest.external_group_id, contest.contest_id)['link']
+                    InformaticsToken.objects.create(group_id=contest.external_group_id,
+                                                    contest_id=contest.contest_id,
                                                     token=token)
-                else:
-                    token = tokens[0].token
             except Exception as e:
-                print('Error with getting informatics token')
+                print('Error with getting token for contest {}'.format(contest.contest_id))
                 print(e)
+                continue
+
             try:
-                contests_data = loader.get_all_data(token)
-                for contest_id, data in contests_data.items():
-                    with open(os.path.join(data_dir, contest_id), 'w') as file:
-                        file.write(json.dumps(data))
-                        print('Successfully updated contest {}'.format(contest_id))
+                contest_data = loader.get_contest_data(token.token)
             except Exception as e:
-                print('Error with informatics loader')
+                print('Error with loading data for contest {}'.format(contest.contest_id))
                 print(e)
+                continue
+
+            try:
+                with open(os.path.join(data_dir, str(contest.id)), 'w') as file:
+                    file.write(json.dumps(contest_data))
+                    print('Successfully updated contest {}'.format(contest.contest_id))
+            except Exception as e:
+                print('Error with saving data for contest {}'.format(contest.contest_id))
+                print(e)
+                continue
 
         print('Informatics loaded!')
