@@ -99,9 +99,9 @@ class Command(BaseCommand):
                 ).first()
                 if token is None:
                     token = loader.get_new_token(contest.external_group_id, contest.contest_id)['link']
-                    InformaticsToken.objects.create(group_id=contest.external_group_id,
-                                                    contest_id=contest.contest_id,
-                                                    token=token)
+                    token = InformaticsToken.objects.create(group_id=contest.external_group_id,
+                                                            contest_id=contest.contest_id,
+                                                            token=token)
             except Exception as e:
                 print('Error with getting token for contest {}'.format(contest.contest_id))
                 print(e)
