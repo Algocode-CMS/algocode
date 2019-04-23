@@ -27,7 +27,6 @@ class InformaticsLoader:
                 'password': self.password
             }
             res = self.session.post(self.LOGIN_PAGE, post_data)
-            print(self.login, self.password, res)
             self.WAS_AUTHORIZED = True
 
     def get_json_data(self, url):
@@ -81,7 +80,6 @@ class InformaticsLoader:
         self.authorize()
         url = self.GET_NEW_TOKEN_TEMPLATE.format(group_id, contest_id)
         res = self.session.post(url)
-        print(url, res)
         return json.loads(res.text)
 
 
