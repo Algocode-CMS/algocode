@@ -177,13 +177,13 @@ class Page(models.Model):
 
 
 class InformaticsToken(models.Model):
-    contest_ids = models.TextField()
+    contest_id = models.TextField()
     group_id = models.TextField()
     token = models.TextField()
 
     class Meta:
         index_together = [
-            ('contest_ids', 'group_id'),
+            ('contest_id', 'group_id'),
         ]
 
 
