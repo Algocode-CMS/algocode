@@ -9,9 +9,9 @@ from courses.models import Contest, InformaticsToken
 
 
 class InformaticsLoader:
-    LOGIN_PAGE = 'https://informatics.msk.ru/login/index.php'
-    STANDINGS_TEMPLATE = 'https://informatics.msk.ru/py/monitor/{}'
-    GET_NEW_TOKEN_TEMPLATE = 'https://informatics.msk.ru/py/monitor?group_id={}&contest_id={}'
+    LOGIN_PAGE = 'https://informatics.mccme.ru/login/index.php'
+    STANDINGS_TEMPLATE = 'https://informatics.mccme.ru/py/monitor/{}'
+    GET_NEW_TOKEN_TEMPLATE = 'https://informatics.mccme.ru/py/monitor?group_id={}&contest_id={}'
 
     def __init__(self, login, password):
         self.login = login
@@ -26,7 +26,8 @@ class InformaticsLoader:
                 'username': self.login,
                 'password': self.password
             }
-            self.session.post(self.LOGIN_PAGE, post_data)
+            res = self.session.post(self.LOGIN_PAGE, post_data)
+            print(self.login, self.password, res)
             self.WAS_AUTHORIZED = True
 
     def get_json_data(self, url):
@@ -79,7 +80,9 @@ class InformaticsLoader:
     def get_new_token(self, group_id, contest_id):
         self.authorize()
         url = self.GET_NEW_TOKEN_TEMPLATE.format(group_id, contest_id)
-        return json.loads(self.session.post(url).text)
+        res = self.session.post(url)
+        print(url, res)
+        return json.loads(res.text)
 
 
 class Command(BaseCommand):
