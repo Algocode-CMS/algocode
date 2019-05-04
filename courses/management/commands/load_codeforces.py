@@ -42,22 +42,23 @@ class CodeforcesLoader:
         json_values = self.get_json(contest_id)
         results = {}
         for contest_descriptor in json_values['result']['rows']:
-            new_contest_descriptor = []
-            handle = contest_descriptor['party']['members'][0]['handle']
-            for problem in contest_descriptor['problemResults']:
-                result = int(problem['points'])
-                rejected = int(problem['rejectedAttemptCount'])
-                if result == 1:
-                    if rejected == 0:
-                        new_contest_descriptor.append('+')
+            if 'teamId' not in contest_descriptor['party']:
+                new_contest_descriptor = []
+                handle = contest_descriptor['party']['members'][0]['handle']
+                for problem in contest_descriptor['problemResults']:
+                    result = int(problem['points'])
+                    rejected = int(problem['rejectedAttemptCount'])
+                    if result == 1:
+                        if rejected == 0:
+                            new_contest_descriptor.append('+')
+                        else:
+                            new_contest_descriptor.append('+' + str(rejected))
                     else:
-                        new_contest_descriptor.append('+' + str(rejected))
-                else:
-                    if rejected == 0:
-                        new_contest_descriptor.append('.')
-                    else:
-                        new_contest_descriptor.append('-' + str(rejected))
-            results[handle] = new_contest_descriptor
+                        if rejected == 0:
+                            new_contest_descriptor.append('.')
+                        else:
+                            new_contest_descriptor.append('-' + str(rejected))
+                results[handle] = new_contest_descriptor
 
         num_problems = 0
         problem_names = []
