@@ -71,7 +71,10 @@ class StandingsDataView(View):
             users.extend(group.participants.all())
 
         users_data = []
-        for group in standings.course.groups.all():
+        group_list = standings.groups.all()
+        if len(group_list) == 0:
+            group_list = standings.course.groups.all()
+        for group in group_list:
             for user in group.participants.all():
                 users_data.append({
                     'id': user.id,

@@ -94,23 +94,6 @@ class Contest(models.Model):
         return '[{}] {}'.format(self.course.label, self.title)
 
 
-class Standings(models.Model):
-    title = models.TextField()
-    contests = models.ManyToManyField(Contest, related_name="standings", blank=True)
-    course = models.ForeignKey(Course, related_name="standings", on_delete=models.CASCADE)
-    olymp = models.BooleanField(default=False)
-    enable_marks = models.BooleanField(default=False)
-    js_for_contest_mark = models.TextField(blank=True, default="var calculateContestMark = function(\n\ttotal_score,        // суммарный балл за контест\n\tproblem_score,      // массив баллов за задачи\n\tproblem_max_score,  // массив максимальных набранных баллов за задачи\n\ttotal_users,        // общее количество участников\n\tproblem_accepted   // массив количества ОК по задаче\n) {\n\treturn defaultContestMark(total_score, problem_score);\n};")
-    js_for_total_mark = models.TextField(blank=True, default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
-    js = models.TextField(blank=True)
-
-    class Meta:
-        verbose_name_plural = "Standings"
-
-    def __str__(self):
-        return self.title
-
-
 class ContestLink(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='links')
     text = models.TextField()
@@ -166,6 +149,24 @@ class Participant(models.Model):
 
     def __str__(self):
         return self.name + " - " + self.group.short_name
+
+
+class Standings(models.Model):
+    title = models.TextField()
+    contests = models.ManyToManyField(Contest, related_name="standings", blank=True)
+    groups = models.ManyToManyField(ParticipantsGroup, related_name="standings", blank=True)
+    course = models.ForeignKey(Course, related_name="standings", on_delete=models.CASCADE)
+    olymp = models.BooleanField(default=False)
+    enable_marks = models.BooleanField(default=False)
+    js_for_contest_mark = models.TextField(blank=True, default="var calculateContestMark = function(\n\ttotal_score,        // суммарный балл за контест\n\tproblem_score,      // массив баллов за задачи\n\tproblem_max_score,  // массив максимальных набранных баллов за задачи\n\ttotal_users,        // общее количество участников\n\tproblem_accepted   // массив количества ОК по задаче\n) {\n\treturn defaultContestMark(total_score, problem_score);\n};")
+    js_for_total_mark = models.TextField(blank=True, default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
+    js = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name_plural = "Standings"
+
+    def __str__(self):
+        return "{} ({})".format(self.title, self.id)
 
 
 class Page(models.Model):

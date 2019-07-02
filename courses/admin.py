@@ -142,6 +142,11 @@ class StandingsInline(admin.TabularInline):
                 kwargs["queryset"] = Contest.objects.filter(course_id=self.parent_obj.id)
             else:
                 kwargs["queryset"] = Contest.objects.none()
+        if db_field.name == "groups":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = ParticipantsGroup.objects.filter(course_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = ParticipantsGroup.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 

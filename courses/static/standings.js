@@ -329,7 +329,7 @@ var addHeader = function(holder, contests) {
         }
         let title;
         if (contest_id === -1) {
-            title = '<a href="./' + idx + '/">' + title_text + '</a>';
+            title = '<a href="./' + (contests.length - 1 - idx) + '/">' + title_text + '</a>';
         } else {
             title = title_text;
         }
@@ -449,7 +449,7 @@ var buildStandings = function() {
         if (contest_id < 0 || contest_id >= contests.length) {
             alert('Wrong contest id!');
         }
-        contests = [contests[contest_id]];
+        contests = [contests[contests.length - 1 - contest_id]];
         data['contests'] = contests;
     }
 
