@@ -461,7 +461,7 @@ var buildStandings = function() {
     calculateInformation(users, contests);
     calculateMark(users, contests);
     users.sort(compareUsers);
-    users = users.filter(user => user.);
+    users = users.filter(user => (user['score'] > 0) || (user['penalty'] !== undefined && user['penalty'] > 0));
 
     let table = document.getElementById('standings');
     let header = document.createElement('thead');
