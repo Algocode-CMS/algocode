@@ -436,6 +436,10 @@ var addBody = function(body, users, contests) {
     }
 };
 
+var preprocessData = function(data) {
+    return data;
+};
+
 var buildStandings = function() {
     if (!_dom_loaded) {
         return;
@@ -443,7 +447,7 @@ var buildStandings = function() {
     if (!_data) {
         return;
     }
-    let data = _data;
+    let data = preprocessData(_data);
     let contests = data['contests'];
     if (contest_id !== -1) {
         if (contest_id < 0 || contest_id >= contests.length) {
@@ -457,6 +461,7 @@ var buildStandings = function() {
     calculateInformation(users, contests);
     calculateMark(users, contests);
     users.sort(compareUsers);
+    users = users.filter(user => user.);
 
     let table = document.getElementById('standings');
     let header = document.createElement('thead');
