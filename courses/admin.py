@@ -83,6 +83,7 @@ class ParticipantInline(admin.TabularInline):
     }
     model = Participant
     show_change_link = True
+    exclude = ['person']
 
     def get_formset(self, request, obj=None, **kwargs):
         self.parent_obj = obj

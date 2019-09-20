@@ -110,3 +110,11 @@ p.small {
     width: 256px;
     height: 319px;
 }
+
+.ban {
+    background-image: url('/static/ban.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: white !important;
+}

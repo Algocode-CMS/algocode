@@ -15,12 +15,14 @@
         var enable_marks = {% if standings.enable_marks %}true{% else %}false{% endif %};
     </script>
     <script src="{% static 'standings.js' %}"></script>
+    {% autoescape off %}
     <script>
         {{ standings.js_for_contest_mark }}
         {{ standings.js_for_total_mark }}
         {{ standings.js }}
     </script>
     <base href="/standings/{{ standings.id }}/" />
+    {% endautoescape %}
 </head>
 
 <body>

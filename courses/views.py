@@ -8,7 +8,7 @@ from django.views import View
 
 
 class MainView(View):
-    def get(self, request, main_id=1):
+    def get(self, request, main_id=3):
         main = get_object_or_404(Main, id=main_id)
         courses_list = main.courses.order_by("id")
         links = main.links.filter(hidden=False).order_by("priority")
