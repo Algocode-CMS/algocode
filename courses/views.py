@@ -71,14 +71,15 @@ class StandingsDataView(View):
     def get(self, request, standings_id):
         standings = get_object_or_404(Standings, id=standings_id)
 
-        users = []
-        for group in standings.course.groups.all():
-            users.extend(group.participants.all())
-
-        users_data = []
         group_list = standings.groups.all()
         if len(group_list) == 0:
             group_list = standings.course.groups.all()
+
+        users_data = []
+        users = []
+        for group in group_list:
+            users.extend(group.participants.all())
+
         for group in group_list:
             for user in group.participants.all():
                 users_data.append({
@@ -131,7 +132,8 @@ class RestartEjudge(View):
         if not request.user.is_superuser:
             return HttpResponseBadRequest
         else:
-            os.system(EJUDGE_CONTROL.format('stop'))
+            print(EJUDGE_CONTROL.format('stop'))
+            os.system(EJUDGE_CONTROL.format('stop') + '>/Users/philipgribov/Downloads/ejudge_restart 2>&1')
             os.system(EJUDGE_CONTROL.format('start'))
             return HttpResponse("Restarted ejudge")
 

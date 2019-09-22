@@ -46,30 +46,33 @@ def load_ejudge_contest(contest, users):
         } for _ in range(len(problems))]
 
     for run in data.runlog.runs.children:
-        ejudge_id = int(run['user_id'])
-        status = run['status']
-        time = int(run['time'])
-        if status == EJUDGE_VIRTUAL_STOP or ejudge_id not in ejudge_ids:
-            continue
-        if status == EJUDGE_VIRTUAL_START:
-            contest_users_start[ejudge_id] = time
-            continue
-        if contest.duration != 0 and time > contest_users_start[ejudge_id] + contest.duration * 60:
-            continue
+        try:
+            ejudge_id = int(run['user_id'])
+            status = run['status']
+            time = int(run['time'])
+            if status == EJUDGE_VIRTUAL_STOP or ejudge_id not in ejudge_ids:
+                continue
+            if status == EJUDGE_VIRTUAL_START:
+                contest_users_start[ejudge_id] = time
+                continue
+            if contest.duration != 0 and time > contest_users_start[ejudge_id] + contest.duration * 60:
+                continue
 
-        user_id = ejudge_ids[ejudge_id]
-        prob_id = int(run['prob_id']) - 1
-        score = (1 if status == EJUDGE_OK else 0)
-        if contest.is_olymp and status in (EJUDGE_OK, EJUDGE_PT):
-            score = int(run['score'])
+            user_id = ejudge_ids[ejudge_id]
+            prob_id = int(run['prob_id']) - 1
+            score = (1 if status == EJUDGE_OK else 0)
+            if contest.is_olymp and status in (EJUDGE_OK, EJUDGE_PT):
+                score = int(run['score'])
 
-        info = user_info[user_id][prob_id]
-        if info['verdict'] == EJUDGE_OK:
-            continue
-        if status in EJUDGE_BAD_VERDICTS:
-            info['penalty'] += 1
-        info['score'] = max(info['score'], score)
-        info['verdict'] = status
+            info = user_info[user_id][prob_id]
+            if info['verdict'] == EJUDGE_OK:
+                continue
+            if status in EJUDGE_BAD_VERDICTS:
+                info['penalty'] += 1
+            info['score'] = max(info['score'], score)
+            info['verdict'] = status
+        except:
+            pass
 
     return {
         'id': contest.id,
