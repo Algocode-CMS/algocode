@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Algocode manage</title>
+</head>
+<body>
+<form method="post" action="{% url 'restart_ejudge' %}">
+    {% csrf_token %}
+    <input type="submit" value="Перезапустить ejudge">
+</form>
+<form method="post" action="{% url 'create_valuer' %}">
+    {% csrf_token %}
+    <p>id контеста</p>
+    <input type="number" name="contest_id">
+    <input type="submit" value="создать valuer">
+</form>
+
+</body>
+</html>

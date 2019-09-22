@@ -11,6 +11,9 @@ urlpatterns = [
     path('standings/<int:standings_id>/', cache_page(60)(StandingsView.as_view()), name='standings'),
     path('standings/<int:standings_id>/<int:contest_id>/', cache_page(60)(StandingsView.as_view()), name='standings'),
     path('standings_data/<int:standings_id>/', cache_page(60)(StandingsDataView.as_view()), name='standings_data'),
+    path('serve_control/', ServeControl.as_view(), name='serve_control'),
+    path('serve_control/restart_ejudge/', RestartEjudge.as_view(), name='restart_ejudge'),
+    path('serve_control/create_valuer/', CreateValuer.as_view(), name='create_valuer'),
     path('<str:course_label>/', CourseView.as_view(), name='course'),
 ]
 

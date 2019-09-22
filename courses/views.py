@@ -1,6 +1,11 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponse
+import os
 
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
+
+from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR
 from courses.models import Course, Main, Standings, Page
 from courses.judges.judges import load_contest
 
@@ -105,5 +110,43 @@ class PageView(View):
                 'page': page,
             }
         )
+
+
+class ServeControl(View):
+    def get(self, request):
+        user = request.user
+        if not user.is_superuser:
+            return HttpResponseBadRequest
+        else:
+            return render(
+                request,
+                'serve_control.html',
+                {},
+            )
+
+
+class RestartEjudge(View):
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseBadRequest
+        else:
+            os.system(EJUDGE_CONTROL.format('stop'))
+            os.system(EJUDGE_CONTROL.format('start'))
+            return HttpResponse("Restarted ejudge")
+
+
+class CreateValuer(View):
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseBadRequest
+        else:
+            contest_id = int(request.POST.get('contest_id'))
+            valuer_output_location = os.path.join(JUDGES_DIR, 'valuer_output')
+            os.system('(cd {} && {} {:06d} >{} 2>&1)'.format(JUDGES_DIR, os.path.join(JUDGES_DIR, 'valuer.py'), contest_id, valuer_output_location))
+            valuer_output = open(valuer_output_location, 'r').read()
+            return HttpResponse(valuer_output, content_type="text/plain")
+
 
 # TODO Battleship

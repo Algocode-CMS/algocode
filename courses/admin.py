@@ -28,7 +28,6 @@ class ContestInlineForm(forms.ModelForm):
         except:
             pass
         new_standing = self.cleaned_data.get('add_new_standings', None)
-        print(new_standing)
         try:
             new_standing.contests.add(self.instance)
         except:
@@ -146,6 +145,11 @@ class StandingsInline(admin.TabularInline):
         if db_field.name == "groups":
             if self.parent_obj is not None:
                 kwargs["queryset"] = ParticipantsGroup.objects.filter(course_id=self.parent_obj.id)
+                print(self.parent_obj.standings.all())
+                for standings in self.parent_obj.standings.all():
+                    print(standings)
+                    print(ParticipantsGroup.objects.filter(standings=standings))
+                    kwargs["queryset"] = kwargs["queryset"].union(ParticipantsGroup.objects.filter(standings=standings))
             else:
                 kwargs["queryset"] = ParticipantsGroup.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
