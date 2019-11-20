@@ -77,6 +77,17 @@ class Contest(models.Model):
         (INFORMATICS, 'Informatics'),
     )
 
+    ACM = "AC"
+    OLYMP = "OL"
+    BATTLESHIP = "BS"
+    BLITZ = "BT"
+    TYPES = (
+        (ACM, "Acm"),
+        (OLYMP, "Olympiad"),
+        (BATTLESHIP, "Battleship"),
+        (BLITZ, "Blitz"),
+    )
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
     date = models.DateField()
     title = models.TextField()
@@ -85,6 +96,7 @@ class Contest(models.Model):
     duration = models.IntegerField(default=0)
     coefficient = models.FloatField(default=1.0)
     is_olymp = models.BooleanField(default=False)
+    contest_type = models.CharField(max_length=2, choices=TYPES, default=ACM)
     judge = models.CharField(max_length=2, choices=JUDGES, default=EJUDGE)
     contest_id = models.IntegerField()
     external_group_id = models.TextField(blank=True)

@@ -61,7 +61,7 @@ def load_ejudge_contest(contest, users):
             user_id = ejudge_ids[ejudge_id]
             prob_id = int(run['prob_id']) - 1
             score = (1 if status == EJUDGE_OK else 0)
-            if contest.is_olymp and status in (EJUDGE_OK, EJUDGE_PT):
+            if contest.contest_type == contest.OLYMP and status in (EJUDGE_OK, EJUDGE_PT):
                 score = int(run['score'])
 
             info = user_info[user_id][prob_id]

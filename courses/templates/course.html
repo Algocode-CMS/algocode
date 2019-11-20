@@ -59,7 +59,7 @@
                     {{ contest.contest.title }}
                 </div>
 
-                {% if contest.contest.is_olymp %}
+                {% if contest.contest.contest_type == contest.contest.OLYMP %}
                     <style>
                         #lesson_{{ contest.contest.id }} {
                             border-left-color: #DA823B;
