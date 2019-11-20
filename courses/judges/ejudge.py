@@ -43,6 +43,7 @@ def load_ejudge_contest(contest, users):
             'score': 0,
             'penalty': 0,
             'verdict': None,
+            'time': 0,
         } for _ in range(len(problems))]
 
     for run in data.runlog.runs.children:
@@ -55,7 +56,8 @@ def load_ejudge_contest(contest, users):
             if status == EJUDGE_VIRTUAL_START:
                 contest_users_start[ejudge_id] = time
                 continue
-            if contest.duration != 0 and time > contest_users_start[ejudge_id] + contest.duration * 60:
+            time -= contest_users_start[ejudge_id]
+            if contest.duration != 0 and time > contest.duration * 60:
                 continue
 
             user_id = ejudge_ids[ejudge_id]
@@ -71,6 +73,7 @@ def load_ejudge_contest(contest, users):
                 info['penalty'] += 1
             info['score'] = max(info['score'], score)
             info['verdict'] = status
+            info['time'] = time
         except:
             pass
 

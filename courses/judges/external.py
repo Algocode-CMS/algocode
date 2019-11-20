@@ -26,6 +26,7 @@ def load_external_contest(contest, users):
             'score': 0,
             'penalty': 0,
             'verdict': None,
+            'time': 0,  # TODO: Add time support to CF contests (informatics is deprecated)
         } for _ in range(len(problems))]
 
         if contest.judge == contest.INFORMATICS and user.informatics_id:
