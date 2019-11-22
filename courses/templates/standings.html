@@ -11,7 +11,8 @@
     <script>
         var standings_id = {{ standings.id }};
         var contest_id = {{ contest_id }};
-        var is_olymp = {% if standings.olymp %}true{% else %}false{% endif %};
+        var is_olymp = {% if standings.contest_type == standings.OLYMP %}true{% else %}false{% endif %};
+        var is_blitz = {% if standings.contest_type == standings.BLITZ %}true{% else %}false{% endif %};
         var enable_marks = {% if standings.enable_marks %}true{% else %}false{% endif %};
     </script>
     <script src="{% static 'standings.js' %}"></script>

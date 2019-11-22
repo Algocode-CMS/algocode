@@ -1,12 +1,15 @@
+import datetime
 import os
 
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.contrib.auth import logout, authenticate, login
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR
-from courses.models import Course, Main, Standings, Page
+from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, Participant
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -132,7 +135,6 @@ class RestartEjudge(View):
         if not request.user.is_superuser:
             return HttpResponseBadRequest
         else:
-            print(EJUDGE_CONTROL.format('stop'))
             os.system(EJUDGE_CONTROL.format('stop') + '>/Users/philipgribov/Downloads/ejudge_restart 2>&1')
             os.system(EJUDGE_CONTROL.format('start'))
             return HttpResponse("Restarted ejudge")
@@ -149,6 +151,82 @@ class CreateValuer(View):
             os.system('(cd {} && {} {:06d} >{} 2>&1)'.format(JUDGES_DIR, os.path.join(JUDGES_DIR, 'valuer.py'), contest_id, valuer_output_location))
             valuer_output = open(valuer_output_location, 'r').read()
             return HttpResponse(valuer_output, content_type="text/plain")
+
+
+class Login(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+        return render(request, "login.html", {})
+
+    def post(self, request):
+        if request.user.is_anonymous:
+            username = request.POST['login']
+            password = request.POST['password']
+            user_tst = authenticate(username=username, password=password)
+            if user_tst is not None:
+                login(request, user_tst)
+                return redirect(reverse('main'))
+            else:
+                return redirect(reverse('login'))
+        return redirect(reverse('main'))
+
+
+class BlitzView(View):
+    def get(self, request, contest_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+        user_id = int(request.user.first_name)
+        contest = get_object_or_404(Contest, id=contest_id)
+        problems = []
+        for problem in contest.blitz_problems.all():
+            problems.append({})
+            problems[-1]['problem'] = problem
+            problems[-1]['starts_number'] = len(problem.starts.all())
+            try:
+                user_start = problem.starts.get(participant_id=user_id)
+                problems[-1]['started'] = True
+                curr_time = datetime.datetime.now(datetime.timezone.utc)
+                problems[-1]['bid_time_left'] = datetime.timedelta(minutes=3).seconds - int((curr_time - user_start.time).total_seconds())
+                problems[-1]['bid_left'] = max(0, user_start.bid - int((curr_time - user_start.time).total_seconds()) // 60)
+                problems[-1]['bid'] = user_start.bid
+            except:
+                problems[-1]['started'] = False
+        return render(
+            request,
+            "blitz.html",
+            {
+                "contest": contest,
+                "problems": problems
+            }
+        )
+
+
+class BlitzOpenProblem(View):
+    @method_decorator(csrf_protect)
+    def post(self, request, problem_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+        user_id = int(request.user.first_name)
+        problem = get_object_or_404(BlitzProblem, id=problem_id)
+        if len(BlitzProblemStart.objects.filter(participant_id=user_id, problem=problem)) == 0:
+            BlitzProblemStart.objects.create(problem=problem, participant_id=user_id)
+        return redirect(reverse("blitz_view", kwargs={"contest_id": problem.contest.id}))
+
+
+class BlitzMakeBid(View):
+    @method_decorator(csrf_protect)
+    def post(self, request, problem_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+        user_id = int(request.user.first_name)
+        problem = get_object_or_404(BlitzProblem, id=problem_id)
+        start = get_object_or_404(BlitzProblemStart, participant_id=user_id, problem=problem)
+        curr_time = datetime.datetime.now(datetime.timezone.utc)
+        if datetime.timedelta(minutes=3).seconds > (curr_time - start.time).seconds:
+            start.bid = int(request.POST.get("bid", 0))
+            start.save()
+        return redirect(reverse("blitz_view", kwargs={"contest_id": problem.contest.id}))
 
 
 # TODO Battleship

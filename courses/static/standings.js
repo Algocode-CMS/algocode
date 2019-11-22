@@ -109,6 +109,16 @@ var defaultTotalMark = function(marks, coefficients) {
     return mean_mark;
 };
 
+var blitzMark = function (problem_score, problem_accepted) {
+    let mark = 0;
+    for (let i = 0; i < problem_score.length; i++) {
+        if (problem_score[i] > 0) {
+            mark += problem_score[i] * problem_score.length / problem_accepted[i];
+        }
+    }
+    return mark
+};
+
 // возвращает единственное число -- оценку за контест
 var calculateContestMark = function(
     total_score,        // суммарный балл за контест
@@ -166,17 +176,10 @@ var calculateMark = function(users, contests) {
             user_problem_score[id].push([]);
             contest['users'][id].forEach(function(result, p_id) {
                 let score = result['score'];
-                let is_accepted = false;
-                if (is_olymp && score === 100) {
-                    is_accepted = true;
-                }
-                if (!is_olymp && score === 1) {
-                    is_accepted = true;
-                }
 
                 total_score += score;
                 problem_max_score[c_id][p_id] = Math.max(problem_max_score[c_id][p_id], score);
-                problem_accepted[c_id][p_id] += (+is_accepted);
+                problem_accepted[c_id][p_id] += score;
                 user_problem_score[id][c_id].push(score);
             });
 
@@ -253,6 +256,27 @@ var addProblemCell = function(row, problem) {
         let cell = addCell(row, text, 'gray');
         if (text !== '') {
             cell.style.backgroundColor = getScoreColor(score);
+        }
+    } else if (is_blitz) {
+        let bid = problem['bid'];
+        let initial_bid = problem['initial_bid'];
+        if (problem['verdict'] === 'OK') {
+            addCell(row, bid, 'ok');
+        } else if (problem['verdict'] === 'BP') {
+            cell = addCell(row, bid, 'gray');
+            cell.title = 'Ожидает посылки. Ставка: ' + initial_bid;
+            cell.style.backgroundColor = '#ffdc33';
+        } else if (problem['verdict'] === 'TE') {
+            cell = addCell(row, bid, 'bad');
+            cell.title = 'Время вышло. Cтавка: ' + initial_bid;
+        } else {
+            if (penalty === 0) {
+                addCell(row, '', 'gray');
+            } else {
+                cell = addCell(row, bid, 'gray');
+                cell.style.backgroundColor = '#f7943c';
+                cell.title = '-' + penalty + '. Ставка: ' + initial_bid;
+            }
         }
     } else {
         const add_inf = function (text) {
@@ -464,7 +488,7 @@ var buildStandings = function() {
     calculateInformation(users, contests);
     calculateMark(users, contests);
     users.sort(compareUsers);
-    users = users.filter(user => (user['score'] > 0) || (user['penalty'] !== undefined && user['penalty'] > 0));
+    users = users.filter(user => (user['score'] > 0) || (user['penalty'] !== undefined && user['penalty'] > 0) || is_blitz);
 
     let table = document.getElementById('standings');
     let header = document.createElement('thead');

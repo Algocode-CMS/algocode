@@ -173,6 +173,13 @@ class TeacherInPersonInline(admin.TabularInline):
     show_change_link = True
 
 
+class BlitzProblemInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = BlitzProblem
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -198,8 +205,8 @@ class ContestAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [ContestLinkInline]
-    list_display = ['id', 'title', 'date', 'judge']
+    inlines = [ContestLinkInline, BlitzProblemInline]
+    list_display = ['id', 'title', 'date', 'contest_type', 'judge']
 
 
 @admin.register(Participant)
@@ -252,7 +259,7 @@ class StandingsAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    list_display = ['id', 'title']
+    list_display = ['id', 'title', 'contest_type']
     inlines = [ContestInStandingInline]
     exclude = ['contests']
 

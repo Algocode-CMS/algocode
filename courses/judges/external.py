@@ -1,3 +1,4 @@
+import datetime
 import os
 import json
 
@@ -61,9 +62,12 @@ def load_external_contest(contest, users):
                 'verdict': verdict,
             }
 
+    start_time = datetime.datetime.combine(contest.date, datetime.time.min).timestamp()
+
     return {
         'id': contest.id,
         'date': contest.date,
+        'start_time': start_time,
         'external_id': contest.contest_id,
         'title': contest.title,
         'coefficient': contest.coefficient,

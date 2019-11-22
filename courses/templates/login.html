@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+</head>
+<body>
+<h1>Войти на сайт</h1>
+<h3>Будет использован ваш админский логин или ваш логин из ejudge</h3>
+<form method="post">
+    {% csrf_token %}
+    <label for="login">Логин</label>
+    <input type="text" name="login" id="login"><br>
+    <label for="password">Пароль</label>
+    <input type="password" name="password" id="password"><br>
+    <input type="submit" value="Войти">
+</form>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Блитц</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'blitz_style.css' %}">
+</head>
+<body>
+<h1>Просмотр блитца</h1>
+<p>
+    Вам не показаны условия задач.
+    Вы можете открыть условие любой задачи и в течении 5 минут сделать ставку на то, сколько времени вы потратите на её решение.
+    Если вы не решите задачу в поставленное вами время, то она не будет защитанна.
+    Иначе вам будет выставлен некоторый балл, зависящий от вашей ставки и числа людей, сдавших задачу.
+</p>
+<table>
+    <tbody>
+    <tr>
+        <td>Задача</td>
+        <td>Описание</td>
+        <td>Количество взявшихся</td>
+        <td>Условие</td>
+        <td>Ставка</td>
+        <td>Осталось ставки</td>
+    </tr>
+    {% for problem in problems %}
+        <tr>
+        <td>{{ problem.problem.id }}</td>
+        <td>{{ problem.problem.description }}</td>
+        <td>{{ problem.starts_number }}</td>
+        <td>
+        {% if problem.started %}
+            <a href="{{ problem.problem.statements.url }}">Условия</a>
+        {% else %}
+            <form action="{% url 'blitz_open_problem' problem_id=problem.problem.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Открыть">
+            </form>
+        {% endif %}
+        </td>
+        <td>
+        {% if problem.started %}
+            {% if problem.bid_time_left > 0 %}
+                <form action="{% url 'blitz_make_bid' problem_id=problem.problem.id %}" method="post">
+                    {% csrf_token %}
+                    <label for="{{ problem.problem.id }}_bid">Текущая ставка: </label>
+                    <input id="{{ problem.problem.id }}_bid" type="number" name="bid" value={{ problem.bid }}> минут
+                    <input type="submit" value="Изменить">
+                </form>
+                У вас осталось {{ problem.bid_time_left }} секунд.
+            {% else %}
+                {{ problem.bid }} минут
+            {% endif %}
+        {% else %}
+            -
+        {% endif %}
+        </td>
+        <td>
+        {% if problem.started %}
+            {{ problem.bid_left }} минут
+        {% else %}
+            -
+        {% endif %}
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

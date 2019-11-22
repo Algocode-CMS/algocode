@@ -17,12 +17,30 @@ def get_statements_file_path(instance, filename):
     return 'course_{0}/{1}'.format(instance.course.label, filename)
 
 
+def get_blitz_statements_file_path(instance, filename):
+    return 'course_{0}/{1}'.format(instance.contest.course.label, filename)
+
+
 def get_contest_file_path(instance, filename):
     return 'course_{0}/{1}'.format(instance.contest.course.label, filename)
 
 
 def get_photo_path(instance, filename):
     return 'photos/{0}'.format(filename)
+
+
+class ContestType:
+    ACM = "AC"
+    OLYMP = "OL"
+    BATTLESHIP = "BS"
+    BLITZ = "BT"
+
+    TYPES = (
+        (ACM, "Acm"),
+        (OLYMP, "Olympiad"),
+        (BATTLESHIP, "Battleship"),
+        (BLITZ, "Blitz"),
+    )
 
 
 class Person(models.Model):
@@ -55,7 +73,7 @@ class Course(models.Model):
     teachers = models.ManyToManyField(Teacher, related_name='courses', blank=True)
 
     def __str__(self):
-        return self.title
+        return "{} ({})".format(self.title, self.id)
 
 
 class Main(models.Model):
@@ -67,7 +85,7 @@ class Main(models.Model):
         return self.title
 
 
-class Contest(models.Model):
+class Contest(models.Model, ContestType):
     EJUDGE = 'EJ'
     CODEFORCES = 'CF'
     INFORMATICS = 'IN'
@@ -77,17 +95,6 @@ class Contest(models.Model):
         (INFORMATICS, 'Informatics'),
     )
 
-    ACM = "AC"
-    OLYMP = "OL"
-    BATTLESHIP = "BS"
-    BLITZ = "BT"
-    TYPES = (
-        (ACM, "Acm"),
-        (OLYMP, "Olympiad"),
-        (BATTLESHIP, "Battleship"),
-        (BLITZ, "Blitz"),
-    )
-
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
     date = models.DateField()
     title = models.TextField()
@@ -95,8 +102,7 @@ class Contest(models.Model):
     show_statements = models.BooleanField(default=False)
     duration = models.IntegerField(default=0)
     coefficient = models.FloatField(default=1.0)
-    is_olymp = models.BooleanField(default=False)
-    contest_type = models.CharField(max_length=2, choices=TYPES, default=ACM)
+    contest_type = models.CharField(max_length=2, choices=ContestType.TYPES, default=ContestType.ACM)
     judge = models.CharField(max_length=2, choices=JUDGES, default=EJUDGE)
     contest_id = models.IntegerField()
     external_group_id = models.TextField(blank=True)
@@ -163,12 +169,13 @@ class Participant(models.Model):
         return self.name + " - " + self.group.short_name
 
 
-class Standings(models.Model):
+class Standings(models.Model, ContestType):
     title = models.TextField()
     contests = models.ManyToManyField(Contest, related_name="standings", blank=True)
     groups = models.ManyToManyField(ParticipantsGroup, related_name="standings", blank=True)
     course = models.ForeignKey(Course, related_name="standings", on_delete=models.CASCADE)
     olymp = models.BooleanField(default=False)
+    contest_type = models.CharField(max_length=2, choices=ContestType.TYPES, default=ContestType.ACM)
     enable_marks = models.BooleanField(default=False)
     js_for_contest_mark = models.TextField(blank=True, default="var calculateContestMark = function(\n\ttotal_score,        // суммарный балл за контест\n\tproblem_score,      // массив баллов за задачи\n\tproblem_max_score,  // массив максимальных набранных баллов за задачи\n\ttotal_users,        // общее количество участников\n\tproblem_accepted   // массив количества ОК по задаче\n) {\n\treturn defaultContestMark(total_score, problem_score);\n};")
     js_for_total_mark = models.TextField(blank=True, default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
@@ -198,6 +205,20 @@ class InformaticsToken(models.Model):
         index_together = [
             ('contest_id', 'group_id'),
         ]
+
+
+class BlitzProblem(models.Model):
+    contest = models.ForeignKey(Contest, related_name="blitz_problems", on_delete=models.CASCADE)
+    problem_id = models.TextField()
+    description = models.TextField(blank=True)
+    statements = models.FileField(upload_to=get_blitz_statements_file_path)
+
+
+class BlitzProblemStart(models.Model):
+    problem = models.ForeignKey(BlitzProblem, related_name="starts", on_delete=models.CASCADE)
+    participant_id = models.IntegerField()
+    time = models.DateTimeField(auto_now_add=True)
+    bid = models.IntegerField(default=0)
 
 
 @receiver(models.signals.post_delete, sender=ContestLink)
@@ -391,3 +412,32 @@ def auto_assign_person_for_participant(sender, instance, **kwargs):
 
     if instance.group.course != instance.course:
         instance.course = instance.group.course
+
+
+@receiver(models.signals.post_delete, sender=BlitzProblem)
+def auto_delete_blitz_statement_file_on_delete(sender, instance, **kwargs):
+    if instance.statements:
+        try:
+            os.remove(instance.statements.path)
+        except OSError:
+            pass
+
+
+@receiver(models.signals.pre_save, sender=BlitzProblem)
+def auto_delete_blitz_statement_file_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return False
+
+    try:
+        old_statements = BlitzProblem.objects.get(pk=instance.pk).statements
+    except BlitzProblem.DoesNotExist:
+        return False
+    if not old_statements:
+        return False
+    try:
+        new_statements = instance.statements
+        if not old_statements == new_statements:
+            if os.path.isfile(old_statements.path):
+                os.remove(old_statements.path)
+    except OSError:
+        pass
