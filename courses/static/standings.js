@@ -109,11 +109,11 @@ var defaultTotalMark = function(marks, coefficients) {
     return mean_mark;
 };
 
-var blitzMark = function (problem_score, problem_accepted) {
+var blitzMark = function (problem_score, problem_accepted, total_users) {
     let mark = 0;
     for (let i = 0; i < problem_score.length; i++) {
         if (problem_score[i] > 0) {
-            mark += 1 / problem_score[i]
+            mark += total_users / (problem_score[i] * problem_accepted[i]);
         }
     }
     return mark
@@ -176,10 +176,13 @@ var calculateMark = function(users, contests) {
             user_problem_score[id].push([]);
             contest['users'][id].forEach(function(result, p_id) {
                 let score = result['score'];
-
+                let is_accepted = false;
+                if (score > 0) {
+                    is_accepted = true;
+                }
                 total_score += score;
                 problem_max_score[c_id][p_id] = Math.max(problem_max_score[c_id][p_id], score);
-                problem_accepted[c_id][p_id] += score;
+                problem_accepted[c_id][p_id] += (+is_accepted);
                 user_problem_score[id][c_id].push(score);
             });
 
