@@ -113,7 +113,7 @@ var blitzMark = function (problem_score, problem_accepted) {
     let mark = 0;
     for (let i = 0; i < problem_score.length; i++) {
         if (problem_score[i] > 0) {
-            mark += problem_score[i] * problem_score.length / problem_accepted[i];
+            mark += 1 / problem_score[i]
         }
     }
     return mark

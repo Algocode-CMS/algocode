@@ -180,6 +180,13 @@ class BlitzProblemInline(admin.TabularInline):
     model = BlitzProblem
 
 
+class BlitzProblemStartInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = BlitzProblemStart
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -284,3 +291,20 @@ class PersonAdmin(admin.ModelAdmin):
     }
     list_display = ['id', 'name']
     inlines = [NotCourseParticipantInline, TeacherInPersonInline]
+
+
+@admin.register(BlitzProblem)
+class BlitzProblemAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'problem_id', 'contest']
+    inlines = [BlitzProblemStartInline]
+
+
+@admin.register(BlitzProblemStart)
+class BlitzProblemStartAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'problem', 'participant_id', 'time', 'bid']
