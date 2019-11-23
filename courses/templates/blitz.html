@@ -49,7 +49,7 @@
                     <input id="{{ problem.problem.id }}_bid" type="number" name="bid" value={{ problem.bid }}> минут
                     <input type="submit" value="Изменить">
                 </form>
-                У вас осталось {{ problem.bid_time_left }} секунд.
+                У вас осталось {{ problem.bid_time_left }} секунд на изменение.
             {% else %}
                 {{ problem.bid }} минут
             {% endif %}

@@ -179,7 +179,7 @@ class BlitzView(View):
         user_id = int(request.user.first_name)
         contest = get_object_or_404(Contest, id=contest_id)
         problems = []
-        for problem in contest.blitz_problems.all():
+        for problem in contest.blitz_problems.order_by('problem_id'):
             problems.append({})
             problems[-1]['problem'] = problem
             problems[-1]['starts_number'] = len(problem.starts.all())
