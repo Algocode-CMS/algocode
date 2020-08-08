@@ -1,27 +1,43 @@
 import os
+import json
 from importlib import import_module
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+with open(os.path.join(BASE_DIR, 'configs/config.json')) as config_file:
+    config_json = json.load(config_file)
+
+
+def import_json(value):
+    if isinstance(value, list):
+        result = []
+        for i in value:
+            result.append(import_json(i))
+        return result
+    if isinstance(value, dict):
+        result = dict()
+        for key, val in value.items():
+            result[key] = import_json(val)
+        return result
+    if isinstance(value, str) and value.startswith("exec_res = "):
+        exec("global exec_res\n" + value)
+        return exec_res
+    return value
+
 
 def load_secret(secret):
-    file = open(os.path.join(BASE_DIR, 'secrets', secret))
-    result = file.read().strip()
-    file.close()
-    return result
+    return import_json(config_json["secrets"][secret])
 
 
 def load_config(config):
-    config = import_module('configs.' + config)
-    return config.value
+    return import_json(config_json["configs"][config])
 
 
-CODEFORCES_KEY = load_secret('codeforces_key.txt')
-CODEFORCES_SECRET = load_secret('codeforces_secret.txt')
-INFORMATICS_LOGIN = load_secret('informatics_login.txt')
-INFORMATICS_PASSWORD = load_secret('informatics_password.txt')
-EJUDGE_CONTROL = load_secret('ejudge_control.txt')
-SECRET_KEY = load_secret('django_secret.txt')
+CODEFORCES = load_secret('codeforces')
+EJUDGE_CONTROL = load_secret('ejudge_control_cmd')
+EJUDGE_URL = load_config('ejudge_url')
+EJUDGE_LOGIN = load_secret('ejudge')
+SECRET_KEY = load_secret('django_secret')
 DEBUG = load_config('django_debug')
 JUDGES_DIR = load_config('ejudge_dir')
 DATABASES = load_config('django_db')

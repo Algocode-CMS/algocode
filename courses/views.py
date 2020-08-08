@@ -6,10 +6,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR
-from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, Participant
+from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, Participant, \
+    EjudgeRegisterApi
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -58,8 +59,8 @@ class CourseView(View):
 
 
 class StandingsView(View):
-    def get(self, request, standings_id, contest_id=-1):
-        standings = get_object_or_404(Standings, id=standings_id)
+    def get(self, request, standings_label, contest_id=-1):
+        standings = get_object_or_404(Standings, label=standings_label)
         return render(
             request,
             'standings.html',
@@ -71,8 +72,8 @@ class StandingsView(View):
 
 
 class StandingsDataView(View):
-    def get(self, request, standings_id):
-        standings = get_object_or_404(Standings, id=standings_id)
+    def get(self, request, standings_label):
+        standings = get_object_or_404(Standings, label=standings_label)
 
         group_list = standings.groups.all()
         if len(group_list) == 0:

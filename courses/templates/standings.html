@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'standings.css' %}">
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
     <script>
-        var standings_id = {{ standings.id }};
+        var standings_label = "{{ standings.label }}";
         var contest_id = {{ contest_id }};
         var is_olymp = {% if standings.contest_type == standings.OLYMP %}true{% else %}false{% endif %};
         var is_blitz = {% if standings.contest_type == standings.BLITZ %}true{% else %}false{% endif %};
@@ -22,7 +22,7 @@
         {{ standings.js_for_total_mark }}
         {{ standings.js }}
     </script>
-    <base href="/standings/{{ standings.id }}/" />
+    <base href="/standings/{{ standings.label }}/" />
     {% endautoescape %}
 </head>
 

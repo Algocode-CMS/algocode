@@ -145,10 +145,7 @@ class StandingsInline(admin.TabularInline):
         if db_field.name == "groups":
             if self.parent_obj is not None:
                 kwargs["queryset"] = ParticipantsGroup.objects.filter(course_id=self.parent_obj.id)
-                print(self.parent_obj.standings.all())
                 for standings in self.parent_obj.standings.all():
-                    print(standings)
-                    print(ParticipantsGroup.objects.filter(standings=standings))
                     kwargs["queryset"] = kwargs["queryset"].union(ParticipantsGroup.objects.filter(standings=standings))
             else:
                 kwargs["queryset"] = ParticipantsGroup.objects.none()
@@ -162,14 +159,6 @@ class TeacherInline(admin.TabularInline):
 
 class CourseInline(admin.TabularInline):
     model = Main.courses.through
-    show_change_link = True
-
-
-class TeacherInPersonInline(admin.TabularInline):
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
-    }
-    model = Teacher
     show_change_link = True
 
 
@@ -187,6 +176,13 @@ class BlitzProblemStartInline(admin.TabularInline):
     model = BlitzProblemStart
 
 
+class PageInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = Page
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -202,8 +198,8 @@ class CourseAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, TeacherInline]
-    list_display = ['id', 'title', 'subtitle']
+    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, PageInline, TeacherInline]
+    list_display = ['id', 'label', 'title', 'subtitle']
     exclude = ['teachers']
 
 
@@ -266,7 +262,7 @@ class StandingsAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    list_display = ['id', 'title', 'contest_type']
+    list_display = ['id', 'label', 'title', 'contest_type']
     inlines = [ContestInStandingInline]
     exclude = ['contests']
 
@@ -282,15 +278,6 @@ class TeachersAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'name', 'description']
-
-
-@admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
-    }
-    list_display = ['id', 'name']
-    inlines = [NotCourseParticipantInline, TeacherInPersonInline]
 
 
 @admin.register(BlitzProblem)

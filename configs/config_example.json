@@ -1,0 +1,45 @@
+{
+  "configs": {
+    "django_cache": {
+      "default": {
+        "BACKEND": "django.core.cache.backends.memcached.MemcachedCache",
+        "LOCATION": "127.0.0.1:11211"
+      }
+    },
+
+    "django_db": {
+      "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "exec_res = os.path.join(BASE_DIR, 'db.sqlite3')"
+      }
+    },
+
+    "django_debug": true,
+
+    "ejudge_dir": "/home/judges",
+
+    "ejudge_url": "http://random_ejudge_domain.ru/cgi-bin/"
+  },
+
+  "secrets": {
+    "django_secret": "random string",
+
+    "codeforces": [
+      {
+        "key": "codeforces api key",
+        "secret": "codeforces api secret"
+      },
+      {
+        "key": "multiple codeforces api keys allowed",
+        "secret": "multiple codeforces api secrets allowed"
+      }
+    ],
+
+    "ejudge": {
+      "login": "secret_login",
+      "password": "secret_password"
+    },
+
+    "ejudge_control_cmd": "su ejudge -c '<path to ejudge bin/serve-control> {}'"
+  }
+}

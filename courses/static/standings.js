@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 (function() {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', '/standings_data/' + standings_id, true);
+    xhr.open('GET', '/standings_data/' + standings_label, true);
     xhr.responseType = 'json';
     xhr.onload = function () {
         let status = xhr.status;
@@ -92,6 +92,43 @@ var relativeContestMark = function(
     }
 };
 
+var useOldContestMark = function(total_scores, user_id) {
+    let total_score = 0;
+    let problem_score = new Array(total_scores[0].length).fill(0);
+    let problem_max_score = new Array(total_scores[0].length).fill(0);
+    let total_users = total_scores.length;
+    let problem_accepted = new Array(problem_score.length).fill(0);
+    let max_score = 0;
+    for (let i = 0; i < total_users; i++) {
+        let sc = 0;
+        for (let j = 0; j < problem_score.length; j++) {
+            problem_max_score[j] = Math.max(problem_max_score[j], total_scores[i][j]['score']);
+            if (total_scores[i][j]['score'] > 0) {
+                problem_accepted[j]++;
+            }
+            sc += total_scores[i][j]['score']
+        }
+        if (i === user_id) {
+            for (let j = 0; j < problem_score.length; j++) {
+                problem_score[j] = total_scores[i][j]['score']
+            }
+        }
+        max_score = Math.max(max_score, sc);
+        if (i === user_id) {
+            total_score = sc;
+        }
+    }
+
+    return calculateContestMark(
+        total_score,
+        problem_score,
+        problem_max_score,
+        total_users,
+        problem_accepted,
+        max_score,
+    )
+};
+
 var defaultTotalMark = function(marks, coefficients) {
     let mean_mark = 0;
     let total_coef = 0;
@@ -131,6 +168,14 @@ var calculateContestMark = function(
     return defaultContestMark(total_score, problem_score);
 };
 
+var newCalculateContestMark = function(
+    total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями
+    user_id,            // номер пользователя
+    contest_info        // информация о контесте
+) {
+    return useOldContestMark(total_scores, user_id)
+};
+
 var calculateTotalMark = function(
     marks,              // массив оценок за контесты
     coefficients,       // массив коэффициентов контестов
@@ -146,12 +191,12 @@ var calculateTotalMark = function(
 };
 
 var calculateMark = function(users, contests) {
-    let contest_max_score = [];
     let problem_max_score = [];
     let problem_accepted = [];
     let coefficients = [];
+    let total_scores = {};
     contests.forEach(function(contest, i) {
-        contest_max_score.push(0);
+        total_scores[i] = [];
         problem_max_score.push([]);
         problem_accepted.push([]);
         coefficients.push(contest['coefficient']);
@@ -162,18 +207,17 @@ var calculateMark = function(users, contests) {
     });
 
     let user_total_score = {};
-    let user_contest_score = {};
     let user_problem_score = {};
     users.forEach(function(user) {
         let id = user['id'];
         user_total_score[id] = 0;
-        user_contest_score[id] = [];
         user_problem_score[id] = [];
         user['marks'] = [];
         user['scores'] = [];
         contests.forEach(function(contest, c_id) {
             let total_score = 0;
             user_problem_score[id].push([]);
+            total_scores[c_id].push(contest['users'][id].slice(0));
             contest['users'][id].forEach(function(result, p_id) {
                 let score = result['score'];
                 let is_accepted = false;
@@ -186,24 +230,19 @@ var calculateMark = function(users, contests) {
                 user_problem_score[id][c_id].push(score);
             });
 
-            contest_max_score[c_id] = Math.max(contest_max_score[c_id], total_score);
-            user_contest_score[id].push(total_score);
             user['scores'].push(total_score);
             user_total_score[id] += total_score;
         });
     });
 
-    users.forEach(function(user) {
+    users.forEach(function(user, u_id) {
         let id = user['id'];
         user['marks'] = [];
         contests.forEach(function(contest, c_id) {
-            user['marks'].push(calculateContestMark(
-                user_contest_score[id][c_id],
-                user_problem_score[id][c_id],
-                problem_max_score[c_id],
-                users.length,
-                problem_accepted[c_id],
-                contest_max_score[c_id]
+            user['marks'].push(newCalculateContestMark(
+                total_scores[c_id],
+                u_id,
+                contest
             ));
         });
         user['mark'] = calculateTotalMark(

@@ -43,16 +43,8 @@ class ContestType:
     )
 
 
-class Person(models.Model):
-    name = models.TextField()
-
-    def __str__(self):
-        return self.name
-
-
 class Teacher(models.Model):
     name = models.TextField()
-    person = models.ForeignKey(Person, related_name="teachers", blank=True, null=True, on_delete=models.SET_NULL)
     description = models.TextField(blank=True)
     photo = models.FileField(upload_to=get_photo_path, blank=True)
     vk_id = models.TextField(blank=True)
@@ -112,6 +104,12 @@ class Contest(models.Model, ContestType):
         return '[{}] {}'.format(self.course.label, self.title)
 
 
+class ContestStandingsHolder(models.Model):
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='standings_holder')
+    problems = models.TextField()
+    runs_list = models.TextField()
+
+
 class ContestLink(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='links')
     text = models.TextField()
@@ -159,7 +157,6 @@ class Participant(models.Model):
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
     photo = models.FileField(upload_to=get_photo_path, blank=True)
-    person = models.ForeignKey(Person, related_name="participants", blank=True, null=True, on_delete=models.SET_NULL)
     comment = models.TextField(blank=True)
     email = models.TextField(blank=True)
     telegram_id = models.TextField(blank=True)
@@ -171,13 +168,14 @@ class Participant(models.Model):
 
 class Standings(models.Model, ContestType):
     title = models.TextField()
+    label = models.TextField(unique=True)
     contests = models.ManyToManyField(Contest, related_name="standings", blank=True)
     groups = models.ManyToManyField(ParticipantsGroup, related_name="standings", blank=True)
     course = models.ForeignKey(Course, related_name="standings", on_delete=models.CASCADE)
     olymp = models.BooleanField(default=False)
     contest_type = models.CharField(max_length=2, choices=ContestType.TYPES, default=ContestType.ACM)
     enable_marks = models.BooleanField(default=False)
-    js_for_contest_mark = models.TextField(blank=True, default="var calculateContestMark = function(\n\ttotal_score,        // суммарный балл за контест\n\tproblem_score,      // массив баллов за задачи\n\tproblem_max_score,  // массив максимальных набранных баллов за задачи\n\ttotal_users,        // общее количество участников\n\tproblem_accepted   // массив количества ОК по задаче\n) {\n\treturn defaultContestMark(total_score, problem_score);\n};")
+    js_for_contest_mark = models.TextField(blank=True, default="var newCalculateContestMark = function(\n    total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями\n    user_id,            // номер пользователя\n    contest_info        // информация о контесте\n) {\n    return useOldContestMark(total_scores, user_id)\n};")
     js_for_total_mark = models.TextField(blank=True, default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
     js = models.TextField(blank=True)
 
@@ -185,7 +183,7 @@ class Standings(models.Model, ContestType):
         verbose_name_plural = "Standings"
 
     def __str__(self):
-        return "{} ({})".format(self.title, self.id)
+        return "{} ({})".format(self.label, self.title)
 
 
 class Page(models.Model):
@@ -194,17 +192,7 @@ class Page(models.Model):
     subtitle = models.TextField(blank=True)
     content = models.TextField(blank=True)
     is_raw = models.BooleanField(default=False)
-
-
-class InformaticsToken(models.Model):
-    contest_id = models.TextField()
-    group_id = models.TextField()
-    token = models.TextField()
-
-    class Meta:
-        index_together = [
-            ('contest_id', 'group_id'),
-        ]
+    course = models.ForeignKey(Course, related_name="pages", on_delete=models.SET_NULL, null=True)
 
 
 class BlitzProblem(models.Model):
@@ -401,14 +389,8 @@ def auto_delete_participant_photo_file_on_change(sender, instance, **kwargs):
 
 
 @receiver(models.signals.pre_save, sender=Participant)
-def auto_assign_person_for_participant(sender, instance, **kwargs):
-    if instance.person is None:
-        try:
-            person = Person.objects.get(name=instance.name)
-        except Person.DoesNotExist:
-            person = Person.objects.create(name=instance.name)
-            person.save()
-        instance.person = person
+def auto_fix_participant(sender, instance, **kwargs):
+    instance.codeforces_handle = instance.codeforces_handle.lower()
 
     if instance.group.course != instance.course:
         instance.course = instance.group.course
