@@ -1,0 +1,3 @@
+[submodule "ejudge_registration"]
+	path = ejudge_registration
+	url = https://github.com/grphil/ejudge-registration.git

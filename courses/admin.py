@@ -183,6 +183,20 @@ class PageInline(admin.TabularInline):
     model = Page
 
 
+class EjudgeRegisterApiGroupInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = EjudgeRegisterApiGroupAdd
+
+
+class EjudgeRegisterApiContestInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = EjudgeRegisterApiContestAdd
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -295,3 +309,12 @@ class BlitzProblemStartAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'problem', 'participant_id', 'time', 'bid']
+
+
+@admin.register(EjudgeRegisterApi)
+class EjudgeRegisterApiAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    inlines = [EjudgeRegisterApiGroupInline, EjudgeRegisterApiContestInline]
+    list_display = ['id', 'name', 'login']

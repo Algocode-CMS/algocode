@@ -209,6 +209,23 @@ class BlitzProblemStart(models.Model):
     bid = models.IntegerField(default=0)
 
 
+class EjudgeRegisterApi(models.Model):
+    name = models.TextField()
+    secret = models.TextField()
+    login = models.TextField()
+
+
+class EjudgeRegisterApiGroupAdd(models.Model):
+    ejudge_register = models.ForeignKey(EjudgeRegisterApi, related_name="groups", on_delete=models.CASCADE)
+    group = models.ForeignKey(ParticipantsGroup, related_name="registers", on_delete=models.CASCADE)
+    use_login = models.BooleanField(default=True)
+
+
+class EjudgeRegisterApiContestAdd(models.Model):
+    ejudge_register = models.ForeignKey(EjudgeRegisterApi, related_name="contests", on_delete=models.CASCADE)
+    contest_id = models.IntegerField()
+
+
 @receiver(models.signals.post_delete, sender=ContestLink)
 def auto_delete_contest_link_file_on_delete(sender, instance, **kwargs):
     try:
