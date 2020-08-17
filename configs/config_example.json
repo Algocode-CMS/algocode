@@ -17,6 +17,8 @@
     "django_debug": true,
 
     "ejudge_dir": "/home/judges",
+
+    "ejudge_url": "http://some_ejudge_url.com"
   },
 
   "secrets": {
@@ -33,10 +35,9 @@
       }
     ],
 
-    "ejudge_db": {
-      "login": "ejudge_mysql_db_login",
-      "password": "ejudge_mysql_db_password",
-      "db_name": "ejudge_mysql_db_name"
+    "ejudge": {
+      "login": "ejudge_admin_login",
+      "password": "ejudge_admin_password"
     },
 
     "ejudge_control_cmd": "su ejudge -c '<path to ejudge bin/serve-control> {}'"

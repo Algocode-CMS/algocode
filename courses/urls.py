@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path
 from django.views.decorators.cache import cache_page
 
@@ -18,10 +17,6 @@ urlpatterns = [
     path('blitz/<int:contest_id>/', BlitzView.as_view(), name="blitz_view"),
     path('blitz/problem/<int:problem_id>/open', BlitzOpenProblem.as_view(), name="blitz_open_problem"),
     path('blitz/problem/<int:problem_id>/make_bid', BlitzMakeBid.as_view(), name="blitz_make_bid"),
-    path('api/ejudge_register/<int:register_id>', EjudgeRegister.as_view(), name='ejudge_register_api'),
+    path('api/ejudge_register/', EjudgeRegister.as_view(), name='ejudge_register_api'),
     path('<str:course_label>/', CourseView.as_view(), name='course'),
 ]
-
-admin.site.site_header = "Algocode admin"
-admin.site.site_title = "Algocode admin"
-admin.site.index_title = "Algocode admin"

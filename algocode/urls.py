@@ -18,7 +18,6 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from courses.views import *
 from . import settings
 
 urlpatterns = [
@@ -28,3 +27,7 @@ urlpatterns = [
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+admin.site.site_header = "Algocode admin"
+admin.site.site_title = "Algocode admin"
+admin.site.index_title = "Algocode admin"

@@ -35,12 +35,13 @@ def load_config(config):
 
 CODEFORCES = load_secret('codeforces')
 EJUDGE_CONTROL = load_secret('ejudge_control_cmd')
-EJUDGE_DB = load_secret('ejudge_db')
+EJUDGE_AUTH = load_secret('ejudge')
 SECRET_KEY = load_secret('django_secret')
 DEBUG = load_config('django_debug')
 JUDGES_DIR = load_config('ejudge_dir')
 DATABASES = load_config('django_db')
 CACHES = load_config('django_cache')
+EJUDGE_URL = load_config('ejudge_url')
 
 
 ALLOWED_HOSTS = ['*']

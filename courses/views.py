@@ -8,14 +8,14 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
-from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_DB
+from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
     Participant
 from courses.judges.judges import load_contest
 
 from django.views import View
 
-from ejudge_registration.ejudge_registration import EjudgeDbSession
+from ejudge_registration.ejudge_api_registration import EjudgeApiSession
 
 
 class MainView(View):
@@ -234,7 +234,8 @@ class BlitzMakeBid(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class EjudgeRegister(View):
-    def post(self, request, register_id):
+    def post(self, request):
+        register_id = request.POST.get('register_id')
         secret = request.POST.get('secret')
         ejudge_register_api = get_object_or_404(EjudgeRegisterApi, id=register_id)
         if secret != ejudge_register_api.secret:
@@ -242,8 +243,8 @@ class EjudgeRegister(View):
         name = request.POST.get('name')
         contests = [contest.contest_id for contest in ejudge_register_api.contests.all()]
         login = ejudge_register_api.login
-        db_session = EjudgeDbSession(EJUDGE_DB["login"], EJUDGE_DB["password"], EJUDGE_DB["db_name"])
-        user = db_session.create_user_and_add_contests(login, name, True, contests)
+        api_session = EjudgeApiSession(EJUDGE_AUTH["login"], EJUDGE_AUTH["password"], EJUDGE_URL)
+        user = api_session.create_user_and_add_contests(login, name, True, contests)
         for group in ejudge_register_api.groups.all():
             group_name = name
             if group.use_login:
@@ -252,7 +253,7 @@ class EjudgeRegister(View):
                 name=group_name,
                 group=group.group,
                 course=group.group.course,
-                ejudge_id=user["ejudge_id"]
+                ejudge_id=user["user_id"]
             )
         return JsonResponse(user)
 
