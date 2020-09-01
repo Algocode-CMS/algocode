@@ -345,6 +345,10 @@ var addProblemCell = function(row, problem) {
             let cell = addCell(row, '?', 'gray');
             cell.title = 'Ожидает подтверждения';
             cell.style.backgroundColor = '#ffdc33';
+        } else if (problem['verdict'] === 'AC') {
+            let cell = addCell(row, '?', 'gray');
+            cell.title = 'Принято к проверке';
+            cell.style.backgroundColor = '#fbe995';
         } else if (problem['verdict'] === 'SM') {
             let cell = addCell(row, '<div class="big_image"></div>', 'gray defense');
             cell.title = 'Призван на защиту';
