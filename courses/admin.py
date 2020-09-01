@@ -146,7 +146,9 @@ class StandingsInline(admin.TabularInline):
             if self.parent_obj is not None:
                 kwargs["queryset"] = ParticipantsGroup.objects.filter(course_id=self.parent_obj.id)
                 for standings in self.parent_obj.standings.all():
-                    kwargs["queryset"] = kwargs["queryset"].union(ParticipantsGroup.objects.filter(standings=standings))
+                    used_groups = ParticipantsGroup.objects.filter(standings=standings)
+                    kwargs["queryset"] |= used_groups
+                kwargs["queryset"] = kwargs["queryset"].distinct()
             else:
                 kwargs["queryset"] = ParticipantsGroup.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
