@@ -1,5 +1,6 @@
 import datetime
 import os
+from time import sleep
 
 from django.contrib.auth import logout, authenticate, login
 from django.shortcuts import render, get_object_or_404, redirect
@@ -138,7 +139,8 @@ class RestartEjudge(View):
         if not request.user.is_superuser:
             return HttpResponseBadRequest
         else:
-            os.system(EJUDGE_CONTROL.format('stop') + '>/Users/philipgribov/Downloads/ejudge_restart 2>&1')
+            os.system(EJUDGE_CONTROL.format('stop'))
+            sleep(15)
             os.system(EJUDGE_CONTROL.format('start'))
             return HttpResponse("Restarted ejudge")
 
