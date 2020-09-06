@@ -139,6 +139,14 @@ class MainLink(models.Model):
     priority = models.IntegerField(default=0)
 
 
+class MainCourse(models.Model):
+    main = models.ForeignKey(Main, on_delete=models.CASCADE, related_name='course_links')
+    text = models.TextField()
+    course = models.ForeignKey(Course, blank=True, null=True, on_delete=models.CASCADE, related_name='mains')
+    url = models.TextField(blank=True)
+    priority = models.IntegerField(default=0)
+
+
 class ParticipantsGroup(models.Model):
     course = models.ForeignKey(Course, related_name="groups", on_delete=models.CASCADE)
     name = models.TextField()
@@ -192,7 +200,7 @@ class Page(models.Model):
     subtitle = models.TextField(blank=True)
     content = models.TextField(blank=True)
     is_raw = models.BooleanField(default=False)
-    course = models.ForeignKey(Course, related_name="pages", on_delete=models.SET_NULL, null=True)
+    course = models.ForeignKey(Course, related_name="pages", blank=True, on_delete=models.SET_NULL, null=True)
 
 
 class BlitzProblem(models.Model):

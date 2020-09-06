@@ -60,6 +60,13 @@ class MainLinkInline(admin.TabularInline):
     show_change_link = True
 
 
+class MainCourseInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = MainCourse
+
+
 class ContestLinkInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
@@ -205,7 +212,7 @@ class MainAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'title', 'subtitle']
-    inlines = [CourseInline, MainLinkInline]
+    inlines = [MainCourseInline, MainLinkInline]
     exclude = ['courses']
 
 

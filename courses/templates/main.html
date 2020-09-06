@@ -34,9 +34,9 @@
     <div class="courses">
         <h3>Курсы</h3>
         {% for course in courses %}
-            <a href="{{ course.url }}">
+            <a href="{% if course.url or not course.course %}{{ course.url }}{% else %}{% url 'course' course_label=course.course.label %}{% endif %}">
                 <div class="course">
-                    {{ course.name_in_main }}
+                    {{ course.text }}
                 </div>
             </a>
         {% endfor %}
