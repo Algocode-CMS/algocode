@@ -56,7 +56,7 @@ class CourseView(View):
                 'contests': contests,
                 'links': links,
                 'ejudge_url': course.ejudge_url,
-                'teachers': course.teachers.all()
+                'teachers': course.teachers.order_by("priority")
             }
         )
 

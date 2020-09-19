@@ -60,9 +60,6 @@ class Course(models.Model):
     subtitle = models.TextField(blank=True)
     template = models.TextField(default='course.html')
     ejudge_url = models.TextField(blank=True)
-    url = models.TextField(blank=True)
-    name_in_main = models.TextField(blank=True)
-    teachers = models.ManyToManyField(Teacher, related_name='courses', blank=True)
 
     def __str__(self):
         return "{} ({})".format(self.title, self.id)
@@ -126,6 +123,13 @@ class CourseLink(models.Model):
     link = models.TextField(blank=True)
     hidden = models.BooleanField(default=False)
     new_tab = models.BooleanField(default=False)
+    priority = models.IntegerField(default=0)
+
+
+class TeacherInCourse(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='teachers')
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='courses')
+    note = models.TextField(blank=True)
     priority = models.IntegerField(default=0)
 
 

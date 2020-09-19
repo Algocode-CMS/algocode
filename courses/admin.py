@@ -161,9 +161,16 @@ class StandingsInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+# class TeacherInline(admin.TabularInline):
+#     model = Course.teachers.through
+#     show_change_link = True
+
+
 class TeacherInline(admin.TabularInline):
-    model = Course.teachers.through
-    show_change_link = True
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = TeacherInCourse
 
 
 class CourseInline(admin.TabularInline):
@@ -223,7 +230,6 @@ class CourseAdmin(admin.ModelAdmin):
     }
     inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, PageInline, TeacherInline]
     list_display = ['id', 'label', 'title', 'subtitle']
-    exclude = ['teachers']
 
 
 @admin.register(Contest)

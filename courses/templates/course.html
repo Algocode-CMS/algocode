@@ -33,14 +33,17 @@
         {% if teachers %}
             <h3>Преподаватели</h3>
             {% for teacher in teachers %}
-                {% if teacher.photo %}
-                    <img class="photo" src="{{ teacher.photo.url }}" alt="{{ teacher.name }}"><br>
+                {% if teacher.teacher.photo %}
+                    <img class="photo" src="{{ teacher.teacher.photo.url }}" alt="{{ teacher.teacher.name }}"><br>
                 {% endif %}
-                <b>{{ teacher.name }}</b>
-                {% if teacher.telegram_id %}
-                    <br>Telegram: <a href="tg://resolve?domain={{ teacher.telegram_id }}">@{{ teacher.telegram_id }}</a>
+                <b>{{ teacher.teacher.name }}</b>
+                {% if teacher.note %}
+                    <br><i>{{ teacher.note }}</i>
                 {% endif %}
-                {% if teacher.vk_id %}
+                {% if teacher.teacher.telegram_id %}
+                    <br>Telegram: <a href="tg://resolve?domain={{ teacher.teacher.telegram_id }}">@{{ teacher.teacher.telegram_id }}</a>
+                {% endif %}
+                {% if teacher.teacher.vk_id %}
                     <br><a href="https://vk.com/{{ teacher.vk_id }}">ВКонтакте</a>
                 {% endif %}
                 <br><br>
