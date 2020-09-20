@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 from time import sleep
 
 from django.contrib.auth import logout, authenticate, login
@@ -8,6 +9,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, Http
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
+from transliterate import translit
 
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
@@ -246,7 +248,13 @@ class EjudgeRegister(View):
         contests = [contest.contest_id for contest in ejudge_register_api.contests.all()]
         login = ejudge_register_api.login
         api_session = EjudgeApiSession(EJUDGE_AUTH["login"], EJUDGE_AUTH["password"], EJUDGE_URL)
-        user = api_session.create_user_and_add_contests(login, name, True, contests)
+        int_login = True
+        if ejudge_register_api.use_surname:
+            surname = translit(name.split()[0], 'ru', reversed=True)
+            surname = re.sub(r'\W+', '', surname).lower()
+            login = f'{login}{surname}'
+            int_login = False
+        user = api_session.create_user_and_add_contests(login, name, int_login, contests)
         for group in ejudge_register_api.groups.all():
             group_name = name
             if group.use_login:

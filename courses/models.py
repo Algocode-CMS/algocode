@@ -225,6 +225,7 @@ class EjudgeRegisterApi(models.Model):
     name = models.TextField()
     secret = models.TextField()
     login = models.TextField()
+    use_surname = models.BooleanField(default=False)
 
 
 class EjudgeRegisterApiGroupAdd(models.Model):
