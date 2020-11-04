@@ -18,7 +18,9 @@
 
     "ejudge_dir": "/home/judges",
 
-    "ejudge_url": "http://some_ejudge_url.com"
+    "ejudge_url": "http://some_ejudge_url.com",
+
+    "default_main": 0
   },
 
   "secrets": {

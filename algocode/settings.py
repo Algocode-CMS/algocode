@@ -42,6 +42,7 @@ JUDGES_DIR = load_config('ejudge_dir')
 DATABASES = load_config('django_db')
 CACHES = load_config('django_cache')
 EJUDGE_URL = load_config('ejudge_url')
+DEFAULT_MAIN = load_config("default_main")
 
 
 ALLOWED_HOSTS = ['*']
