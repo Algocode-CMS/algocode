@@ -83,20 +83,22 @@
 
                 <div class="clear"></div>
 
-                <div class="contest_name">
-                Контест
-                </div>
-                <div class="contest_link">
-                    {% if contest.contest.other_link %}
-                        <a href="{{ contest.contest.other_link }}">Вход</a>
-                    {% elif contest.contest.judge == 'EJ' %}
-                        <a href="{{ ejudge_url }}{{ contest.contest.contest_id }}">Вход</a>
-                    {% elif contest.contest.judge == 'CF' %}
-                        <a href="https://codeforces.com/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
-                    {% elif contest.contest.judge == 'IN' %}
-                        <a href="https://informatics.mccme.ru/mod/statements/view.php?id={{ contest.contest.contest_id }}">Вход</a>
-                    {% endif %}
-                </div>
+                {% if contest.contest.contest_id or contest.contest.other_link %}
+                    <div class="contest_name">
+                    Контест
+                    </div>
+                    <div class="contest_link">
+                        {% if contest.contest.other_link %}
+                            <a href="{{ contest.contest.other_link }}">Вход</a>
+                        {% elif contest.contest.judge == 'EJ' %}
+                            <a href="{{ ejudge_url }}{{ contest.contest.contest_id }}">Вход</a>
+                        {% elif contest.contest.judge == 'CF' %}
+                            <a href="https://codeforces.com/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
+                        {% elif contest.contest.judge == 'IN' %}
+                            <a href="https://informatics.mccme.ru/mod/statements/view.php?id={{ contest.contest.contest_id }}">Вход</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
                 <div class="contest_link">
                     {% if contest.contest.show_statements and contest.contest.statements %}
                         <a href="{{ contest.contest.statements.url }}">Условия</a>

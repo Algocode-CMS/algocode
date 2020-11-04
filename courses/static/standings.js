@@ -242,7 +242,7 @@ var calculateMark = function(users, contests) {
             user['marks'].push(newCalculateContestMark(
                 total_scores[c_id],
                 u_id,
-                contest
+                contest["contest_info"]
             ));
         });
         user['mark'] = calculateTotalMark(

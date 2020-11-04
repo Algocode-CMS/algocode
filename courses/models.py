@@ -93,9 +93,10 @@ class Contest(models.Model, ContestType):
     coefficient = models.FloatField(default=1.0)
     contest_type = models.CharField(max_length=2, choices=ContestType.TYPES, default=ContestType.ACM)
     judge = models.CharField(max_length=2, choices=JUDGES, default=EJUDGE)
-    contest_id = models.IntegerField()
+    contest_id = models.IntegerField(blank=True, null=True)
     external_group_id = models.TextField(blank=True)
     other_link = models.TextField(blank=True)
+    contest_info = models.TextField(default="{}")
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)

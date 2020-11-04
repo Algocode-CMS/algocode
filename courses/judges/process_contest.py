@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from courses.models import BlitzProblemStart, BlitzProblem
 from courses.judges.common_verdicts import *
@@ -73,6 +74,11 @@ def process_contest(runs_list, problems, contest, users):
                 except:
                     pass
 
+    try:
+        contest_info = json.loads(contest.contest_info)
+    except:
+        contest_info = dict()
+
     return {
         'id': contest.id,
         'date': contest.date,
@@ -81,4 +87,5 @@ def process_contest(runs_list, problems, contest, users):
         'coefficient': contest.coefficient,
         'problems': problems,
         'users': user_info,
+        'contest_info': contest_info
     }

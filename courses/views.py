@@ -98,7 +98,7 @@ class StandingsDataView(View):
                     'group_short': group.short_name,
                 })
 
-        contests = standings.contests.order_by('-date', '-id').all()
+        contests = standings.contests.order_by('-date', '-id').filter(contest_id__isnull=False)
         contests = [load_contest(contest, users) for contest in contests]
         contests = [contest for contest in contests if contest is not None]
 
