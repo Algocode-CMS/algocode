@@ -566,3 +566,16 @@ var buildStandings = function() {
         }, 10);
     }
 };
+
+// Better Scrollbar
+var itemx = document.getElementsByTagName("thead")[0];
+var itemy = document.getElementById("standings_fixed");
+var scro = function () {
+    var x = window.pageXoffset || document.documentElement.scrollLeft;
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    itemx.style.left = -x + "px";
+    itemy.style.top = -y + "px";
+};
+window.onscroll = scro;
+window.onload = scro;
+window.onresize = scro;
