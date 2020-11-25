@@ -355,6 +355,9 @@ var addProblemCell = function(row, problem) {
         } else if (problem['verdict'] === 'SV') {
             let cell = addCell(row, '', "gray ban");
             cell.title = "Нарушены правила оформления"
+        } else if (problem['verdict'] === 'DQ') {
+            let cell = addCell(row, '', '');
+            cell.style.backgroundColor = "#000000";
         } else {
             if (penalty === 0) {
                 addCell(row, '', 'gray');
