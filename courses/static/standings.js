@@ -357,7 +357,7 @@ var addProblemCell = function(row, problem) {
             cell.title = "Нарушены правила оформления"
         } else if (problem['verdict'] === 'DQ') {
             let cell = addCell(row, '', '');
-            cell.style.backgroundColor = "#000000";
+            cell.style.backgroundColor = "#202020";
         } else {
             if (penalty === 0) {
                 addCell(row, '', 'gray');
