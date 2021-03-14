@@ -69,6 +69,7 @@ class Main(models.Model):
     title = models.TextField(blank=True)
     subtitle = models.TextField(blank=True)
     courses = models.ManyToManyField(Course)
+    courses_text = models.TextField(default="Курсы")
 
     def __str__(self):
         return self.title
