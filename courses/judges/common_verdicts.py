@@ -17,6 +17,7 @@ EJUDGE_PR = 'PR'  # Pending review
 EJUDGE_SM = 'SM'  # Summoned for defence
 EJUDGE_RJ = 'RJ'  # Rejected
 EJUDGE_RU = 'RU'  # Running
+EJUDGE_DQ = 'DQ'  # Disqualified
 
 EJUDGE_VIRTUAL_START = 'VS'
 EJUDGE_VIRTUAL_STOP = 'VT'
