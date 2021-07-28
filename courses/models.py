@@ -162,6 +162,31 @@ class ParticipantsGroup(models.Model):
         return self.name
 
 
+class Battleship(models.Model):
+    course = models.ForeignKey(Course, related_name="battleships", on_delete=models.CASCADE)
+    name = models.TextField()
+    contest = models.ForeignKey(Contest, related_name="battleships", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} ({})'.format(self.name, self.id)
+
+
+class BattleshipTeam(models.Model):
+    course = models.ForeignKey(Course, related_name="battleship_teams", on_delete=models.CASCADE)
+    name = models.TextField()
+    battleship = models.ForeignKey(Battleship, related_name="battleship_teams", on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} - {} ({})'.format(self.battleship, self.name, self.id)
+
+
+class BattleshipShip(models.Model):
+    battleship = models.ForeignKey(Battleship, related_name="ships", on_delete=models.CASCADE)
+    team = models.ForeignKey(BattleshipTeam, related_name="ships", on_delete=models.CASCADE)
+    x = models.IntegerField()
+    y = models.IntegerField()
+
+
 class Participant(models.Model):
     name = models.TextField(verbose_name='Surname and name')
     group = models.ForeignKey(ParticipantsGroup, related_name='participants', on_delete=models.CASCADE)
@@ -170,6 +195,7 @@ class Participant(models.Model):
     ejudge_id = models.IntegerField(blank=True, null=True)
     informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
+    battleship_teams = models.ManyToManyField(BattleshipTeam, related_name="participants", blank=True)
     photo = models.FileField(upload_to=get_photo_path, blank=True)
     comment = models.TextField(blank=True)
     email = models.TextField(blank=True)

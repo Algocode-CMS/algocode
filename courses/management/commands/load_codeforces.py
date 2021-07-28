@@ -14,7 +14,7 @@ from courses.models import Contest, Participant, ContestStandingsHolder
 from courses.judges.common_verdicts import *
 
 
-CODEFORCES_API_DELAY = 0.2
+CODEFORCES_API_DELAY = 0.5
 
 
 class CodeforcesLoader:

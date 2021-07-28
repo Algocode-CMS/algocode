@@ -90,6 +90,7 @@ class ParticipantInline(admin.TabularInline):
     model = Participant
     show_change_link = True
     exclude = ['person']
+    extra = 0
 
     def get_formset(self, request, obj=None, **kwargs):
         self.parent_obj = obj
@@ -101,6 +102,75 @@ class ParticipantInline(admin.TabularInline):
                 kwargs["queryset"] = ParticipantsGroup.objects.filter(course_id=self.parent_obj.id)
             else:
                 kwargs["queryset"] = ParticipantsGroup.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "battleship_teams":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = BattleshipTeam.objects.filter(course_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = BattleshipTeam.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class BattleshipInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = Battleship
+    show_change_link = True
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(BattleshipInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "contest":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = Contest.objects.filter(course_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = Contest.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class BattleshipTeamInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = BattleshipTeam
+    show_change_link = True
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(BattleshipTeamInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "battleship":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = Battleship.objects.filter(course_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = Battleship.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class BattleshipShipInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = BattleshipShip
+    show_change_link = True
+    extra = 10
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(BattleshipShipInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "team":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = BattleshipTeam.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -228,7 +298,7 @@ class CourseAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, PageInline, TeacherInline]
+    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, BattleshipInline, BattleshipTeamInline, PageInline, TeacherInline]
     list_display = ['id', 'label', 'title', 'subtitle']
 
 
@@ -333,3 +403,12 @@ class EjudgeRegisterApiAdmin(admin.ModelAdmin):
     }
     inlines = [EjudgeRegisterApiGroupInline, EjudgeRegisterApiContestInline]
     list_display = ['id', 'name', 'login']
+
+
+@admin.register(Battleship)
+class BattleshipAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    inlines = [BattleshipShipInline]
+    list_display = ['id', 'name', 'course']

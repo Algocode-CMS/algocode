@@ -12,8 +12,9 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from transliterate import translit
 
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN
+from courses.judges.common_verdicts import EJUDGE_OK
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
-    Participant
+    Participant, Battleship
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -268,4 +269,129 @@ class EjudgeRegister(View):
         return JsonResponse(user)
 
 
-# TODO Battleship
+class BattleshipView(View):
+    def get(self, request, battleship_id):
+        battleship = get_object_or_404(Battleship, id=battleship_id)
+        teams = battleship.battleship_teams.all()
+        users = []
+        for team in teams:
+            users.extend(team.participants.all())
+        standings = load_contest(battleship.contest, users)
+        problem_names = standings["problems"]
+
+        fields = [
+            {
+                'name': '',
+                'field': [
+                    dict()
+                    for i in range(len(teams[j].participants.all()))
+                ],
+                'success': 0,
+                'fail': 0,
+                'ship_success': 0,
+                'ship_fail': 0,
+            }
+            for j in range(len(teams))
+        ]
+
+        for i in range(len(teams)):
+            team = teams[i]
+            fields[i]["name"] = team.name
+            for j, user in enumerate(team.participants.order_by("id")):
+                row = fields[i]['field'][j]
+                row['name'] = user.name
+                row['problems'] = [0] * len(problem_names)
+                row['submits'] = 0
+                for p, res in enumerate(standings['users'][user.id]):
+                    row['submits'] += res['penalty']
+                    fields[i]['fail'] += res['penalty']
+                    if res['verdict'] == EJUDGE_OK:
+                        row['problems'][p] = 1
+                        fields[i]['success'] += 1
+            for ship in team.ships.all():
+                if fields[i]['field'][ship.x]['problems'][ship.y] == 1:
+                    fields[i]['field'][ship.x]['problems'][ship.y] = 2
+                    fields[i]['ship_success'] += 1
+            fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
+
+        return render(
+            request,
+            'battleship.html',
+            {
+                'name': battleship.name,
+                'fields': fields,
+                'problem_names': problem_names,
+            }
+        )
+        #
+        #
+        #
+        #
+        # battleship = get_object_or_404(Battleship, id=battleship_id)
+        # course = get_object_or_404(Course, id=course_id)
+        # contest_id = battleship.contest
+        # contest_id += 1000000
+        # contest_id = str(contest_id)[1:]
+        # data = untangle.parse(os.path.join(JUDGES_DIR, contest_id, 'var/status/dir/external.xml'))
+        # all_users = dict()
+        # teams = battleship.teams.all()
+        # problem_names = []
+        # for problem in data.runlog.problems.children:
+        #     problem_names.append(dict())
+        #     problem_names[-1]['id'] = problem['id']
+        #     problem_names[-1]['long'] = problem['long_name']
+        #     problem_names[-1]['short'] = problem['short_name']
+        # for user in data.runlog.users.children:
+        #     if len(user['name']) > 0:
+        #         all_users[int(user['id'])] = dict()
+        #         all_users[int(user['id'])]['name'] = user['name']
+        #         all_users[int(user['id'])]['problems'] = [0] * len(problem_names)
+        #         all_users[int(user['id'])]['submits'] = 0
+        # for run in data.runlog.runs.children:
+        #     user_id = int(run['user_id'])
+        #     problem = int(run['prob_id']) - 1
+        #     if run['status'] == 'OK':
+        #         all_users[user_id]['problems'][problem] = 1
+        #     elif all_users[user_id]['problems'][problem] != 1:
+        #         all_users[user_id]['submits'] += 1
+        #         all_users[user_id]['problems'][problem] = -1
+        #
+        # fields = [
+        #     {
+        #         'name': '',
+        #         'field': [
+        #             dict()
+        #             for i in range(len(teams[j].ids.all()))
+        #         ],
+        #         'success': 0,
+        #         'fail': 0,
+        #         'ship_success': 0,
+        #         'ship_fail': 0,
+        #     }
+        #     for j in range(len(teams))
+        # ]
+        # for i in range(len(teams)):
+        #     j = 0
+        #     fields[i]['name'] = teams[i].name
+        #     for user_id in teams[i].ids.all():
+        #         user_id = user_id.user
+        #         fields[i]['field'][j] = all_users[user_id]
+        #         for score in fields[i]['field'][j]['problems']:
+        #             if score > 0:
+        #                 fields[i]['success'] += score
+        #         fields[i]['fail'] += all_users[user_id]['submits']
+        #         j += 1
+        #     for ship in teams[i].ships.all():
+        #         if fields[i]['field'][ship.x]['problems'][ship.y] == 1:
+        #             fields[i]['field'][ship.x]['problems'][ship.y] = 2
+        #             fields[i]['ship_success'] += 1
+        #     fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
+        # return render(
+        #     request,
+        #     'battleship.html',
+        #     {
+        #         'name': battleship.name,
+        #         'fields': fields,
+        #         'problem_names': problem_names,
+        #     }
+        # )
