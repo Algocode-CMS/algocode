@@ -102,17 +102,30 @@ class CodeforcesLoader:
 class Command(BaseCommand):
     help = 'Loads data from codeforces'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--today',
+            action='store_true',
+            help='Import only recent codeforces contests',
+        )
+
     def handle(self, *args, **options):
         loaders = []
         for api_info in settings.CODEFORCES:
             loaders.append(CodeforcesLoader(api_info["key"], api_info["secret"]))
 
-        contests = Contest.objects.filter(judge=Contest.CODEFORCES)
+        if options['today']:
+            date_start = datetime.datetime.now() - datetime.timedelta(days=1)
+            contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
+        else:
+            contests = Contest.objects.filter(judge=Contest.CODEFORCES)
+
         data_dir = os.path.join(settings.BASE_DIR, 'judges_data', Contest.CODEFORCES)
         os.makedirs(data_dir, exist_ok=True)
 
         last_query = 0
         for contest in contests:
+            print("loading ", contest.contest_id)
             for loader in loaders:
                 while time.time() - last_query < CODEFORCES_API_DELAY * 3:
                     time.sleep(0.01)
@@ -128,6 +141,7 @@ class Command(BaseCommand):
                     standings_holder.problems = json.dumps(problems)
                     standings_holder.runs_list = json.dumps(runs_list)
                     standings_holder.save()
+                    print('success')
                     break
                 except Exception as e:
                     print('Error, contest {}'.format(contest.contest_id))

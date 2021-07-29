@@ -103,14 +103,6 @@ class ParticipantInline(admin.TabularInline):
                 kwargs["queryset"] = ParticipantsGroup.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "battleship_teams":
-            if self.parent_obj is not None:
-                kwargs["queryset"] = BattleshipTeam.objects.filter(course_id=self.parent_obj.id)
-            else:
-                kwargs["queryset"] = BattleshipTeam.objects.none()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 class BattleshipInline(admin.TabularInline):
     formfield_overrides = {
@@ -137,19 +129,6 @@ class BattleshipTeamInline(admin.TabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
     }
     model = BattleshipTeam
-    show_change_link = True
-
-    def get_formset(self, request, obj=None, **kwargs):
-        self.parent_obj = obj
-        return super(BattleshipTeamInline, self).get_formset(request, obj, **kwargs)
-
-    def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "battleship":
-            if self.parent_obj is not None:
-                kwargs["queryset"] = Battleship.objects.filter(course_id=self.parent_obj.id)
-            else:
-                kwargs["queryset"] = Battleship.objects.none()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class BattleshipShipInline(admin.TabularInline):
@@ -170,6 +149,34 @@ class BattleshipShipInline(admin.TabularInline):
                 kwargs["queryset"] = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
             else:
                 kwargs["queryset"] = BattleshipTeam.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class BattleshipParticipantInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = BattleshipParticipant
+    show_change_link = True
+    extra = 10
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(BattleshipParticipantInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "team":
+            if self.parent_obj is not None:
+                kwargs["queryset"] = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
+            else:
+                kwargs["queryset"] = BattleshipTeam.objects.none()
+        if db_field.name == "participant":
+            if self.parent_obj is not None:
+                teams = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
+                groups = ParticipantsGroup.objects.filter(battleship_teams__in=teams)
+                kwargs["queryset"] = Participant.objects.filter(group__in=groups)
+            else:
+                kwargs["queryset"] = Participant.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -297,7 +304,7 @@ class CourseAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, BattleshipInline, BattleshipTeamInline, PageInline, TeacherInline]
+    inlines = [CourseLinkInline, StandingsInline, ContestInline, GroupInline, ParticipantInline, BattleshipInline, PageInline, TeacherInline]
     list_display = ['id', 'label', 'title', 'subtitle']
 
 
@@ -409,5 +416,5 @@ class BattleshipAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [BattleshipShipInline]
+    inlines = [BattleshipTeamInline, BattleshipParticipantInline, BattleshipShipInline]
     list_display = ['id', 'name', 'course']
