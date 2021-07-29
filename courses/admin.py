@@ -130,6 +130,16 @@ class BattleshipTeamInline(admin.TabularInline):
     }
     model = BattleshipTeam
 
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(BattleshipTeamInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "groups":
+            kwargs["queryset"] = ParticipantsGroup.objects.all().order_by("id")
+
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 class BattleshipShipInline(admin.TabularInline):
     formfield_overrides = {
