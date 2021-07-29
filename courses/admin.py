@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.forms import TextInput, Textarea, NumberInput
+from django.forms import TextInput, Textarea, NumberInput, SelectMultiple
 from django import forms
 
 from courses.models import *
@@ -90,7 +90,6 @@ class ParticipantInline(admin.TabularInline):
     model = Participant
     show_change_link = True
     exclude = ['person']
-    extra = 0
 
     def get_formset(self, request, obj=None, **kwargs):
         self.parent_obj = obj

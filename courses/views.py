@@ -308,6 +308,8 @@ class BattleshipView(View):
                     if res['verdict'] == EJUDGE_OK:
                         row['problems'][p] = 1
                         fields[i]['success'] += 1
+                    elif res['penalty'] > 0:
+                        row['problems'][p] = -1
             for ship in team.ships.all():
                 if fields[i]['field'][ship.x]['problems'][ship.y] == 1:
                     fields[i]['field'][ship.x]['problems'][ship.y] = 2
