@@ -184,7 +184,7 @@ class BattleshipParticipantInline(admin.TabularInline):
             if self.parent_obj is not None:
                 teams = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
                 groups = ParticipantsGroup.objects.filter(battleship_teams__in=teams)
-                kwargs["queryset"] = Participant.objects.filter(group__in=groups)
+                kwargs["queryset"] = Participant.objects.filter(group__in=groups).order_by("name")
             else:
                 kwargs["queryset"] = Participant.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
