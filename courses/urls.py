@@ -18,6 +18,7 @@ urlpatterns = [
     path('blitz/problem/<int:problem_id>/open', BlitzOpenProblem.as_view(), name="blitz_open_problem"),
     path('blitz/problem/<int:problem_id>/make_bid', BlitzMakeBid.as_view(), name="blitz_make_bid"),
     path('battleship/<int:battleship_id>/', BattleshipView.as_view(), name='battleship'),
+    path('battleship_admin/<int:battleship_id>/', BattleshipAdminView.as_view(), name='battleship_admin'),
     path('api/ejudge_register/', EjudgeRegister.as_view(), name='ejudge_register_api'),
     path('<str:course_label>/', CourseView.as_view(), name='course'),
 ]

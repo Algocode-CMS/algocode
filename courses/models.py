@@ -166,6 +166,7 @@ class Battleship(models.Model):
     course = models.ForeignKey(Course, related_name="battleships", on_delete=models.CASCADE)
     name = models.TextField()
     contest = models.ForeignKey(Contest, related_name="battleships", on_delete=models.CASCADE)
+    public = models.BooleanField(default=True)
 
     def __str__(self):
         return '{} ({})'.format(self.name, self.id)

@@ -272,6 +272,10 @@ class EjudgeRegister(View):
 class BattleshipView(View):
     def get(self, request, battleship_id):
         battleship = get_object_or_404(Battleship, id=battleship_id)
+
+        if not battleship.public:
+            return HttpResponseBadRequest()
+
         teams = battleship.battleship_teams.all()
         participants = []
         for team in teams:
@@ -317,6 +321,69 @@ class BattleshipView(View):
                 if fields[i]['field'][ship.x]['problems'][ship.y] == 1:
                     fields[i]['field'][ship.x]['problems'][ship.y] = 2
                     fields[i]['ship_success'] += 1
+            fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
+
+        return render(
+            request,
+            'battleship.html',
+            {
+                'name': battleship.name,
+                'fields': fields,
+                'problem_names': problem_names,
+            }
+        )
+
+
+class BattleshipAdminView(View):
+    def get(self, request, battleship_id):
+        if not request.user.is_superuser:
+            return HttpResponseBadRequest
+
+        battleship = get_object_or_404(Battleship, id=battleship_id)
+        teams = battleship.battleship_teams.all()
+        participants = []
+        for team in teams:
+            participants.extend(team.participants.all())
+        users = []
+        for participant in participants:
+            users.append(participant.participant)
+        standings = load_contest(battleship.contest, users)
+        problem_names = standings["problems"]
+
+        fields = [
+            {
+                'name': '',
+                'field': [
+                    dict()
+                    for i in range(len(teams[j].participants.all()))
+                ],
+                'success': 0,
+                'fail': 0,
+                'ship_success': 0,
+                'ship_fail': 0,
+            }
+            for j in range(len(teams))
+        ]
+
+        for i in range(len(teams)):
+            team = teams[i]
+            fields[i]["name"] = team.name
+            for j, user in enumerate(team.participants.order_by("order", "id")):
+                row = fields[i]['field'][j]
+                row['name'] = user.participant.name
+                row['problems'] = [0] * len(problem_names)
+                row['submits'] = 0
+                for p, res in enumerate(standings['users'][user.participant.id]):
+                    row['submits'] += res['penalty']
+                    fields[i]['fail'] += res['penalty']
+                    if res['verdict'] == EJUDGE_OK:
+                        row['problems'][p] = 1
+                        fields[i]['success'] += 1
+                    elif res['penalty'] > 0:
+                        row['problems'][p] = -1
+            for ship in team.ships.all():
+                fields[i]['field'][ship.x]['problems'][ship.y] = 2
+                fields[i]['ship_success'] += 1
             fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
 
         return render(
