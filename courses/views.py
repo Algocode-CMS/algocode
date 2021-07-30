@@ -318,8 +318,8 @@ class BattleshipView(View):
                     elif res['penalty'] > 0:
                         row['problems'][p] = -1
             for ship in team.ships.all():
-                if fields[i]['field'][ship.x]['problems'][ship.y] == 1:
-                    fields[i]['field'][ship.x]['problems'][ship.y] = 2
+                if fields[i]['field'][ship.y]['problems'][ship.x] == 1:
+                    fields[i]['field'][ship.y]['problems'][ship.x] = 2
                     fields[i]['ship_success'] += 1
             fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
 
@@ -382,7 +382,7 @@ class BattleshipAdminView(View):
                     elif res['penalty'] > 0:
                         row['problems'][p] = -1
             for ship in team.ships.all():
-                fields[i]['field'][ship.x]['problems'][ship.y] = 2
+                fields[i]['field'][ship.y]['problems'][ship.x] = 2
                 fields[i]['ship_success'] += 1
             fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
 
