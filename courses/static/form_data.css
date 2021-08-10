@@ -1,0 +1,22 @@
+#form-data {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#form-data td, #form-data th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#form-data tr:nth-child(even){background-color: #f2f2f2;}
+
+#form-data tr:hover {background-color: #ddd;}
+
+#form-data th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}

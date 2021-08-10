@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Forms manager</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'form_data.css' %}">
+</head>
+<body>
+<table id="form-data">
+    <tr>
+        <th>Id</th>
+        <th>Label</th>
+        <th>Title</th>
+        <th>Subtitle</th>
+        <th>Entries</th>
+        <th>JSON</th>
+        <th>CSV</th>
+    </tr>
+
+    {% for form in forms %}
+    <tr>
+        <td>{{ form.form.id }}</td>
+        <td>{{ form.form.label }}</td>
+        <td>{{ form.form.title }}</td>
+        <td>{{ form.form.subtitle }}</td>
+        <td>{{ form.entries }}</td>
+        <td><a href="{% url 'form_json_export' form.form.label %}">Download</a> </td>
+        <td><a href="{% url 'form_csv_export' form.form.label %}">Download</a> </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

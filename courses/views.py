@@ -1,9 +1,12 @@
+import csv
 import datetime
+import json
 import os
 import re
 from time import sleep
 
 from django.contrib.auth import logout, authenticate, login
+from django.core import mail
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.urls import reverse
@@ -14,13 +17,14 @@ from transliterate import translit
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
-    Participant, Battleship
+    Participant, Battleship, FormBuilder, FormField, FormEntry
 from courses.judges.judges import load_contest
 
 from django.views import View
 
 from ejudge_registration.ejudge_api_registration import EjudgeApiSession
 
+from ipware import get_client_ip
 
 class MainView(View):
     def get(self, request, main_id=DEFAULT_MAIN):
@@ -237,6 +241,30 @@ class BlitzMakeBid(View):
         return redirect(reverse("blitz_view", kwargs={"contest_id": problem.contest.id}))
 
 
+def register_user(ejudge_register_api: EjudgeRegisterApi, name: str):
+    contests = [contest.contest_id for contest in ejudge_register_api.contests.all()]
+    login = ejudge_register_api.login
+    api_session = EjudgeApiSession(EJUDGE_AUTH["login"], EJUDGE_AUTH["password"], EJUDGE_URL)
+    int_login = True
+    if ejudge_register_api.use_surname:
+        surname = translit(name.split()[0], 'ru', reversed=True)
+        surname = re.sub(r'\W+', '', surname).lower()
+        login = f'{login}{surname}'
+        int_login = False
+    user = api_session.create_user_and_add_contests(login, name, int_login, contests)
+    for group in ejudge_register_api.groups.all():
+        group_name = name
+        if group.use_login:
+            group_name = user["login"]
+        Participant.objects.create(
+            name=group_name,
+            group=group.group,
+            course=group.group.course,
+            ejudge_id=user["user_id"]
+        )
+    return user
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class EjudgeRegister(View):
     def post(self, request):
@@ -246,26 +274,7 @@ class EjudgeRegister(View):
         if secret != ejudge_register_api.secret:
             return HttpResponseBadRequest()
         name = request.POST.get('name')
-        contests = [contest.contest_id for contest in ejudge_register_api.contests.all()]
-        login = ejudge_register_api.login
-        api_session = EjudgeApiSession(EJUDGE_AUTH["login"], EJUDGE_AUTH["password"], EJUDGE_URL)
-        int_login = True
-        if ejudge_register_api.use_surname:
-            surname = translit(name.split()[0], 'ru', reversed=True)
-            surname = re.sub(r'\W+', '', surname).lower()
-            login = f'{login}{surname}'
-            int_login = False
-        user = api_session.create_user_and_add_contests(login, name, int_login, contests)
-        for group in ejudge_register_api.groups.all():
-            group_name = name
-            if group.use_login:
-                group_name = user["login"]
-            Participant.objects.create(
-                name=group_name,
-                group=group.group,
-                course=group.group.course,
-                ejudge_id=user["user_id"]
-            )
+        user = register_user(ejudge_register_api, name)
         return JsonResponse(user)
 
 
@@ -395,3 +404,158 @@ class BattleshipAdminView(View):
                 'problem_names': problem_names,
             }
         )
+
+
+class FormView(View):
+    def get(self, request, form_label):
+        form = get_object_or_404(FormBuilder, label=form_label)
+        fields = form.fields.order_by("id")
+
+        return render(
+            request,
+            'form.html',
+            {
+                'form': form,
+                'fields': fields,
+            }
+        )
+
+    @method_decorator(csrf_protect)
+    def post(self, request, form_label):
+        form = get_object_or_404(FormBuilder, label=form_label)
+        fields = form.fields.order_by("id")
+        result = dict()
+
+        user_mail = ''
+        user_ip, is_routable = get_client_ip(request)
+
+        for field in fields:
+            if field.type in [FormField.STR, FormField.MAIL, FormField.PHONE, FormField.LONG, FormField.DATE]:
+                result[field.internal_name] = request.POST.get(field.internal_name, '')
+                if field.type == FormField.MAIL:
+                    user_mail = request.POST.get(field.internal_name, '')
+
+            if field.type == FormField.INTEGER:
+                result[field.internal_name] = int(request.POST.get(field.internal_name, 0))
+
+            if field.type == FormField.CHECKBOX:
+                result[field.internal_name] = field.internal_name in request.POST
+
+        if len(form.register_api.all()) > 0:
+            name = form.register_name_template.format(**result)
+            ejudge_register_api = form.register_api.all()[0]
+            user_login = register_user(ejudge_register_api, name)
+            result["ejudge_login"] = user_login["login"]
+            result["ejudge_password"] = user_login["password"]
+
+        entry = FormEntry.objects.create(form=form, data=json.dumps(result), mail=user_mail, ip=user_ip)
+        entry.save()
+
+        if form.send_mail and form.mail_auth:
+            auth = form.mail_auth
+
+            with mail.get_connection(
+                    host=auth.mail_host,
+                    port=auth.mail_port,
+                    username=auth.mail_username,
+                    password=auth.mail_password,
+                    use_tls=auth.mail_use_tls,
+                    use_ssl=auth.mail_use_ssl
+            ) as connection:
+                mail.EmailMessage(
+                    form.mail_topic,
+                    form.mail_template.format(**result),
+                    auth.mail_username,
+                    [user_mail],
+                    connection=connection
+                ).send()
+
+        return HttpResponse(form.response_text.format(**result))
+
+
+class FormDataView(View):
+    def get(self, request):
+        user = request.user
+        if not user.is_superuser:
+            return HttpResponseBadRequest
+        forms = FormBuilder.objects.order_by("id")
+        res = []
+        for form in forms:
+            res.append(dict())
+            res[-1]["form"] = form
+            res[-1]["entries"] = len(form.entries.all())
+
+        return render(
+            request,
+            'form_data.html',
+            {
+                "forms": res
+            }
+        )
+
+
+class FormJsonExport(View):
+    def get(self, request, form_label):
+        user = request.user
+        if not user.is_superuser:
+            return HttpResponseBadRequest
+
+        form = get_object_or_404(FormBuilder, label=form_label)
+
+        entries = form.entries.order_by("id")
+
+        result = []
+        for entry in entries:
+            entry_dict = json.loads(entry.data)
+            entry_dict["ip"] = entry.ip
+            entry_dict["time"] = entry.time.isoformat()
+            result.append(entry_dict)
+
+        return JsonResponse(result, safe=False)
+
+
+class FormCSVExport(View):
+    def get(self, request, form_label):
+        user = request.user
+        if not user.is_superuser:
+            return HttpResponseBadRequest
+
+        form = get_object_or_404(FormBuilder, label=form_label)
+
+        response = HttpResponse(
+            content_type='text/csv',
+        )
+
+        response['Content-Disposition'] = 'attachment; filename="{label}.csv"'.format(label=form.label)
+        writer = csv.writer(response)
+
+        columns = ['time']
+        column_names = []
+        fields = form.fields.order_by("id")
+        for field in fields:
+            columns.append(field.label)
+            column_names.append(field.internal_name)
+
+        if len(form.register_api.all()) > 0:
+            columns.append("ejudge_login")
+            column_names.append("ejudge_login")
+            columns.append("ejudge_password")
+            column_names.append("ejudge_password")
+
+        writer.writerow(columns)
+
+        entries = form.entries.order_by("id")
+
+        for entry in entries:
+            row = [entry.time]
+            entry_dict = json.loads(entry.data)
+
+            for column in column_names:
+                if column in entry_dict:
+                    row.append(entry_dict[column])
+                else:
+                    row.append('')
+
+            writer.writerow(row)
+
+        return response

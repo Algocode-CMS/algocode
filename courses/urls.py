@@ -20,5 +20,9 @@ urlpatterns = [
     path('battleship/<int:battleship_id>/', BattleshipView.as_view(), name='battleship'),
     path('battleship_admin/<int:battleship_id>/', BattleshipAdminView.as_view(), name='battleship_admin'),
     path('api/ejudge_register/', EjudgeRegister.as_view(), name='ejudge_register_api'),
+    path('form/data/', FormDataView.as_view(), name='form_data'),
+    path('form/export/json/<str:form_label>', FormJsonExport.as_view(), name='form_json_export'),
+    path('form/export/csv/<str:form_label>', FormCSVExport.as_view(), name='form_csv_export'),
+    path('form/<str:form_label>/', FormView.as_view(), name='form'),
     path('<str:course_label>/', CourseView.as_view(), name='course'),
 ]

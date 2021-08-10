@@ -1,0 +1,213 @@
+.wrapper {
+    min-height: 100%;
+}
+
+header {
+    text-align: center;
+}
+
+.main {
+    width: 50em;
+    margin: 0 auto;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+a {
+    color: #2a6478;
+    text-decoration: none;
+    transition: 300ms;
+    border-bottom: 1px solid transparent;
+}
+
+a:hover {
+    border-bottom: 1px solid #2a6478;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+.group {
+  width: 100%;
+  position: relative;
+    margin-top: 50px;
+    padding-bottom: 10px;
+}
+
+div.checkbox-row {
+  width: 100%;
+  position: relative;
+  margin-top: 20px;
+  /*padding-bottom: 10px;*/
+}
+
+label.lab {
+  position: absolute;
+  top: 0;
+  color: rgba(0, 0, 0, 0.7);
+  font: 400 30px 'Open Sans', sans-serif;
+  cursor: text;
+  transition: 0.25s ease;
+}
+
+input.inp {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  font-size: 30px;
+  transition: 0.3s ease;
+  font-family: 'Open Sans', sans-serif;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  font-size: 30px;
+  transition: 0.3s ease;
+  font-family: 'Open Sans', sans-serif;
+  resize: none;
+  overflow-y: scroll;
+}
+
+input:not(:placeholder-shown) + label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
+
+input:invalid:not(:placeholder-shown) + label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+
+
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+input:focus ~ label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
+
+textarea:not(:placeholder-shown) ~ label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
+
+textarea:focus ~ label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
+
+input:focus ~ .bar:before,
+input:hover ~ .bar:before,
+input:not(:placeholder-shown) + .bar:before {
+  transform: translateX(0);
+}
+
+textarea:focus ~ .bar:before {
+    transform: translateX(0);
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset;
+  -webkit-text-fill-color: black !important;
+}
+
+.fields {
+    margin-bottom: 100px;
+}
+
+.bar {
+  background: rgba(0, 0, 0, 0.7);
+  content: "";
+  height: 1px;
+  transition: 0.3s ease;
+  position: absolute;
+  width: 100%;
+}
+
+.bar:before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: #487de5;
+  transform: translateX(-100%);
+}
+
+label span {
+    color: red;
+}
+
+*,
+:before,
+:after {
+  box-sizing: border-box;
+}
+
+input.checkbox-row {
+    height: 15px;
+    width: 15px;
+    vertical-align: middle;
+}
+
+label.checkbox-row {
+    font: 400 20px 'Open Sans', sans-serif;
+    color: rgba(0, 0, 0, 0.8);
+}
+
+input.checkbox-row:checked ~ label.checkbox-row {
+    font: 400 20px 'Open Sans', sans-serif;
+    color: rgb(0, 0, 0);
+}
+
+div.text-label {
+    font: 400 30px 'Open Sans', sans-serif;
+    color: rgba(0, 0, 0, 1);
+}
+
+div.text-desc {
+    font: 400 17px 'Open Sans', sans-serif;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+button {
+    display: block;
+    padding: 10px 30px;
+    font-size: 25px;
+    background: #487de5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin: 0 auto;
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.18), 0 5px 5px rgba(0, 0, 0, 0.12);
+    cursor:pointer;
+    margin-top: 40px
+}
+
+button:hover {
+    box-shadow: none;
+    color: rgba(256, 256, 256, 0.8);
+}
+

@@ -299,6 +299,13 @@ class EjudgeRegisterApiContestInline(admin.TabularInline):
     model = EjudgeRegisterApiContestAdd
 
 
+class FormFieldInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = FormField
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -428,3 +435,21 @@ class BattleshipAdmin(admin.ModelAdmin):
     }
     inlines = [BattleshipTeamInline, BattleshipParticipantInline, BattleshipShipInline]
     list_display = ['id', 'name', 'course']
+
+
+@admin.register(FormBuilder)
+class FormAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    inlines = [FormFieldInline]
+    list_display = ['id', 'label', 'title', 'subtitle']
+
+
+# Better hide it from admin page and show only for editing
+# @admin.register(MailAuth)
+# class MailAuthAdmin(admin.ModelAdmin):
+#     formfield_overrides = {
+#         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+#     }
+#     list_display = ['id', 'name']

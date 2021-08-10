@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -272,6 +273,77 @@ class EjudgeRegisterApiGroupAdd(models.Model):
 class EjudgeRegisterApiContestAdd(models.Model):
     ejudge_register = models.ForeignKey(EjudgeRegisterApi, related_name="contests", on_delete=models.CASCADE)
     contest_id = models.IntegerField()
+
+
+class MailAuth(models.Model):
+    name = models.TextField()
+    mail_host = models.TextField()
+    mail_port = models.TextField()
+    mail_username = models.TextField()
+    mail_password = models.TextField()
+    mail_use_tls = models.BooleanField()
+    mail_use_ssl = models.BooleanField()
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.id)
+
+
+class FormBuilder(models.Model):
+    label = models.TextField(unique=True)
+    title = models.TextField()
+    subtitle = models.TextField(blank=True)
+    button_text = models.TextField(default="Отправить")
+    response_text = models.TextField(blank=True)
+
+    send_mail = models.BooleanField(default=False)
+    mail_auth = models.ForeignKey(MailAuth, related_name="forms", blank=True, on_delete=models.SET_NULL, null=True)
+    mail_topic = models.TextField(blank=True)
+    mail_template = models.TextField(blank=True)
+
+    register_api = models.ManyToManyField(EjudgeRegisterApi, related_name="forms", blank=True)
+    register_name_template = models.TextField(blank=True)
+
+
+class FormFieldType:
+    STR = "ST"
+    INTEGER = "IN"
+    MAIL = "ML"
+    PHONE = "PH"
+    DATE = "DT"
+    LONG = "LO"
+    CHECKBOX = "CB"
+    TEXT = "TX"
+
+    TYPES = (
+        (STR, "Small text field"),
+        (INTEGER, "Number"),
+        (MAIL, "Mail address"),
+        (PHONE, "Phone number"),
+        (DATE, "Date"),
+        (LONG, "Large textarea"),
+        (CHECKBOX, "Check box"),
+        (TEXT, "Text without field"),
+    )
+
+
+class FormField(models.Model, FormFieldType):
+    form = models.ForeignKey(FormBuilder, related_name="fields", on_delete=models.CASCADE)
+    label = models.TextField()
+    type = models.CharField(max_length=2, choices=FormFieldType.TYPES, default=FormFieldType.STR)
+    required = models.BooleanField(default=False)
+    internal_name = models.TextField()
+    description = models.TextField(blank=True)
+
+
+class FormEntry(models.Model):
+    form = models.ForeignKey(FormBuilder, related_name="entries", on_delete=models.CASCADE)
+    data = models.TextField()
+    ip = models.TextField(blank=True)
+    mail = models.TextField(blank=True)
+    time = models.DateTimeField(auto_now_add=True)
+
+
+################################################################################################
 
 
 @receiver(models.signals.post_delete, sender=ContestLink)
