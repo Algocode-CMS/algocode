@@ -14,6 +14,7 @@
         <th>Title</th>
         <th>Subtitle</th>
         <th>Entries</th>
+        <th>Form link</th>
         <th>JSON</th>
         <th>CSV</th>
     </tr>
@@ -25,6 +26,7 @@
         <td>{{ form.form.title }}</td>
         <td>{{ form.form.subtitle }}</td>
         <td>{{ form.entries }}</td>
+        <td><a href="{% url 'form' form.form.label %}">Link</a></td>
         <td><a href="{% url 'form_json_export' form.form.label %}">Download</a> </td>
         <td><a href="{% url 'form_csv_export' form.form.label %}">Download</a> </td>
     </tr>
