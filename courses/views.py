@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from transliterate import translit
 
-from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN
+from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN, DEFAULT_COURSE
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
     Participant, Battleship, FormBuilder, FormField, FormEntry
@@ -44,7 +44,7 @@ class MainView(View):
 
 
 class CourseView(View):
-    def get(self, request, course_label):
+    def get(self, request, course_label=DEFAULT_COURSE):
         course = get_object_or_404(Course, label=course_label)
         contests_list = course.contests.order_by('-date', '-id')
         links = course.links.filter(hidden=False).order_by("priority")

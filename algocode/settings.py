@@ -43,6 +43,8 @@ DATABASES = load_config('django_db')
 CACHES = load_config('django_cache')
 EJUDGE_URL = load_config('ejudge_url')
 DEFAULT_MAIN = load_config("default_main")
+DEFAULT_COURSE = load_config("default_course")
+USE_MAIN_BY_DEFAULT = load_config("use_main_by_default")
 
 
 ALLOWED_HOSTS = ['*']
