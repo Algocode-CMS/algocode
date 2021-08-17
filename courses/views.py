@@ -26,6 +26,7 @@ from ejudge_registration.ejudge_api_registration import EjudgeApiSession
 
 from ipware import get_client_ip
 
+
 class MainView(View):
     def get(self, request, main_id=DEFAULT_MAIN):
         main = get_object_or_404(Main, id=main_id)
@@ -428,6 +429,14 @@ class FormView(View):
 
         user_mail = ''
         user_ip, is_routable = get_client_ip(request)
+
+        if form.requests_per_day_limit is not None and \
+                form.requests_per_day_limit > 0 and \
+                user_ip not in form.ip_whitelist.split():
+            day_ago = datetime.datetime.now() - datetime.timedelta(days=1)
+            entries = len(form.entries.filter(ip=user_ip, time__gte=day_ago))
+            if entries >= form.requests_per_day_limit:
+                return HttpResponse("Превышенно максимальное число запросов")
 
         for field in fields:
             if field.type in [FormField.STR, FormField.MAIL, FormField.PHONE, FormField.LONG, FormField.DATE]:

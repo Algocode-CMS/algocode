@@ -300,6 +300,9 @@ class FormBuilder(models.Model):
     mail_topic = models.TextField(blank=True)
     mail_template = models.TextField(blank=True)
 
+    requests_per_day_limit = models.IntegerField(blank=True, null=True)
+    ip_whitelist = models.TextField(blank=True)
+
     register_api = models.ManyToManyField(EjudgeRegisterApi, related_name="forms", blank=True)
     register_name_template = models.TextField(blank=True)
 
