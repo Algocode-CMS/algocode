@@ -72,7 +72,7 @@ class CodeforcesLoader:
             if 'teamId' not in submit['author']:
                 try:
                     handle = submit['author']['members'][0]['handle'].lower()
-                    user_id = Participant.objects.get(codeforces_handle=handle).id
+                    user_ids = Participant.objects.filter(codeforces_handle=handle)
                     status = CODEFORCES_EJUDGE_VERDICTS[submit['verdict']]
                     time_msk = datetime.datetime.fromtimestamp(submit['creationTimeSeconds'])
                     start_time = datetime.datetime.fromtimestamp(submit['author']['startTimeSeconds'])
@@ -85,14 +85,16 @@ class CodeforcesLoader:
                         score = submit['points']
                     elif status == EJUDGE_OK:
                         score = 1
-                    runs_list.append({
-                        'user_id': user_id,
-                        'status': status,
-                        'time': submit_time,
-                        'utc_time': int(utc_time.timestamp()),
-                        'prob_id': prob_id,
-                        'score': score,
-                    })
+                    for cur_user in user_ids:
+                        user_id = cur_user.id
+                        runs_list.append({
+                            'user_id': user_id,
+                            'status': status,
+                            'time': submit_time,
+                            'utc_time': int(utc_time.timestamp()),
+                            'prob_id': prob_id,
+                            'score': score,
+                        })
                 except:
                     pass
 
