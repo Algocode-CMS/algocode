@@ -456,6 +456,7 @@ class FormView(View):
             user_login = register_user(ejudge_register_api, name)
             result["ejudge_login"] = user_login["login"]
             result["ejudge_password"] = user_login["password"]
+            result["ejudge_id"] = user_login["user_id"]
 
         entry = FormEntry.objects.create(form=form, data=json.dumps(result), mail=user_mail, ip=user_ip)
         entry.save()
@@ -550,6 +551,8 @@ class FormCSVExport(View):
             column_names.append("ejudge_login")
             columns.append("ejudge_password")
             column_names.append("ejudge_password")
+            columns.append("ejudge_id")
+            column_names.append("ejudge_id")
 
         writer.writerow(columns)
 
