@@ -599,7 +599,7 @@ class PoleChudesTeamView(View):
 
         team = get_object_or_404(PoleChudesTeam, id=team_id)
 
-        if not request.user.is_superuser:
+        if not request.user.is_staff:
             if team.user is None:
                 return HttpResponseBadRequest
             if team.user != request.user:
@@ -721,7 +721,7 @@ class PoleChudesGuessView(View):
 
         team = get_object_or_404(PoleChudesTeam, id=team_id)
 
-        if not request.user.is_superuser:
+        if not request.user.is_staff:
             if team.user is None:
                 return HttpResponseBadRequest
             if team.user != request.user:
