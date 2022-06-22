@@ -731,8 +731,6 @@ class PoleChudesGuessView(View):
 
         curr_word = list(team.game.words.order_by("id"))[team.word_id].text
 
-        print(len(word), len(curr_word))
-
         if len(word) != len(curr_word):
             return HttpResponse("Вы предложили слово {}, оно не совпадает по длине с загаданным словом".format(word))
 

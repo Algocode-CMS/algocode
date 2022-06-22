@@ -21,7 +21,6 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
             if p.participant.id in contest["users"]:
                 for i, submit in enumerate(contest["users"][p.participant.id]):
                     if submit["verdict"] == EJUDGE_OK and i < len(game.alphabet):
-                        print(submit)
                         let.append({"time": submit["utc_time"], "letter": game.alphabet[i]})
                         team.score += game.accept_bonus
                         team.problems += 1
@@ -33,7 +32,6 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
             guess_time = 10 ** 100
 
             for guess in team.guesses.filter(word_id=i).order_by("id"):
-                print(guess.time.timestamp(), guess.time)
                 team.score += guess.score
                 if guess.guessed:
                     guess_time = guess.time.timestamp()
@@ -43,7 +41,6 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
                     team.unsuccess += 1
 
             while let_id < len(let) and let[let_id]["time"] < guess_time:
-                print(let[let_id]["time"])
                 if let[let_id]["letter"] not in guessed_letters:
                     letter = PoleChudesLetter.objects.create(
                         team=team,
