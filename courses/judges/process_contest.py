@@ -5,8 +5,11 @@ from courses.models import BlitzProblemStart, BlitzProblem
 from courses.judges.common_verdicts import *
 
 
-def process_contest(runs_list, problems, contest, users):
+def process_contest(runs_list, problems, contest, users, **kwargs):
     user_info = {}
+    save_utc = False
+    if 'utc_time' in kwargs and kwargs['utc_time']:
+        save_utc = True
     for user in users:
         user_info[user.id] = []
         for i in range(len(problems)):
@@ -16,6 +19,8 @@ def process_contest(runs_list, problems, contest, users):
                 'verdict': None,
                 'time': 0,
             })
+            if save_utc:
+                user_info[user.id][-1]["utc_time"] = 0
 
     for run in runs_list:
         try:
@@ -49,6 +54,8 @@ def process_contest(runs_list, problems, contest, users):
             info['score'] = max(info['score'], score)
             info['verdict'] = status
             info['time'] = time
+            if save_utc:
+                info['utc_time'] = utc_time
         except:
             pass
 

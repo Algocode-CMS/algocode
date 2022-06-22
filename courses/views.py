@@ -16,8 +16,9 @@ from transliterate import translit
 
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN, DEFAULT_COURSE
 from courses.judges.common_verdicts import EJUDGE_OK
+from courses.judges.pole_chudes import recalc_pole_chudes_standings
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
-    Participant, Battleship, FormBuilder, FormField, FormEntry
+    Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -571,3 +572,181 @@ class FormCSVExport(View):
             writer.writerow(row)
 
         return response
+
+
+class PoleChudesTeamsView(View):
+    def get(self, request, game_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+
+        game = get_object_or_404(PoleChudesGame, id=game_id)
+
+        recalc_pole_chudes_standings(game)
+
+        teams = list(game.teams.order_by("-score"))
+
+        return render(
+            request,
+            'pole_chudes_teams.html',
+            {
+                'teams': teams,
+                'game': game,
+            }
+        )
+
+
+class PoleChudesTeamView(View):
+    def get(self, request, team_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+
+        team = get_object_or_404(PoleChudesTeam, id=team_id)
+
+        if not request.user.is_superuser:
+            if team.user is None:
+                return HttpResponseBadRequest
+            if team.user != request.user:
+                return HttpResponseBadRequest
+
+        recalc_pole_chudes_standings(team.game)
+
+        standings = []
+
+        participants = []
+
+        for participant in team.participants.order_by("id"):
+            participants.append(participant.participant)
+
+        contest = load_contest(team.game.contest, participants)
+        prob_letters = ["" for i in range(len(team.game.alphabet))]
+
+        for i in range(len(contest["problems"])):
+            if i < len(prob_letters):
+                prob_letters[i] = contest["problems"][i]["short"]
+
+        for participant in team.participants.order_by("id"):
+            row = dict()
+            row["name"] = participant.participant.name
+            row["problems"] = [
+                {
+                    'penalty': 0,
+                    'verdict': None,
+                } for i in range(len(team.game.alphabet))
+            ]
+
+            if participant.participant.id in contest['users']:
+                for p, res in enumerate(contest['users'][participant.participant.id]):
+                    if p >= len(row["problems"]):
+                        continue
+                    if res["verdict"] == EJUDGE_OK:
+                        res["show"] = '+'
+                        if res["penalty"] > 1:
+                            res["show"] = '+{}'.format(res["penalty"])
+                    elif res["verdict"] is not None:
+                        res["show"] = '-{}'.format(res["penalty"])
+                    row["problems"][p] = res
+
+            standings.append(row)
+
+        alphabet_to_index = {team.game.alphabet[i]: i for i in range(len(team.game.alphabet))}
+        words = []
+
+        for wid, word_model in enumerate(list(team.game.words.order_by("id"))):
+            word = dict()
+            word["hint"] = word_model.hint
+            word["id"] = wid + 1
+            word["word"] = [
+                {
+                    "state": "not guessed",
+                    "letter": i,
+                } for i in word_model.text
+            ]
+            word["alphabet"] = [
+                {
+                    "state": "unknown",
+                    "letter": i,
+                } for i in team.game.alphabet
+            ]
+            word["unsuccess"] = []
+
+            for letter in list(team.letters.filter(word_id=wid).all()):
+                j = alphabet_to_index[letter.letter.upper()]
+                guessed_let = False
+                for i, a in enumerate(word_model.text):
+                    if a == letter.letter:
+                        guessed_let = True
+                        word["word"][i]["state"] = "guessed"
+                if guessed_let:
+                    word["alphabet"][j]["state"] = "yes"
+                else:
+                    word["alphabet"][j]["state"] = "no"
+
+            guess_word = False
+
+            for guess in list(team.guesses.filter(word_id=wid).order_by("id")):
+                if guess.guessed:
+                    for i in range(len(word_model.text)):
+                        if word["word"][i]["state"] != "guessed":
+                            word["word"][i]["state"] = "shown"
+                    guess_word = True
+                    break
+                else:
+                    word["unsuccess"].append(guess.guess)
+
+            word["guessed"] = guess_word
+
+            words.append(word)
+
+            if not guess_word:
+                break
+
+        words.reverse()
+
+        return render(
+            request,
+            'pole_chudes_team.html',
+            {
+                'team': team,
+                'standings': standings,
+                'prob_letters': prob_letters,
+                'words': words,
+            }
+        )
+
+
+class PoleChudesGuessView(View):
+    @method_decorator(csrf_protect)
+    def post(self, request, team_id):
+        if request.user.is_anonymous:
+            return redirect(reverse('login'))
+
+        team = get_object_or_404(PoleChudesTeam, id=team_id)
+
+        if not request.user.is_superuser:
+            if team.user is None:
+                return HttpResponseBadRequest
+            if team.user != request.user:
+                return HttpResponseBadRequest
+
+        word = str(request.POST.get("word", "")).upper()
+
+        curr_word = list(team.game.words.order_by("id"))[team.word_id].text
+
+        print(len(word), len(curr_word))
+
+        if len(word) != len(curr_word):
+            return HttpResponse("Вы предложили слово {}, оно не совпадает по длине с загаданным словом".format(word))
+
+        guessed = (word == curr_word)
+
+        guess = PoleChudesGuess.objects.create(
+            team=team,
+            word_id=team.word_id,
+            guess=word,
+            guessed=guessed,
+            score=team.game.guess_bonus if guessed else -team.game.miss_penalty,
+        )
+
+        guess.save()
+
+        return redirect(reverse("pole_chudes_team", kwargs={"team_id": team_id}))

@@ -446,6 +446,82 @@ class FormAdmin(admin.ModelAdmin):
     list_display = ['id', 'label', 'title', 'subtitle']
 
 
+class PoleChudesTeamInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = PoleChudesTeam
+    show_change_link = True
+    extra = 10
+
+
+class PoleChudesWordInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = PoleChudesWord
+    extra = 10
+
+
+@admin.register(PoleChudesGame)
+class PoleChudesAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'course', 'name']
+    inlines = [PoleChudesTeamInline, PoleChudesWordInline]
+
+
+class PoleChudesParticipantInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = PoleChudesParticipant
+    show_change_link = True
+    extra = 10
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.parent_obj = obj
+        return super(PoleChudesParticipantInline, self).get_formset(request, obj, **kwargs)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "participant":
+            if self.parent_obj is not None:
+                teams = list(PoleChudesTeam.objects.filter(id=self.parent_obj.id))
+                if len(teams) != 0:
+                    kwargs["queryset"] = Participant.objects.filter(course_id=teams[0].game.course.id).order_by("id")
+                else:
+                    kwargs["queryset"] = Participant.objects.none()
+            else:
+                kwargs["queryset"] = Participant.objects.none()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class PoleChudesGuessInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = PoleChudesGuess
+    extra = 0
+
+
+class PoleChudesLetterInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
+    }
+    model = PoleChudesLetter
+    extra = 1
+
+
+@admin.register(PoleChudesTeam)
+class PoleChudesTeamAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'game', 'name']
+    inlines = [PoleChudesParticipantInline, PoleChudesGuessInline, PoleChudesLetterInline]
+
+
 # Better hide it from admin page and show only for editing
 # @admin.register(MailAuth)
 # class MailAuthAdmin(admin.ModelAdmin):

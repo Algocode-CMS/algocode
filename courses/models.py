@@ -204,7 +204,7 @@ class Participant(models.Model):
     vk_id = models.TextField(blank=True)
 
     def __str__(self):
-        return self.name + " - " + self.group.short_name
+        return "{} ()".format(self.name, self.id)
 
 
 class BattleshipParticipant(models.Model):
@@ -343,6 +343,59 @@ class FormEntry(models.Model):
     data = models.TextField()
     ip = models.TextField(blank=True)
     mail = models.TextField(blank=True)
+    time = models.DateTimeField(auto_now_add=True)
+
+
+class PoleChudesGame(models.Model):
+    course = models.ForeignKey(Course, related_name="pole_chudes_games", on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, related_name="pole_chudes_games", on_delete=models.CASCADE)
+    name = models.TextField()
+    guess_bonus = models.IntegerField()
+    miss_penalty = models.IntegerField()
+    accept_bonus = models.IntegerField()
+    alphabet = models.TextField(default="АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", blank=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.id)
+
+
+class PoleChudesWord(models.Model):
+    game = models.ForeignKey(PoleChudesGame, related_name="words", on_delete=models.CASCADE)
+    text = models.TextField()
+    hint = models.TextField()
+
+
+class PoleChudesTeam(models.Model):
+    game = models.ForeignKey(PoleChudesGame, related_name="teams", on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="pole_chudes_teams", blank=True, on_delete=models.SET_NULL, null=True)
+    name = models.TextField()
+    players = models.TextField(blank=True)
+    score = models.IntegerField(default=0)
+    word_id = models.IntegerField(default=0)
+    problems = models.IntegerField(default=0)
+    unsuccess = models.IntegerField(default=0)
+    coins = models.IntegerField(default=0)
+
+
+class PoleChudesParticipant(models.Model):
+    team = models.ForeignKey(PoleChudesTeam, related_name="participants", on_delete=models.CASCADE)
+    participant = models.ForeignKey(Participant, related_name="pole_chudes_participants", on_delete=models.CASCADE)
+
+
+class PoleChudesGuess(models.Model):
+    team = models.ForeignKey(PoleChudesTeam, related_name="guesses", on_delete=models.CASCADE)
+    word_id = models.IntegerField()
+    guess = models.TextField(default="")
+    guessed = models.BooleanField()
+    score = models.IntegerField(default=10)
+    time = models.DateTimeField(auto_now_add=True)
+
+
+class PoleChudesLetter(models.Model):
+    team = models.ForeignKey(PoleChudesTeam, related_name="letters", on_delete=models.CASCADE)
+    word_id = models.IntegerField()
+    letter = models.CharField(max_length=1)
+    score = models.IntegerField(default=1)
     time = models.DateTimeField(auto_now_add=True)
 
 

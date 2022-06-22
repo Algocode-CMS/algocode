@@ -1,0 +1,66 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+    background: white;
+    border: 1px solid gray;
+    text-align: center;
+    height: 1.5em;
+    white-space: nowrap;
+	padding: 0;
+    margin: 0;
+	min-width: 1.5em;
+    width: 1.5em;
+}
+
+td.stitle {
+    background-color: rgb(240, 240, 240);
+}
+
+td.name {
+	padding-left: 5px;
+	padding-right: 5px;
+    text-align: left;
+}
+
+td.ok {
+    background-color: lightgreen;
+}
+
+td.bad {
+    background-color: lightcoral;
+}
+
+td.not_guessed {
+    background-color: rgb(240, 240, 240);
+}
+
+td.guessed {
+    background-color: lightgreen;
+}
+
+td.letter_yes {
+    background-color: lightgreen;
+}
+
+td.letter_no {
+    background-color: lightcoral;
+}
+
+td.letter_unknown {
+    background-color: rgb(200, 200, 200);
+}
+
+h4.unsuccess {
+    margin-bottom: 10px;
+}
+
+p.unsuccess {
+    padding-left: 20px;
+    margin: 5px;
+}

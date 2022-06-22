@@ -77,7 +77,7 @@ class CodeforcesLoader:
                     time_msk = datetime.datetime.fromtimestamp(submit['creationTimeSeconds'])
                     start_time = datetime.datetime.fromtimestamp(submit['author']['startTimeSeconds'])
                     submit_time = int((time_msk - start_time).total_seconds())
-                    time_msk = pytz.timezone(settings.TIME_ZONE).localize(start_time)
+                    time_msk = pytz.timezone(settings.TIME_ZONE).localize(time_msk)
                     utc_time = time_msk.astimezone(pytz.timezone('UTC'))
                     prob_id = problem_index[submit['problem']['index']]
                     score = 0

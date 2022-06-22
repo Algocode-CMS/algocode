@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+
+    <meta http-equiv="content-language" content="ru-ru">
+    <link rel="stylesheet" type="text/css" href="{% static 'form_data.css' %}">
+    <title>Поле чудес</title>
+</head>
+<body>
+
+<h1 class="header">
+    {{ game.name }}
+</h1>
+
+<table id="form-data">
+<tr>
+    <th>Название</th>
+    <th>Состав</th>
+    <th>Баллы</th>
+    <th>Слов угадано</th>
+    <th>Сдано задач</th>
+    <th>Ссылка на вход</th>
+</tr>
+{% for team in teams %}
+<tr>
+    <td>{{ team.name }}</td>
+    <td>{{ team.players }}</td>
+    <td>{{ team.score }}</td>
+    <td>{{ team.word_id }}</td>
+    <td>{{ team.problems }}</td>
+    <td><a href="{% url 'pole_chudes_team' team_id=team.id %}">Войти</a></td>
+</tr>
+{% endfor %}
+</table>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_page
 from algocode.settings import USE_MAIN_BY_DEFAULT
 from courses.views import *
 
+
 urlpatterns = [
     path('', MainView.as_view() if USE_MAIN_BY_DEFAULT else CourseView.as_view(), name='main'),
     path('main/<int:main_id>/', MainView.as_view(), name='main'),
@@ -20,6 +21,9 @@ urlpatterns = [
     path('blitz/problem/<int:problem_id>/make_bid', BlitzMakeBid.as_view(), name="blitz_make_bid"),
     path('battleship/<int:battleship_id>/', BattleshipView.as_view(), name='battleship'),
     path('battleship_admin/<int:battleship_id>/', BattleshipAdminView.as_view(), name='battleship_admin'),
+    path('pole_chudes/team/<int:team_id>/', PoleChudesTeamView.as_view(), name='pole_chudes_team'),
+    path('pole_chudes/team/guess/<int:team_id>/', PoleChudesGuessView.as_view(), name='pole_chudes_team_guess'),
+    path('pole_chudes/<int:game_id>/', PoleChudesTeamsView.as_view(), name='pole_chudes'),
     path('api/ejudge_register/', EjudgeRegister.as_view(), name='ejudge_register_api'),
     path('form/data/', FormDataView.as_view(), name='form_data'),
     path('form/export/json/<str:form_label>', FormJsonExport.as_view(), name='form_json_export'),
