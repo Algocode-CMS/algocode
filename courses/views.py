@@ -576,9 +576,6 @@ class FormCSVExport(View):
 
 class PoleChudesTeamsView(View):
     def get(self, request, game_id):
-        if request.user.is_anonymous:
-            return redirect(reverse('login'))
-
         game = get_object_or_404(PoleChudesGame, id=game_id)
 
         recalc_pole_chudes_standings(game)

@@ -489,7 +489,7 @@ class PoleChudesParticipantInline(admin.TabularInline):
             if self.parent_obj is not None:
                 teams = list(PoleChudesTeam.objects.filter(id=self.parent_obj.id))
                 if len(teams) != 0:
-                    kwargs["queryset"] = Participant.objects.filter(course_id=teams[0].game.course.id).order_by("id")
+                    kwargs["queryset"] = Participant.objects.filter(course_id=teams[0].game.course.id).order_by("name")
                 else:
                     kwargs["queryset"] = Participant.objects.none()
             else:
