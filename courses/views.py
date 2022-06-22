@@ -607,6 +607,8 @@ class PoleChudesTeamView(View):
 
         recalc_pole_chudes_standings(team.game)
 
+        team = get_object_or_404(PoleChudesTeam, id=team_id)
+
         standings = []
 
         participants = []
