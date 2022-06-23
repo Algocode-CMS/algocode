@@ -111,6 +111,12 @@ class Command(BaseCommand):
             help='Import only recent codeforces contests',
         )
 
+        parser.add_argument(
+            '--old',
+            action='store_true',
+            help='Import contests older than month ago',
+        )
+
     def handle(self, *args, **options):
         loaders = []
         for api_info in settings.CODEFORCES:
@@ -119,8 +125,11 @@ class Command(BaseCommand):
         if options['today']:
             date_start = datetime.datetime.now() - datetime.timedelta(days=1)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
-        else:
+        elif options['old']:
             contests = Contest.objects.filter(judge=Contest.CODEFORCES)
+        else:
+            date_start = datetime.datetime.now() - datetime.timedelta(days=31)
+            contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
 
         data_dir = os.path.join(settings.BASE_DIR, 'judges_data', Contest.CODEFORCES)
         os.makedirs(data_dir, exist_ok=True)
