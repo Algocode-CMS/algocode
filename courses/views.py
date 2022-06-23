@@ -133,7 +133,7 @@ class ServeControl(View):
     def get(self, request):
         user = request.user
         if not user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
         else:
             return render(
                 request,
@@ -146,7 +146,7 @@ class RestartEjudge(View):
     @method_decorator(csrf_protect)
     def post(self, request):
         if not request.user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
         else:
             os.system(EJUDGE_CONTROL.format('stop'))
             sleep(15)
@@ -158,7 +158,7 @@ class CreateValuer(View):
     @method_decorator(csrf_protect)
     def post(self, request):
         if not request.user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
         else:
             contest_id = int(request.POST.get('contest_id'))
             valuer_output_location = os.path.join(JUDGES_DIR, 'valuer_output')
@@ -274,7 +274,7 @@ class EjudgeRegister(View):
         secret = request.POST.get('secret')
         ejudge_register_api = get_object_or_404(EjudgeRegisterApi, id=register_id)
         if secret != ejudge_register_api.secret:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Wrong secret")
         name = request.POST.get('name')
         user = register_user(ejudge_register_api, name)
         return JsonResponse(user)
@@ -285,7 +285,7 @@ class BattleshipView(View):
         battleship = get_object_or_404(Battleship, id=battleship_id)
 
         if not battleship.public:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Battleship is not public")
 
         teams = battleship.battleship_teams.all()
         participants = []
@@ -347,8 +347,8 @@ class BattleshipView(View):
 
 class BattleshipAdminView(View):
     def get(self, request, battleship_id):
-        if not request.user.is_superuser:
-            return HttpResponseBadRequest
+        if not request.user.is_staff:
+            return HttpResponseBadRequest("User is not admin")
 
         battleship = get_object_or_404(Battleship, id=battleship_id)
         teams = battleship.battleship_teams.all()
@@ -488,7 +488,7 @@ class FormDataView(View):
     def get(self, request):
         user = request.user
         if not user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
         forms = FormBuilder.objects.order_by("id")
         res = []
         for form in forms:
@@ -509,7 +509,7 @@ class FormJsonExport(View):
     def get(self, request, form_label):
         user = request.user
         if not user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
 
         form = get_object_or_404(FormBuilder, label=form_label)
 
@@ -529,7 +529,7 @@ class FormCSVExport(View):
     def get(self, request, form_label):
         user = request.user
         if not user.is_superuser:
-            return HttpResponseBadRequest
+            return HttpResponseBadRequest("Not admin")
 
         form = get_object_or_404(FormBuilder, label=form_label)
 
@@ -594,16 +594,17 @@ class PoleChudesTeamsView(View):
 
 class PoleChudesTeamView(View):
     def get(self, request, team_id):
-        if request.user.is_anonymous:
-            return redirect(reverse('login'))
-
         team = get_object_or_404(PoleChudesTeam, id=team_id)
 
-        if not request.user.is_staff:
-            if team.user is None:
-                return HttpResponseBadRequest
-            if team.user != request.user:
-                return HttpResponseBadRequest
+        if not team.game.finished:
+            if request.user.is_anonymous:
+                return redirect(reverse('login'))
+
+            if not request.user.is_staff:
+                if team.user is None:
+                    return HttpResponseBadRequest("Wrong login")
+                if team.user != request.user:
+                    return HttpResponseBadRequest("Wrong login")
 
         recalc_pole_chudes_standings(team.game)
 
@@ -716,16 +717,19 @@ class PoleChudesTeamView(View):
 class PoleChudesGuessView(View):
     @method_decorator(csrf_protect)
     def post(self, request, team_id):
+        team = get_object_or_404(PoleChudesTeam, id=team_id)
+
+        if team.game.finished:
+            return HttpResponseBadRequest("game finished")
+
         if request.user.is_anonymous:
             return redirect(reverse('login'))
 
-        team = get_object_or_404(PoleChudesTeam, id=team_id)
-
         if not request.user.is_staff:
             if team.user is None:
-                return HttpResponseBadRequest
+                return HttpResponseBadRequest("Wrong login")
             if team.user != request.user:
-                return HttpResponseBadRequest
+                return HttpResponseBadRequest("Wrong login")
 
         word = str(request.POST.get("word", "")).upper()
 

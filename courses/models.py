@@ -354,6 +354,7 @@ class PoleChudesGame(models.Model):
     miss_penalty = models.IntegerField()
     accept_bonus = models.IntegerField()
     alphabet = models.TextField(default="АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", blank=True)
+    finished = models.BooleanField(default=False)
 
     def __str__(self):
         return "{} ({})".format(self.name, self.id)
