@@ -580,7 +580,7 @@ class PoleChudesTeamsView(View):
 
         recalc_pole_chudes_standings(game)
 
-        teams = list(game.teams.order_by("-score"))
+        teams = list(game.teams.order_by("-score", "id"))
 
         return render(
             request,
