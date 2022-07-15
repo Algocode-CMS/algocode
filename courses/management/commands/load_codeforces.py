@@ -12,6 +12,7 @@ from django.core.management.base import BaseCommand
 from algocode import settings
 from courses.models import Contest, Participant, ContestStandingsHolder
 from courses.judges.common_verdicts import *
+from courses import mongo
 
 
 CODEFORCES_API_DELAY = 0.5
@@ -101,6 +102,17 @@ class CodeforcesLoader:
         return [problems, runs_list[::-1]]
 
 
+def upload_standings(contest, problems, runs_list):
+    if not mongo.upload_standings(contest, [problems, runs_list]):
+        try:
+            standings_holder = contest.standings_holder.get()
+        except:
+            standings_holder = ContestStandingsHolder(contest=contest)
+        standings_holder.problems = json.dumps(problems)
+        standings_holder.runs_list = json.dumps(runs_list)
+        standings_holder.save()
+
+
 class Command(BaseCommand):
     help = 'Loads data from codeforces'
 
@@ -145,13 +157,7 @@ class Command(BaseCommand):
                     problems, runs_list = loader.get_data(contest.contest_id)
                     if len(problems) == 0:
                         continue
-                    try:
-                        standings_holder = contest.standings_holder.get()
-                    except:
-                        standings_holder = ContestStandingsHolder(contest=contest)
-                    standings_holder.problems = json.dumps(problems)
-                    standings_holder.runs_list = json.dumps(runs_list)
-                    standings_holder.save()
+                    upload_standings(contest, problems, runs_list)
                     print('success')
                     break
                 except Exception as e:

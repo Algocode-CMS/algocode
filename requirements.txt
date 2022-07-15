@@ -7,3 +7,4 @@ python-memcached
 pymysql
 transliterate
 django-ipware
+pymongo
