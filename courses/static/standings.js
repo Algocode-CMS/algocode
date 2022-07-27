@@ -337,7 +337,7 @@ var addProblemCell = function(row, problem) {
             if (penalty > 9) {
                 cell.title = '+' + penalty;
             }
-        } else if (problem['verdict'] === 'RJ') {
+        } else if (problem['verdict'] === 'RJ' || problem['verdict'] === 'IG') {
             let cell = addCell(row, 'D:', 'gray rotating');
             cell.title = 'Отклонено';
             cell.style.backgroundColor = '#f7943c';
