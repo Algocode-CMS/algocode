@@ -46,7 +46,10 @@ class MainView(View):
 
 class CourseView(View):
     def get(self, request, course_label=DEFAULT_COURSE):
-        course = get_object_or_404(Course, label=course_label)
+        try:
+            course = Course.objects.get(label=course_label)
+        except:
+            return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
         contests_list = course.contests.order_by('-date', '-id')
         links = course.links.filter(hidden=False).order_by("priority")
         contests = []
