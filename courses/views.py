@@ -246,7 +246,7 @@ class BlitzMakeBid(View):
         return redirect(reverse("blitz_view", kwargs={"contest_id": problem.contest.id}))
 
 
-def register_user(ejudge_register_api: EjudgeRegisterApi, name: str):
+def register_user(ejudge_register_api: EjudgeRegisterApi, name: str, cf_login=None):
     contests = [contest.contest_id for contest in ejudge_register_api.contests.all()]
     login = ejudge_register_api.login
     api_session = EjudgeApiSession(EJUDGE_AUTH["login"], EJUDGE_AUTH["password"], EJUDGE_URL)
@@ -261,12 +261,21 @@ def register_user(ejudge_register_api: EjudgeRegisterApi, name: str):
         group_name = name
         if group.use_login:
             group_name = user["login"]
-        Participant.objects.create(
-            name=group_name,
-            group=group.group,
-            course=group.group.course,
-            ejudge_id=user["user_id"]
-        )
+        if cf_login is None:
+            Participant.objects.create(
+                name=group_name,
+                group=group.group,
+                course=group.group.course,
+                ejudge_id=user["user_id"]
+            )
+        else:
+            Participant.objects.create(
+                name=group_name,
+                group=group.group,
+                course=group.group.course,
+                ejudge_id=user["user_id"],
+                codeforces_handle=cf_login
+            )
     return user
 
 
@@ -457,7 +466,10 @@ class FormView(View):
         if len(form.register_api.all()) > 0:
             name = form.register_name_template.format(**result)
             ejudge_register_api = form.register_api.all()[0]
-            user_login = register_user(ejudge_register_api, name)
+            if "cf_login" in result:
+                user_login = register_user(ejudge_register_api, name, result["cf_login"])
+            else:
+                user_login = register_user(ejudge_register_api, name)
             result["ejudge_login"] = user_login["login"]
             result["ejudge_password"] = user_login["password"]
             result["ejudge_id"] = user_login["user_id"]
