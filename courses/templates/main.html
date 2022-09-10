@@ -18,6 +18,7 @@
         <h2>{{ main.subtitle }}</h2>
     </header>
 
+    {% if links %}
     <div class="sidebar">
         <h3>Полезная информация</h3>
         {% for link in links %}
@@ -30,6 +31,7 @@
             {% endif %}
         {% endfor %}
     </div>
+    {% endif %}
 
     <div class="courses">
         <h3>{{ main.courses_text }}</h3>
