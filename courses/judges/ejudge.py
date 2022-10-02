@@ -6,6 +6,12 @@ from algocode.settings import JUDGES_DIR, TIME_ZONE
 from courses.judges.common_verdicts import *
 
 
+def localize_time(time_str):
+    time_dt = datetime.datetime.strptime(time_str, "%Y/%m/%d %H:%M:%S")
+    time_dt = pytz.timezone(TIME_ZONE).localize(time_dt)
+    return time_dt.astimezone(pytz.timezone('UTC')).timestamp()
+
+
 def load_ejudge_contest(contest, users):
     ejudge_id = '{:06d}'.format(contest.contest_id)
     try:
@@ -13,10 +19,7 @@ def load_ejudge_contest(contest, users):
     except:
         return None
 
-    start_time = data.runlog["start_time"]
-    start_time = datetime.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S")
-    start_time = pytz.timezone(TIME_ZONE).localize(start_time)
-    start_time = start_time.astimezone(pytz.timezone('UTC'))
+    start_time = localize_time(data.runlog["start_time"])
 
     ejudge_ids = {}
     for user in users:
@@ -37,12 +40,20 @@ def load_ejudge_contest(contest, users):
 
     runs_list = []
 
+    for user_header in data.runlog.userrunheaders.children:
+        ejudge_id = int(user_header["user_id"])
+        if ejudge_id not in ejudge_ids:
+            continue
+        if user_header.get_attribute("start_time") is not None:
+            time = localize_time(user_header["start_time"]) - start_time
+            contest_users_start[ejudge_id] = time
+
     for run in data.runlog.runs.children:
         try:
             ejudge_id = int(run['user_id'])
             status = run['status']
             time = int(run['time'])
-            utc_time = start_time.timestamp() + time
+            utc_time = start_time + time
             if status == EJUDGE_VIRTUAL_STOP or ejudge_id not in ejudge_ids:
                 continue
             if status == EJUDGE_VIRTUAL_START:
