@@ -1,12 +1,11 @@
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.judges import load_contest
-from courses.models import PoleChudesGame, PoleChudesParticipant, PoleChudesLetter
+from courses.models import PoleChudesGame, PoleChudesParticipant, PoleChudesLetter, Participant
 
 
 def recalc_pole_chudes_standings(game: PoleChudesGame):
     teams = game.teams.order_by("id")
-    participants = list(PoleChudesParticipant.objects.filter(team__in=teams))
-    users = [participant.participant for participant in participants]
+    users = list(Participant.objects.filter(pole_chudes_participants__team__in=teams))
     contest = load_contest(game.contest, users, utc_time=True)
 
     for team in teams:
