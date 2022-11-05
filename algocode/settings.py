@@ -47,6 +47,25 @@ DEFAULT_COURSE = load_config("default_course")
 USE_MAIN_BY_DEFAULT = load_config("use_main_by_default")
 MONGO = load_config('mongo_db')
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'sql.log',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
 
 ALLOWED_HOSTS = ['*']
 

@@ -1,6 +1,7 @@
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.judges import load_contest
 from courses.models import PoleChudesGame, PoleChudesParticipant, PoleChudesLetter, Participant
+from django.db.models import prefetch_related_objects
 
 
 def recalc_pole_chudes_standings(game: PoleChudesGame):
@@ -16,7 +17,7 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
         team.problems = 0
         team.unsuccess = 0
 
-        for p in team.participants.all():
+        for p in team.participants.prefetch_related("participant"):
             if p.participant.id in contest["users"]:
                 for i, submit in enumerate(contest["users"][p.participant.id]):
                     if submit["verdict"] == EJUDGE_OK and i < len(game.alphabet):
@@ -26,7 +27,7 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
 
         let.sort(key=lambda x: x["time"])
 
-        all_guessed = list(team.guesses.order_by("id"))
+        all_guessed = team.guesses.order_by("id")
         all_letters = list(team.letters.all())
 
         for i, word in enumerate(game.words.order_by("id")):
