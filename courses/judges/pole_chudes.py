@@ -7,25 +7,17 @@ import logging
 
 def recalc_pole_chudes_standings(game: PoleChudesGame):
     logger = logging.getLogger(__name__)
-    print("start")
     teams = game.teams.order_by("id")
-    print("start")
     users = list(Participant.objects.filter(pole_chudes_participants__team__in=teams))
-    print("start")
     contest = load_contest(game.contest, users, utc_time=True)
 
-    print("contest")
-
     for team in teams:
-        print("team", team.id)
         let = []
         let_id = 0
         team.score = 0
         team.word_id = 0
         team.problems = 0
         team.unsuccess = 0
-
-        print("participants")
 
         for p in team.participants.prefetch_related("participant"):
             if p.participant.id in contest["users"]:
@@ -34,8 +26,6 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
                         let.append({"time": submit["utc_time"], "letter": game.alphabet[i]})
                         team.score += game.accept_bonus
                         team.problems += 1
-
-        print("participants end")
 
         let.sort(key=lambda x: x["time"])
 
@@ -73,8 +63,6 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
                     letter.save()
                     guessed_letters.add(let[let_id]["letter"])
                 let_id += 1
-
-        print("letters start")
 
         team.save()
 
