@@ -9,7 +9,9 @@ def recalc_pole_chudes_standings(game: PoleChudesGame):
     logger = logging.getLogger(__name__)
     print("start")
     teams = game.teams.order_by("id")
+    print("start")
     users = list(Participant.objects.filter(pole_chudes_participants__team__in=teams))
+    print("start")
     contest = load_contest(game.contest, users, utc_time=True)
 
     print("contest")
