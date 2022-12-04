@@ -93,7 +93,7 @@
                         {% elif contest.contest.judge == 'EJ' %}
                             <a href="{{ ejudge_url }}{{ contest.contest.contest_id }}">Вход</a>
                         {% elif contest.contest.judge == 'CF' %}
-                            <a href="https://codeforces.com/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
+                            <a href="{{ course.codeforces_url }}/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
                         {% elif contest.contest.judge == 'IN' %}
                             <a href="https://informatics.mccme.ru/mod/statements/view.php?id={{ contest.contest.contest_id }}">Вход</a>
                         {% endif %}
