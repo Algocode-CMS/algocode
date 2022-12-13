@@ -62,6 +62,10 @@ var getMarkColor = function(mark) {
     }
 };
 
+var is_good_table = function() {
+    return (standings_label === "ap_2022" || standings_label === "ap_2022_dist");
+}
+
 var defaultContestMark = function(total_score, problem_score) {
     let problems = problem_score.length;
     let max_possible_score = problems;
@@ -69,6 +73,17 @@ var defaultContestMark = function(total_score, problem_score) {
         max_possible_score *= 100;
     }
     return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+};
+
+var olympContestMark = function(total_score, problem_score, max_possible_score) {
+    let problems = problem_score.length;
+    return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+}
+
+var notOlympContestMark = function(total_score, problem_score) {
+    let problems = problem_score.length;
+    let max_possible_score = problems;
+    return (problems !== 0 ? total_score / max_possible_score : 0.0);
 };
 
 var sqrtContestMark = function(total_score, problem_score) {
@@ -165,7 +180,18 @@ var calculateContestMark = function(
     problem_accepted,   // массив количества ОК по задаче
     max_score           // максимальный набранный балл за контест
 ) {
-    return defaultContestMark(total_score, problem_score);
+
+    if (is_good_table) {
+        if (is_olymp) {
+            return olympContestMark(total_score, problem_score, max_score);
+        }
+        else {
+            return notOlympContestMark(total_score, problem_score);
+        }
+    }
+    else {
+        return defaultContestMark(total_score, problem_score);
+    }
 };
 
 var newCalculateContestMark = function(
@@ -187,7 +213,17 @@ var calculateTotalMark = function(
     total_users,        // общее количество участников
     problem_accepted    // двумерный массив количества ОК по задаче
 ){
-    return defaultTotalMark(marks, coefficients);
+    if (is_good_table) {
+        if (is_olymp) {
+            return defaultTotalMark(marks, coefficients);
+        }
+        else {
+            return 10 * Math.sqrt(defaultTotalMark(marks, coefficients));
+        }
+    }
+    else {
+        return defaultTotalMark(marks, coefficients);
+    }
 };
 
 var calculateMark = function(users, contests) {
