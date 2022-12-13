@@ -62,37 +62,18 @@ var getMarkColor = function(mark) {
     }
 };
 
-var defaultContestMark = function(total_score, problem_score) {
+var olympContestMark = function(total_score, problem_score, max_possible_score) {
+    let problems = problem_score.length;
+    return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+}
+
+var notOlympContestMark = function(total_score, problem_score) {
     let problems = problem_score.length;
     let max_possible_score = problems;
-    if (is_olymp) {
-        max_possible_score *= 100;
-    }
-    return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+    return (problems !== 0 ? total_score / max_possible_score : 0.0);
 };
 
-var sqrtContestMark = function(total_score, problem_score) {
-    let problems = problem_score.length;
-    return (problems !== 0 ? Math.sqrt(total_score / problems) * 10 : 0.0);
-};
-
-var relativeContestMark = function(
-    total_score,        // суммарный балл за контест
-    problem_score,      // массив баллов за задачи
-    problem_max_score,  // массив максимальных набранных баллов за задачи
-    total_users,        // общее количество участников
-    problem_accepted,   // массив количества ОК по задаче
-    max_score           // максимальный набранный балл за контест
-) {
-    let problems = problem_score.length;
-    if (max_score === 0) {
-        return 0;
-    } else {
-        return total_score / max_score * 10;
-    }
-};
-
-var useOldContestMark = function(total_scores, user_id) {
+var useContestMark = function(total_scores, user_id) {
     let total_score = 0;
     let problem_score = new Array(total_scores[0].length).fill(0);
     let problem_max_score = new Array(total_scores[0].length).fill(0);
@@ -165,18 +146,24 @@ var calculateContestMark = function(
     problem_accepted,   // массив количества ОК по задаче
     max_score           // максимальный набранный балл за контест
 ) {
-    return defaultContestMark(total_score, problem_score);
+
+    if (is_olymp) {
+        return olympContestMark(total_score, problem_score, max_score);
+    }
+    else {
+        return notOlympContestMark(total_score, problem_score);
+    }
 };
 
-var newCalculateContestMark = function(
+var baseCalculateContestMark = function(
     total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями
     user_id,            // номер пользователя
     contest_info        // информация о контесте
 ) {
-    return useOldContestMark(total_scores, user_id)
+    return useContestMark(total_scores, user_id)
 };
 
-var calculateTotalMark = function(
+var baseCalculateTotalMark = function(
     marks,              // массив оценок за контесты
     coefficients,       // массив коэффициентов контестов
     total_score,        // суммарный балл за все контесты
@@ -187,7 +174,12 @@ var calculateTotalMark = function(
     total_users,        // общее количество участников
     problem_accepted    // двумерный массив количества ОК по задаче
 ){
-    return defaultTotalMark(marks, coefficients);
+    if (is_olymp) {
+        return defaultTotalMark(marks, coefficients);
+    }
+    else {
+        return 10 * Math.sqrt(defaultTotalMark(marks, coefficients));
+    }
 };
 
 var calculateMark = function(users, contests) {
@@ -239,13 +231,13 @@ var calculateMark = function(users, contests) {
         let id = user['id'];
         user['marks'] = [];
         contests.forEach(function(contest, c_id) {
-            user['marks'].push(newCalculateContestMark(
+            user['marks'].push(baseCalculateContestMark(
                 total_scores[c_id],
                 u_id,
                 contest["contest_info"]
             ));
         });
-        user['mark'] = calculateTotalMark(
+        user['mark'] = baseCalculateTotalMark(
             user['marks'],
             coefficients,
             user_total_score[id],
