@@ -7,7 +7,10 @@ from courses.judges.common_verdicts import *
 
 
 def localize_time(time_str):
-    time_dt = datetime.datetime.strptime(time_str, "%Y/%m/%d %H:%M:%S")
+    try:
+        time_dt = datetime.datetime.strptime(time_str, "%Y/%m/%d %H:%M:%S")
+    except:
+        time_dt = datetime.datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
     time_dt = pytz.timezone(TIME_ZONE).localize(time_dt)
     return time_dt.astimezone(pytz.timezone('UTC')).timestamp()
 
