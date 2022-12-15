@@ -150,7 +150,7 @@ class Command(BaseCommand):
         for contest in contests:
             print("loading ", contest.contest_id)
             for loader in loaders:
-                while time.time() - last_query < CODEFORCES_API_DELAY * 3:
+                while time.time() - last_query < CODEFORCES_API_DELAY * 6:
                     time.sleep(0.01)
                 last_query = time.time()
                 try:
