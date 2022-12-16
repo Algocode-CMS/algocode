@@ -71,6 +71,17 @@ var defaultContestMark = function(total_score, problem_score) {
     return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
 };
 
+var olympContestMark = function(total_score, problem_score, max_possible_score) {
+    let problems = problem_score.length;
+    return (problems !== 0 ? total_score / max_possible_score * 10 : 0.0);
+}
+
+var notOlympContestMark = function(total_score, problem_score) {
+    let problems = problem_score.length;
+    let max_possible_score = problems;
+    return (problems !== 0 ? total_score / max_possible_score : 0.0);
+};
+
 var sqrtContestMark = function(total_score, problem_score) {
     let problems = problem_score.length;
     return (problems !== 0 ? Math.sqrt(total_score / problems) * 10 : 0.0);
@@ -168,6 +179,22 @@ var calculateContestMark = function(
     return defaultContestMark(total_score, problem_score);
 };
 
+var calculateContestMark_ap22 = function(
+    total_score,        // суммарный балл за контест
+    problem_score,      // массив баллов за задачи
+    problem_max_score,  // массив максимальных набранных баллов за задачи
+    total_users,        // общее количество участников
+    problem_accepted,   // массив количества ОК по задаче
+    max_score           // максимальный набранный балл за контест
+) {
+    if (is_olymp) {
+        return olympContestMark(total_score, problem_score, max_score);
+    }
+    else {
+        return notOlympContestMark(total_score, problem_score);
+    }
+}
+
 var newCalculateContestMark = function(
     total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями
     user_id,            // номер пользователя
@@ -188,6 +215,25 @@ var calculateTotalMark = function(
     problem_accepted    // двумерный массив количества ОК по задаче
 ){
     return defaultTotalMark(marks, coefficients);
+};
+
+var calculateTotalMark_ap22 = function(
+    marks,              // массив оценок за контесты
+    coefficients,       // массив коэффициентов контестов
+    total_score,        // суммарный балл за все контесты
+    contest_score,      // массив баллов за контесты
+    contest_max_score,  // массив максимальных набранных баллов за контесты
+    problem_score,      // двумерный массив набранных баллов за задачи
+    problem_max_score,  // двумерный массив максимальных набранных баллов за задач
+    total_users,        // общее количество участников
+    problem_accepted    // двумерный массив количества ОК по задаче
+){
+    if (is_olymp) {
+        return defaultTotalMark(marks, coefficients);
+    }
+    else {
+        return 10 * Math.sqrt(defaultTotalMark(marks, coefficients));
+    }
 };
 
 var calculateMark = function(users, contests) {
