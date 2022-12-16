@@ -17,6 +17,7 @@ from transliterate import translit
 from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN, DEFAULT_COURSE
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.pole_chudes import recalc_pole_chudes_standings
+from courses.lib.standings.standings_data import get_standings_data
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
     Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame
 from courses.judges.judges import load_contest
@@ -90,27 +91,7 @@ class StandingsDataView(View):
     def get(self, request, standings_label):
         standings = get_object_or_404(Standings, label=standings_label)
 
-        group_list = standings.groups.all()
-        if len(group_list) == 0:
-            group_list = standings.course.groups.all()
-
-        users_data = []
-        users = []
-        for group in group_list:
-            users.extend(group.participants.all())
-
-        for group in group_list:
-            for user in group.participants.all():
-                users_data.append({
-                    'id': user.id,
-                    'name': user.name,
-                    'group': group.name,
-                    'group_short': group.short_name,
-                })
-
-        contests = standings.contests.order_by('-date', '-id').filter(contest_id__isnull=False)
-        contests = [load_contest(contest, users) for contest in contests]
-        contests = [contest for contest in contests if contest is not None]
+        users_data, contests = get_standings_data(standings)
 
         return JsonResponse({
             'users': users_data,

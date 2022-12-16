@@ -26,11 +26,19 @@ def import_json(value):
 
 
 def load_secret(secret):
-    return import_json(config_json["secrets"][secret])
+    try:
+        return import_json(config_json["secrets"][secret])
+    except:
+        print("No secret", secret)
+        return None
 
 
 def load_config(config):
-    return import_json(config_json["configs"][config])
+    try:
+        return import_json(config_json["configs"][config])
+    except:
+        print("No config", config)
+        return None
 
 
 CODEFORCES = load_secret('codeforces')
@@ -46,6 +54,7 @@ DEFAULT_MAIN = load_config("default_main")
 DEFAULT_COURSE = load_config("default_course")
 USE_MAIN_BY_DEFAULT = load_config("use_main_by_default")
 MONGO = load_config('mongo_db')
+GOOGLE_SHEETS_CONFIG = load_secret('google_sheets_config')
 
 LOGGING = {
     'version': 1,

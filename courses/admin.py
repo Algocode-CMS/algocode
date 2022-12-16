@@ -306,6 +306,14 @@ class FormFieldInline(admin.TabularInline):
     model = FormField
 
 
+class SheetsExportInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = StandingsSheetExport
+    extra = 0
+
+
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
     formfield_overrides = {
@@ -385,7 +393,7 @@ class StandingsAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     list_display = ['id', 'label', 'title', 'contest_type']
-    inlines = [ContestInStandingInline]
+    inlines = [ContestInStandingInline, SheetsExportInline]
     exclude = ['contests']
 
 

@@ -244,6 +244,32 @@ class Page(models.Model):
     course = models.ForeignKey(Course, related_name="pages", blank=True, on_delete=models.SET_NULL, null=True)
 
 
+class StandingsSheetExport(models.Model):
+    standings = models.ForeignKey(Standings, related_name="sheets", on_delete=models.CASCADE)
+    name = models.TextField(blank=True)
+    sheet_id = models.TextField()
+    tab = models.TextField()
+    hide_zero_score = models.BooleanField(default=True)
+
+    include_penalty = models.BooleanField(default=False)
+    include_verdict = models.BooleanField(default=False)
+    include_time = models.BooleanField(default=False)
+
+    empty_columns_for_contest = models.IntegerField(default=0)
+    empty_beginning_columns = models.IntegerField(default=0)
+
+    calculate_mark = models.BooleanField(default=False)
+    mark_func = models.TextField(default='''
+def calc_marks_v1(
+    user_scores, # 2d array containing all scores for users
+    contest_info, # contest info from algocode admin
+):
+    return [0] * len(user_scores)
+    
+marks = calc_marks_v1(user_scores, contest_info)
+''')
+
+
 class BlitzProblem(models.Model):
     contest = models.ForeignKey(Contest, related_name="blitz_problems", on_delete=models.CASCADE)
     problem_id = models.TextField()
