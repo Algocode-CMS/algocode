@@ -100,7 +100,7 @@ class Contest(models.Model, ContestType):
     external_group_id = models.TextField(blank=True)
     other_link = models.TextField(blank=True)
     contest_info = models.TextField(default="{}")
-    score_latest = models.TextField(default=False)
+    score_latest = models.BooleanField(default=False)
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)
