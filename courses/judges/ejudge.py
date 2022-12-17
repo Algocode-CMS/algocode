@@ -31,6 +31,7 @@ def load_ejudge_contest(contest, users):
     contest_users_start = {}
     for user in data.runlog.users.children:
         contest_users_start[int(user['id'])] = 0
+    contest_users_finished = set()
 
     problems = [{
         'id': problem['id'],
@@ -52,10 +53,14 @@ def load_ejudge_contest(contest, users):
                 if user_header.get_attribute("start_time") is not None:
                     time = localize_time(user_header["start_time"]) - start_time
                     contest_users_start[ejudge_id] = time
+                if user_header.get_attribute("stop_time") is not None:
+                    contest_users_finished.add(ejudge_id)
 
     for run in data.runlog.runs.children:
         try:
             ejudge_id = int(run['user_id'])
+            if contest.score_only_finished and ejudge_id not in contest_users_finished:
+                continue
             status = run['status']
             time = int(run['time'])
             utc_time = start_time + time

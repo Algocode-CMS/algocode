@@ -101,6 +101,7 @@ class Contest(models.Model, ContestType):
     other_link = models.TextField(blank=True)
     contest_info = models.TextField(default="{}")
     score_latest = models.BooleanField(default=False)
+    score_only_finished = models.BooleanField(default=False)
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)
