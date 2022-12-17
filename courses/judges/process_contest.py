@@ -47,11 +47,14 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
                 except:
                     continue
 
-            if info['verdict'] == EJUDGE_OK:
+            if info['verdict'] == EJUDGE_OK and not contest.score_latest:
                 continue
             if status in EJUDGE_BAD_VERDICTS:
                 info['penalty'] += 1
-            info['score'] = max(info['score'], score)
+            if not contest.score_latest:
+                info['score'] = max(info['score'], score)
+            else:
+                info['score'] = score
             info['verdict'] = status
             info['time'] = time
             if save_utc:
