@@ -156,7 +156,7 @@ class Command(BaseCommand):
             loaders.append(CodeforcesLoader(api_info["key"], api_info["secret"]))
 
         if options['today']:
-            date_start = datetime.datetime.now() - datetime.timedelta(days=1)
+            date_start = datetime.datetime.now() - datetime.timedelta(days=2)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         elif options['old']:
             contests = Contest.objects.filter(judge=Contest.CODEFORCES)
