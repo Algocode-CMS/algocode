@@ -1,7 +1,7 @@
 import json
 
 from algocode import settings
-from courses import mongo
+from courses.lib.mongo import mongo
 
 
 def load_from_db(contest):

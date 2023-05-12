@@ -12,8 +12,7 @@ from django.core.management.base import BaseCommand
 from algocode import settings
 from courses.models import Contest, Participant, ContestStandingsHolder
 from courses.judges.common_verdicts import *
-from courses import mongo
-
+from courses.lib.mongo import mongo
 
 CODEFORCES_API_DELAY = 0.5
 

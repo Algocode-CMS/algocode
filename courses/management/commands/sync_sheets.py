@@ -1,13 +1,10 @@
 import time
 
-import googleapiclient
 from django.core.management.base import BaseCommand
 
 from algocode import settings
 from courses.lib.standings.standings_data import get_standings_data
 from courses.models import StandingsSheetExport
-
-import httplib2
 
 from apiclient import discovery
 from google.oauth2 import service_account

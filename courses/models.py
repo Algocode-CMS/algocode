@@ -196,15 +196,8 @@ class Participant(models.Model):
     name = models.TextField(verbose_name='Surname and name')
     group = models.ForeignKey(ParticipantsGroup, related_name='participants', on_delete=models.CASCADE)
     course = models.ForeignKey(Course, related_name='participants', on_delete=models.CASCADE)
-    has_pass = models.BooleanField(default=False)
     ejudge_id = models.IntegerField(blank=True, null=True)
-    informatics_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
-    photo = models.FileField(upload_to=get_photo_path, blank=True)
-    comment = models.TextField(blank=True)
-    email = models.TextField(blank=True)
-    telegram_id = models.TextField(blank=True)
-    vk_id = models.TextField(blank=True)
 
     def __str__(self):
         return "{} ()".format(self.name, self.id)
@@ -569,36 +562,6 @@ def auto_delete_teacher_photo_file_on_change(sender, instance, **kwargs):
     try:
         old_file = Teacher.objects.get(pk=instance.pk).photo
     except Teacher.DoesNotExist:
-        return False
-    if not old_file:
-        return False
-    try:
-        new_file = instance.photo
-        if not old_file == new_file:
-            if os.path.isfile(old_file.path):
-                os.remove(old_file.path)
-    except OSError:
-        pass
-
-
-@receiver(models.signals.post_delete, sender=Participant)
-def auto_delete_participant_photo_file_on_delete(sender, instance, **kwargs):
-    try:
-        if instance.photo:
-            if os.path.isfile(instance.photo.path):
-                os.remove(instance.photo.path)
-    except OSError:
-        pass
-
-
-@receiver(models.signals.pre_save, sender=Participant)
-def auto_delete_participant_photo_file_on_change(sender, instance, **kwargs):
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = Participant.objects.get(pk=instance.pk).photo
-    except Participant.DoesNotExist:
         return False
     if not old_file:
         return False

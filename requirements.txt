@@ -10,3 +10,6 @@ django-ipware
 pymongo
 google-api-python-client
 google-auth-httplib2
+pylibmc
+psycopg2
+pytz
