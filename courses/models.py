@@ -230,6 +230,11 @@ class Standings(models.Model, ContestType):
         return "{} ({})".format(self.label, self.title)
 
 
+class ContestUsersLoad(models.Model):
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='user_load')
+    group = models.ForeignKey(ParticipantsGroup, on_delete=models.CASCADE, related_name='user_load')
+
+
 class Page(models.Model):
     label = models.TextField(unique=True)
     title = models.TextField(blank=True)

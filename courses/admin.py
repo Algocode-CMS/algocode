@@ -75,6 +75,13 @@ class ContestLinkInline(admin.TabularInline):
     show_change_link = True
 
 
+class ContestUserLoadInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = ContestUsersLoad
+
+
 class GroupInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
@@ -338,7 +345,7 @@ class ContestAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [ContestLinkInline, BlitzProblemInline]
+    inlines = [ContestLinkInline, ContestUserLoadInline, BlitzProblemInline]
     list_display = ['id', 'title', 'date', 'contest_type', 'judge']
 
 

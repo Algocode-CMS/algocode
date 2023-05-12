@@ -44,8 +44,8 @@ class CodeforcesLoader:
                                 })
         return json.loads(response.text)
 
-    def get_data(self, contest_id):
-        standings_json_values = self.get_json(contest_id, self.STANDINGS_API_METHOD, self.STANDINGS_COMPLEX_STRING)
+    def get_data(self, contest):
+        standings_json_values = self.get_json(contest.contest_id, self.STANDINGS_API_METHOD, self.STANDINGS_COMPLEX_STRING)
         last_query = time.time()
 
         num_problems = 0
@@ -60,12 +60,34 @@ class CodeforcesLoader:
                 'index': num_problems - 1,
             })
 
+        for user_load in contest.user_load.all():
+            group = user_load.group
+            group_participants = group.participants.all()
+            handles = {participant.codeforces_handle for participant in group_participants}
+
+            for row in standings_json_values['result']['rows']:
+                try:
+                    handle = row["party"]["members"][0]['handle']
+                    if row['party']["participantType"] != "CONTESTANT":
+                        continue
+                    handle_lower = handle.lower()
+                    if handle_lower not in handles:
+                        Participant.objects.create(
+                            name=handle,
+                            group=group,
+                            course=group.course,
+                            codeforces_handle=handle_lower,
+                        )
+                        handles.add(handle_lower)
+                except:
+                    pass
+
         problem_index = {problem['short']: problem['index'] for problem in problems}
 
         while time.time() - last_query < CODEFORCES_API_DELAY:
             time.sleep(0.01)
 
-        status_json_values = self.get_json(contest_id, self.STATUS_API_METHOD, self.STATUS_COMPLEX_STRING)
+        status_json_values = self.get_json(contest.contest_id, self.STATUS_API_METHOD, self.STATUS_COMPLEX_STRING)
         runs_list = []
 
         for submit in status_json_values['result']:
@@ -153,7 +175,7 @@ class Command(BaseCommand):
                     time.sleep(0.01)
                 last_query = time.time()
                 try:
-                    problems, runs_list = loader.get_data(contest.contest_id)
+                    problems, runs_list = loader.get_data(contest)
                     if len(problems) == 0:
                         continue
                     upload_standings(contest, problems, runs_list)
