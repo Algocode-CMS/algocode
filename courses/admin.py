@@ -537,6 +537,14 @@ class PoleChudesTeamAdmin(admin.ModelAdmin):
     inlines = [PoleChudesParticipantInline, PoleChudesGuessInline, PoleChudesLetterInline]
 
 
+@admin.register(StandingsSheetExport)
+class StandingsSheetExportAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'name', 'standings']
+
+
 # Better hide it from admin page and show only for editing
 # @admin.register(MailAuth)
 # class MailAuthAdmin(admin.ModelAdmin):
