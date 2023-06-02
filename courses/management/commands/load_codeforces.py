@@ -68,12 +68,15 @@ class CodeforcesLoader:
             for row in standings_json_values['result']['rows']:
                 try:
                     handle = row["party"]["members"][0]['handle']
+                    name = handle
+                    if user_load.use_name and 'name' in row["party"]["members"][0]:
+                        name = row["party"]["members"][0]['name']
                     if row['party']["participantType"] != "CONTESTANT":
                         continue
                     handle_lower = handle.lower()
                     if handle_lower not in handles:
                         Participant.objects.create(
-                            name=handle,
+                            name=name,
                             group=group,
                             course=group.course,
                             codeforces_handle=handle_lower,

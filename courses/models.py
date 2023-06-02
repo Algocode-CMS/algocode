@@ -233,6 +233,7 @@ class Standings(models.Model, ContestType):
 class ContestUsersLoad(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE, related_name='user_load')
     group = models.ForeignKey(ParticipantsGroup, on_delete=models.CASCADE, related_name='user_load')
+    use_name = models.BooleanField(default=False)
 
 
 class Page(models.Model):
