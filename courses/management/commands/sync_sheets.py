@@ -77,7 +77,7 @@ def export_contest(export: StandingsSheetExport, service):
 
     calc_mark = export.calculate_mark
 
-    for contest in contests:
+    for contest in contests[::-1]:
         contest_width = len(contest["problems"]) * (problem_extra + 1)
         header[0].append([contest["title"]])
         header[1].append([])
@@ -167,6 +167,7 @@ def export_contest(export: StandingsSheetExport, service):
             "data": data,
         }
     ).execute()
+
 
 def get_column_id(k):
     k -= 1
