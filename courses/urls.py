@@ -1,12 +1,12 @@
 from django.urls import path
 from django.views.decorators.cache import cache_page
 
-from algocode.settings import USE_MAIN_BY_DEFAULT
+from algocode.settings import DEFAULT_HOME
 from courses.views import *
 
 
 urlpatterns = [
-    path('', MainView.as_view() if USE_MAIN_BY_DEFAULT else CourseView.as_view(), name='main'),
+    path('', MainView.as_view() if DEFAULT_HOME == "main" else CourseView.as_view() if DEFAULT_HOME == "course" else PageView.as_view(), name='main'),
     path('main/<int:main_id>/', MainView.as_view(), name='main'),
     path('page/<str:page_label>/', PageView.as_view(), name='page'),
     path('standings/<str:standings_label>/', cache_page(0)(StandingsView.as_view()), name='standings'),

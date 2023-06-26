@@ -14,7 +14,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from transliterate import translit
 
-from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN, DEFAULT_COURSE
+from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUTH, DEFAULT_MAIN, DEFAULT_COURSE, \
+    DEFAULT_PAGE
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.pole_chudes import recalc_pole_chudes_standings
 from courses.lib.standings.standings_data import get_standings_data
@@ -100,7 +101,7 @@ class StandingsDataView(View):
 
 
 class PageView(View):
-    def get(self, request, page_label):
+    def get(self, request, page_label=DEFAULT_PAGE):
         page = get_object_or_404(Page, label=page_label)
         if page.is_raw:
             return HttpResponse(page.content)

@@ -28,7 +28,9 @@
 
     "default_course": "",
 
-    "use_main_by_default": true
+    "default_page": "",
+
+    "default_home": "course"
   },
 
   "secrets": {
