@@ -17,6 +17,7 @@
         <th>Form link</th>
         <th>JSON</th>
         <th>CSV</th>
+        <th>GDOC</th>
     </tr>
 
     {% for form in forms %}
@@ -29,6 +30,13 @@
         <td><a href="{% url 'form' form.form.label %}">Link</a></td>
         <td><a href="{% url 'form_json_export' form.form.label %}">Download</a> </td>
         <td><a href="{% url 'form_csv_export' form.form.label %}">Download</a> </td>
+        <td>
+        {% if 'gdoc' in form %}
+            {% for link in form.gdoc %}
+                <a href="{{ link }}">Link</a><br>
+            {% endfor %}
+        {% endif %}
+        </td>
     </tr>
     {% endfor %}
 </table>

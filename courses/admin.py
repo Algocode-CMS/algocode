@@ -313,6 +313,15 @@ class FormFieldInline(admin.TabularInline):
     model = FormField
 
 
+class FormExportInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = FormSheetsExport
+    exclude = ['latest_id', 'latest_row']
+    extra = 0
+
+
 class SheetsExportInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
@@ -457,7 +466,7 @@ class FormAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [FormFieldInline]
+    inlines = [FormFieldInline, FormExportInline]
     list_display = ['id', 'label', 'title', 'subtitle']
 
 

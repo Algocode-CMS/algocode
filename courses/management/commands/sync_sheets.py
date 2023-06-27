@@ -3,8 +3,9 @@ import time
 from django.core.management.base import BaseCommand
 
 from algocode import settings
+from courses.lib.form.table import get_form_columns, get_form_entry_row
 from courses.lib.standings.standings_data import get_standings_data
-from courses.models import StandingsSheetExport
+from courses.models import StandingsSheetExport, FormSheetsExport
 
 from apiclient import discovery
 from google.oauth2 import service_account
@@ -38,7 +39,54 @@ class Command(BaseCommand):
                 print(e)
             time.sleep(SHEETS_API_DELAY)
 
+        forms_exports = FormSheetsExport.objects.all()
+        for export in forms_exports:
+            try:
+                export_form(export, service)
+                print("Exported form", export.id, export.name, export.form.label, export.form.title)
+            except Exception as e:
+                print("Error while updations", export.id, export.name, export.form.label, export.form.title)
+                print(e)
+            time.sleep(SHEETS_API_DELAY)
+
         print('sheets synced!')
+
+
+def export_form(export: FormSheetsExport, service):
+    entries = list(export.form.entries.filter(id__gt=export.latest_id).order_by("id"))
+    if len(entries) == 0:
+        return
+
+    columns, column_names = get_form_columns(export.form)
+
+    column_id = get_column_id(len(columns))
+
+    data = [dict(), dict()]
+    data[0]["range"] = "{}!A1:{}1".format(
+        export.tab,
+        column_id,
+    )
+    data[0]["values"] = [columns]
+
+    data[1]["range"] = "{}!A{}:{}{}".format(
+        export.tab,
+        export.latest_row + 1,
+        column_id,
+        export.latest_row + len(entries)
+    )
+    data[1]["values"] = [get_form_entry_row(entry, column_names) for entry in entries]
+
+    xx = service.spreadsheets().values().batchUpdate(
+        spreadsheetId=export.sheet_id,
+        body={
+            "valueInputOption": 'USER_ENTERED',
+            "data": data,
+        }
+    ).execute()
+
+    export.latest_row += len(entries)
+    export.latest_id = entries[-1].id
+    export.save()
 
 
 def export_contest(export: StandingsSheetExport, service):

@@ -18,6 +18,7 @@ from algocode.settings import EJUDGE_CONTROL, JUDGES_DIR, EJUDGE_URL, EJUDGE_AUT
     DEFAULT_PAGE
 from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.pole_chudes import recalc_pole_chudes_standings
+from courses.lib.form.table import get_form_columns, get_form_entry_row
 from courses.lib.standings.standings_data import get_standings_data
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
     Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame
@@ -492,6 +493,8 @@ class FormDataView(View):
             res.append(dict())
             res[-1]["form"] = form
             res[-1]["entries"] = len(form.entries.all())
+            if len(form.exports.all()) > 0:
+                res[-1]["gdoc"] = ["https://docs.google.com/spreadsheets/d/" + export.sheet_id for export in form.exports.all()]
 
         return render(
             request,
@@ -537,36 +540,14 @@ class FormCSVExport(View):
         response['Content-Disposition'] = 'attachment; filename="{label}.csv"'.format(label=form.label)
         writer = csv.writer(response)
 
-        columns = ['time']
-        column_names = []
-        fields = form.fields.order_by("id")
-        for field in fields:
-            columns.append(field.label)
-            column_names.append(field.internal_name)
-
-        if len(form.register_api.all()) > 0:
-            columns.append("ejudge_login")
-            column_names.append("ejudge_login")
-            columns.append("ejudge_password")
-            column_names.append("ejudge_password")
-            columns.append("ejudge_id")
-            column_names.append("ejudge_id")
+        columns, column_names = get_form_columns(form)
 
         writer.writerow(columns)
 
         entries = form.entries.order_by("id")
 
         for entry in entries:
-            row = [entry.time]
-            entry_dict = json.loads(entry.data)
-
-            for column in column_names:
-                if column in entry_dict:
-                    row.append(entry_dict[column])
-                else:
-                    row.append('')
-
-            writer.writerow(row)
+            writer.writerow(get_form_entry_row(entry, column_names))
 
         return response
 

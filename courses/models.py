@@ -374,6 +374,15 @@ class FormEntry(models.Model):
     time = models.DateTimeField(auto_now_add=True)
 
 
+class FormSheetsExport(models.Model):
+    form = models.ForeignKey(FormBuilder, related_name="exports", on_delete=models.CASCADE)
+    name = models.TextField(blank=True)
+    sheet_id = models.TextField()
+    tab = models.TextField()
+    latest_id = models.IntegerField(default=-1)
+    latest_row = models.IntegerField(default=1)
+
+
 class PoleChudesGame(models.Model):
     course = models.ForeignKey(Course, related_name="pole_chudes_games", on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, related_name="pole_chudes_games", on_delete=models.CASCADE)
