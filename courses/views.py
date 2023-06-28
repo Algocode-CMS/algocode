@@ -487,7 +487,7 @@ class FormDataView(View):
         user = request.user
         if not user.is_superuser:
             return HttpResponseBadRequest("Not admin")
-        forms = FormBuilder.objects.order_by("id")
+        forms = FormBuilder.objects.order_by("-id")
         res = []
         for form in forms:
             res.append(dict())
