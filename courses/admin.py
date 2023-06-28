@@ -554,6 +554,15 @@ class StandingsSheetExportAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'standings']
 
 
+@admin.register(FormSheetsExport)
+class FormSheetExportAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    list_display = ['id', 'name', 'form']
+    exclude = ['latest_id', 'latest_row']
+
+
 # Better hide it from admin page and show only for editing
 # @admin.register(MailAuth)
 # class MailAuthAdmin(admin.ModelAdmin):
