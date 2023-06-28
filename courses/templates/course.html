@@ -52,7 +52,7 @@
     </div>
 
     <div class="lessons">
-        <h3 style="padding-left: 0.5em;">Занятия</h3>
+        <h3 style="padding-left: 0.5em;">{{ course.contests_text }}</h3>
         {% for contest in contests %}
             <div class="lesson" id="lesson_{{ contest.contest.id }}">
                 <div class="lesson_date">

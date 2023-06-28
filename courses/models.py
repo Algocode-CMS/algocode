@@ -62,6 +62,7 @@ class Course(models.Model):
     template = models.TextField(default='course.html')
     ejudge_url = models.TextField(blank=True)
     codeforces_url = models.TextField(default="https://codeforces.com")
+    contests_text = models.TextField(default="Занятия")
 
     def __str__(self):
         return "{} ({})".format(self.title, self.id)
