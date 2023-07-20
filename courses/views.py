@@ -311,6 +311,7 @@ class BattleshipView(View):
         for i in range(len(teams)):
             team = teams[i]
             fields[i]["name"] = team.name
+            fields[i]["score"] = 0
             for j, user in enumerate(team.participants.order_by("order", "id")):
                 row = fields[i]['field'][j]
                 row['name'] = user.participant.name
@@ -322,12 +323,14 @@ class BattleshipView(View):
                     if res['verdict'] == EJUDGE_OK:
                         row['problems'][p] = 1
                         fields[i]['success'] += 1
+                        fields[i]['score'] += 1
                     elif res['penalty'] > 0:
                         row['problems'][p] = -1
             for ship in team.ships.all():
                 if fields[i]['field'][ship.y]['problems'][ship.x] == 1:
                     fields[i]['field'][ship.y]['problems'][ship.x] = 2
                     fields[i]['ship_success'] += 1
+                    fields[i]['score'] += 3
             fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
 
         return render(
