@@ -148,27 +148,6 @@ class BattleshipTeamInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-class BattleshipShipInline(admin.TabularInline):
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
-    }
-    model = BattleshipShip
-    show_change_link = True
-    extra = 10
-
-    def get_formset(self, request, obj=None, **kwargs):
-        self.parent_obj = obj
-        return super(BattleshipShipInline, self).get_formset(request, obj, **kwargs)
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "team":
-            if self.parent_obj is not None:
-                kwargs["queryset"] = BattleshipTeam.objects.filter(battleship_id=self.parent_obj.id)
-            else:
-                kwargs["queryset"] = BattleshipTeam.objects.none()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
 class BattleshipParticipantInline(admin.TabularInline):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 20})},
@@ -457,7 +436,7 @@ class BattleshipAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    inlines = [BattleshipTeamInline, BattleshipParticipantInline, BattleshipShipInline]
+    inlines = [BattleshipTeamInline, BattleshipParticipantInline]
     list_display = ['id', 'name', 'course']
 
 
