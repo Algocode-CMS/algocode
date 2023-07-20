@@ -380,6 +380,7 @@ class FormSheetsExport(models.Model):
     name = models.TextField(blank=True)
     sheet_id = models.TextField()
     tab = models.TextField()
+    do_update = models.BooleanField(default=True)
     latest_id = models.IntegerField(default=-1)
     latest_row = models.IntegerField(default=1)
 

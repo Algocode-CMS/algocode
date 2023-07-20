@@ -559,7 +559,7 @@ class FormSheetExportAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
-    list_display = ['id', 'name', 'form']
+    list_display = ['id', 'name', 'form', 'do_update']
     exclude = ['latest_id', 'latest_row']
 
 

@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 print(e)
             time.sleep(SHEETS_API_DELAY)
 
-        forms_exports = FormSheetsExport.objects.all()
+        forms_exports = FormSheetsExport.objects.filter(do_update=True)
         for export in forms_exports:
             try:
                 export_form(export, service)
