@@ -21,7 +21,8 @@ from courses.judges.pole_chudes import recalc_pole_chudes_standings
 from courses.lib.form.table import get_form_columns, get_form_entry_row
 from courses.lib.standings.standings_data import get_standings_data
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
-    Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame
+    Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame, \
+    BattleshipShip
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -282,7 +283,7 @@ class BattleshipView(View):
         if not battleship.public:
             return HttpResponseBadRequest("Battleship is not public")
 
-        teams = battleship.battleship_teams.all()
+        teams = battleship.battleship_teams.all().order_by("id")
         participants = []
         for team in teams:
             participants.extend(team.participants.all())
@@ -346,7 +347,8 @@ class BattleshipAdminView(View):
             return HttpResponseBadRequest("User is not admin")
 
         battleship = get_object_or_404(Battleship, id=battleship_id)
-        teams = battleship.battleship_teams.all()
+        teams = battleship.battleship_teams.all().order_by("id")
+
         participants = []
         for team in teams:
             participants.extend(team.participants.all())
@@ -363,10 +365,7 @@ class BattleshipAdminView(View):
                     dict()
                     for i in range(len(teams[j].participants.all()))
                 ],
-                'success': 0,
-                'fail': 0,
-                'ship_success': 0,
-                'ship_fail': 0,
+                'id': j,
             }
             for j in range(len(teams))
         ]
@@ -377,31 +376,51 @@ class BattleshipAdminView(View):
             for j, user in enumerate(team.participants.order_by("order", "id")):
                 row = fields[i]['field'][j]
                 row['name'] = user.participant.name
-                row['problems'] = [0] * len(problem_names)
-                row['submits'] = 0
-                for p, res in enumerate(standings['users'][user.participant.id]):
-                    row['submits'] += res['penalty']
-                    fields[i]['fail'] += res['penalty']
-                    if res['verdict'] == EJUDGE_OK:
-                        row['problems'][p] = 1
-                        fields[i]['success'] += 1
-                    elif res['penalty'] > 0:
-                        row['problems'][p] = -1
+                row['problems'] = [[l, j, i, 0] for l in range(len(problem_names))]
+
             for ship in team.ships.all():
-                fields[i]['field'][ship.y]['problems'][ship.x] = 2
-                fields[i]['ship_success'] += 1
-            fields[i]['ship_fail'] = fields[i]['success'] - fields[i]['ship_success']
+                fields[i]['field'][ship.y]['problems'][ship.x][3] = 1
 
         return render(
             request,
-            'battleship.html',
+            'battleship_admin.html',
             {
-                'name': battleship.name,
+                'battleship': battleship,
                 'fields': fields,
                 'problem_names': problem_names,
             }
         )
 
+    @method_decorator(csrf_protect)
+    def post(self, request, battleship_id):
+        if not request.user.is_staff:
+            return HttpResponseBadRequest("User is not admin")
+
+        battleship = get_object_or_404(Battleship, id=battleship_id)
+        teams = battleship.battleship_teams.all().order_by("id")
+
+        existing = dict()
+        for i in range(len(teams)):
+            t = teams[i]
+            for ship in t.ships.all():
+                existing["ship {} {} {}".format(ship.x, ship.y, i)] = ship
+
+        for cell in request.POST:
+            if cell.startswith("ship"):
+                x, y, team = [int(i) for i in cell.split()[1:]]
+                if cell not in existing:
+                    BattleshipShip(
+                        battleship=battleship,
+                        team=teams[team],
+                        x=x,
+                        y=y,
+                    ).save()
+
+        for cell in existing:
+            if cell not in request.POST:
+                existing[cell].delete()
+
+        return redirect(reverse('battleship_admin', kwargs={'battleship_id': battleship_id}))
 
 class FormView(View):
     def get(self, request, form_label):

@@ -1,0 +1,52 @@
+<html>
+<head>
+    {% load static %}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+
+    <meta http-equiv="content-language" content="ru-ru">
+    <link rel="stylesheet" href="{% static 'battleship_style.css' %}">
+    <title>Морской бой</title>
+</head>
+<body>
+    <p class="header">
+        {{ battleship.name }}
+    </p>
+    <form method="post" action="{% url 'battleship_admin' battleship_id=battleship.id %}">
+    {% csrf_token %}
+    <div style="display: flex">
+    {% for field in fields %}
+    <div class="results">
+        <p class="team_header self">{{ field.name }}</p>
+        <table>
+            <tbody>
+            <tr>
+                <td class="problem"></td>
+                {% for problem in problem_names %}
+                <td class="problem" title="{{ problem.long }}">{{ problem.short }}</td>
+                {% endfor %}
+            </tr>
+            {% for user in field.field %}
+            <tr>
+                <td class="name">{{ user.name }}</td>
+                {% for problem in user.problems %}
+                    <td>
+                        <input type="checkbox" name="ship {{ problem.0 }} {{ problem.1 }} {{ problem.2 }}" {% if problem.3 == 1 %}checked{% endif %}>
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+    </div>
+
+    <div style="margin-top: 30px">
+    <button>Изменить расстановку</button>
+    </div>
+    </form>
+
+</body>
+</html>
