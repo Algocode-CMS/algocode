@@ -376,6 +376,7 @@ class BattleshipAdminView(View):
         for i in range(len(teams)):
             team = teams[i]
             fields[i]["name"] = team.name
+            fields[i]["id"] = i
             for j, user in enumerate(team.participants.order_by("order", "id")):
                 row = fields[i]['field'][j]
                 row['name'] = user.participant.name
@@ -401,12 +402,12 @@ class BattleshipAdminView(View):
 
         battleship = get_object_or_404(Battleship, id=battleship_id)
         teams = battleship.battleship_teams.all().order_by("id")
+        team_id = int(request.POST.get("team_id"))
 
         existing = dict()
-        for i in range(len(teams)):
-            t = teams[i]
-            for ship in t.ships.all():
-                existing["ship {} {} {}".format(ship.x, ship.y, i)] = ship
+        t = teams[team_id]
+        for ship in t.ships.all():
+            existing["ship {} {} {}".format(ship.x, ship.y, team_id)] = ship
 
         for cell in request.POST:
             if cell.startswith("ship"):

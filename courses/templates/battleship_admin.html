@@ -13,11 +13,11 @@
     <p class="header">
         {{ battleship.name }}
     </p>
-    <form method="post" action="{% url 'battleship_admin' battleship_id=battleship.id %}">
-    {% csrf_token %}
-    <div style="display: flex">
     {% for field in fields %}
     <div class="results">
+        <form method="post" action="{% url 'battleship_admin' battleship_id=battleship.id %}">
+        <input type="hidden" name="team_id" value="{{ field.id }}">
+        {% csrf_token %}
         <p class="team_header self">{{ field.name }}</p>
         <table>
             <tbody>
@@ -39,14 +39,13 @@
             {% endfor %}
             </tbody>
         </table>
+        <button style="margin-top: 10px">Изменить расстановку</button>
+        </form>
     </div>
     {% endfor %}
-    </div>
 
     <div style="margin-top: 30px">
-    <button>Изменить расстановку</button>
     </div>
-    </form>
 
 </body>
 </html>
