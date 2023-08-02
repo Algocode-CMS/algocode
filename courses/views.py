@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import re
+import random
 from time import sleep
 
 from django.contrib.auth import logout, authenticate, login
@@ -53,6 +54,8 @@ class CourseView(View):
         try:
             course = Course.objects.get(label=course_label)
         except:
+            if course_label == "director" or random.randrange(2) == 0:
+                return redirect("https://youtu.be/PkFGBIZWe-8")
             return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
         contests_list = course.contests.order_by('-date', '-id')
         links = course.links.filter(hidden=False).order_by("priority")
