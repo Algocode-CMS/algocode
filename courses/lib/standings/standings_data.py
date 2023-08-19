@@ -12,17 +12,35 @@ def get_standings_data(standings: Standings):
     for group in group_list:
         users.extend(group.participants.all())
 
+    user_ids = set()
+
+    contests_models = standings.contests.order_by('-date', '-id').filter(contest_id__isnull=False)
+    contests = []
+    for contest_model in contests_models:
+        contest = load_contest(contest_model, users)
+        if contest is None:
+            continue
+
+        for user_id in user_ids:
+            if user_id not in contest['users']:
+                contest['users'][user_id] = contest['empty_row']
+
+        for user_id in contest['users']:
+            if user_id not in user_ids:
+                user_ids.add(user_id)
+                for i in range(len(contests)):
+                    contests[i]['users'][user_id] = contests[i]['empty_row']
+
+        contests.append(contest)
+
     for group in group_list:
         for user in group.participants.all():
-            users_data.append({
-                'id': user.id,
-                'name': user.name,
-                'group': group.name,
-                'group_short': group.short_name,
-            })
-
-    contests = standings.contests.order_by('-date', '-id').filter(contest_id__isnull=False)
-    contests = [load_contest(contest, users) for contest in contests]
-    contests = [contest for contest in contests if contest is not None]
+            if user.id in user_ids:
+                users_data.append({
+                    'id': user.id,
+                    'name': user.name,
+                    'group': group.name,
+                    'group_short': group.short_name,
+                })
 
     return [users_data, contests]

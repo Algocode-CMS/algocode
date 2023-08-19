@@ -42,6 +42,7 @@ class ContestInline(admin.TabularInline):
     model = Contest
     form = ContestInlineForm
     show_change_link = True
+    exclude = ['latest_reload_time']
 
 
 class CourseLinkInline(admin.TabularInline):

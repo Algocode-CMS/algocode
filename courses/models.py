@@ -82,10 +82,15 @@ class Contest(models.Model, ContestType):
     EJUDGE = 'EJ'
     CODEFORCES = 'CF'
     INFORMATICS = 'IN'
+    EJUDGE_CACHED = 'EC'
+
+    DEFAULT_RELOAD_TIME = datetime.fromtimestamp(0)
+
     JUDGES = (
         (EJUDGE, 'Ejudge'),
         (CODEFORCES, 'Codeforces'),
         (INFORMATICS, 'Informatics'),
+        (EJUDGE_CACHED, 'Ejudge cache')
     )
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
@@ -103,6 +108,7 @@ class Contest(models.Model, ContestType):
     contest_info = models.TextField(default="{}")
     score_latest = models.BooleanField(default=False)
     score_only_finished = models.BooleanField(default=False)
+    latest_reload_time = models.DateTimeField(default=DEFAULT_RELOAD_TIME)
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)

@@ -10,21 +10,27 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
     save_utc = False
     if 'utc_time' in kwargs and kwargs['utc_time']:
         save_utc = True
-    for user in users:
-        user_info[user.id] = []
-        for i in range(len(problems)):
-            user_info[user.id].append({
-                'score': 0,
-                'penalty': 0,
-                'verdict': None,
-                'time': 0,
-            })
-            if save_utc:
-                user_info[user.id][-1]["utc_time"] = 0
+
+    user_ids = {user.id for user in users}
+
+    empty_row = []
+    for i in range(len(problems)):
+        empty_row.append({
+            'score': 0,
+            'penalty': 0,
+            'verdict': None,
+            'time': 0,
+        })
+        if save_utc:
+            empty_row[-1]["utc_time"] = 0
 
     for run in runs_list:
         try:
             user_id = run['user_id']
+
+            if user_id not in user_ids:
+                continue
+
             status = run['status']
             time = run['time']
             utc_time = run['utc_time']
@@ -33,6 +39,18 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
 
             prob_id = run['prob_id']
             score = run['score']
+
+            if user_id not in user_info:
+                user_info[user_id] = []
+                for i in range(len(problems)):
+                    user_info[user_id].append({
+                        'score': 0,
+                        'penalty': 0,
+                        'verdict': None,
+                        'time': 0,
+                    })
+                    if save_utc:
+                        user_info[user_id][-1]["utc_time"] = 0
 
             info = user_info[user_id][prob_id]
 
@@ -62,27 +80,28 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
         except:
             pass
 
-    curr_time = datetime.datetime.now(datetime.timezone.utc)
-    for user in users:
-        for i, problem in enumerate(problems):
-            if contest.contest_type == contest.BLITZ:
-                user_info[user.id][i]['initial_bid'] = 0
-                user_info[user.id][i]['bid'] = 0
-                try:
-                    problem = BlitzProblem.objects.get(problem_id=problem['short'], contest=contest)
-                    start = BlitzProblemStart.objects.get(participant_id=user.ejudge_id, problem=problem)
-                    user_info[user.id][i]['initial_bid'] = start.bid
-                    if user_info[user.id][i]['verdict'] == EJUDGE_OK:
-                        user_info[user.id][i]['bid'] = start.bid
-                        user_info[user.id][i]['score'] = start.bid
-                    elif (curr_time - start.time).total_seconds() < start.bid * 60:
-                        user_info[user.id][i]['bid'] = (start.bid * 60 - int((curr_time - start.time).total_seconds())) // 60
-                        if user_info[user.id][i]['penalty'] == 0:
-                            user_info[user.id][i]['verdict'] = BLITZ_PENDING
-                    else:
-                        user_info[user.id][i]['verdict'] = BLITZ_TE
-                except:
-                    pass
+    if contest.contest_type == contest.BLITZ:
+        curr_time = datetime.datetime.now(datetime.timezone.utc)
+        for user in users:
+            for i, problem in enumerate(problems):
+                if contest.contest_type == contest.BLITZ:
+                    user_info[user.id][i]['initial_bid'] = 0
+                    user_info[user.id][i]['bid'] = 0
+                    try:
+                        problem = BlitzProblem.objects.get(problem_id=problem['short'], contest=contest)
+                        start = BlitzProblemStart.objects.get(participant_id=user.ejudge_id, problem=problem)
+                        user_info[user.id][i]['initial_bid'] = start.bid
+                        if user_info[user.id][i]['verdict'] == EJUDGE_OK:
+                            user_info[user.id][i]['bid'] = start.bid
+                            user_info[user.id][i]['score'] = start.bid
+                        elif (curr_time - start.time).total_seconds() < start.bid * 60:
+                            user_info[user.id][i]['bid'] = (start.bid * 60 - int((curr_time - start.time).total_seconds())) // 60
+                            if user_info[user.id][i]['penalty'] == 0:
+                                user_info[user.id][i]['verdict'] = BLITZ_PENDING
+                        else:
+                            user_info[user.id][i]['verdict'] = BLITZ_TE
+                    except:
+                        pass
 
     try:
         contest_info = json.loads(contest.contest_info)
@@ -97,5 +116,6 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
         'coefficient': contest.coefficient,
         'problems': problems,
         'users': user_info,
-        'contest_info': contest_info
+        'contest_info': contest_info,
+        'empty_row': empty_row,
     }
