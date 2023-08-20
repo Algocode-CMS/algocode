@@ -11,6 +11,9 @@ class Command(BaseCommand):
         contests = Contest.objects.filter(judge=Contest.EJUDGE_CACHED)
         for contest in contests:
             print("loading", contest.contest_id)
-            ejudge_cached.load_ejudge_cached_contest(contest)
+            try:
+                ejudge_cached.load_ejudge_cached_contest(contest)
+            except:
+                print("Can not update contest, unknown error")
 
         print('Ejudge cached loaded!')

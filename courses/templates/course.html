@@ -90,7 +90,7 @@
                     <div class="contest_link">
                         {% if contest.contest.other_link %}
                             <a href="{{ contest.contest.other_link }}">Вход</a>
-                        {% elif contest.contest.judge == 'EJ' %}
+                        {% elif contest.contest.judge == 'EJ' or contest.contest.judge == 'EC' %}
                             <a href="{{ ejudge_url }}{{ contest.contest.contest_id }}">Вход</a>
                         {% elif contest.contest.judge == 'CF' %}
                             <a href="{{ course.codeforces_url }}/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
