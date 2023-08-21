@@ -293,7 +293,7 @@ class BattleshipView(View):
         users = []
         for participant in participants:
             users.append(participant.participant)
-        standings = load_contest(battleship.contest, users)
+        standings = load_contest(battleship.contest, users, required_users=users)
         problem_names = standings["problems"]
 
         fields = [
@@ -361,7 +361,7 @@ class BattleshipAdminView(View):
         users = []
         for participant in participants:
             users.append(participant.participant)
-        standings = load_contest(battleship.contest, users)
+        standings = load_contest(battleship.contest, users, required_users=users)
         problem_names = standings["problems"]
 
         fields = [
@@ -621,7 +621,7 @@ class PoleChudesTeamView(View):
         for participant in team.participants.order_by("id"):
             participants.append(participant.participant)
 
-        contest = load_contest(team.game.contest, participants)
+        contest = load_contest(team.game.contest, participants, required_users=participants)
         prob_letters = ["" for i in range(len(team.game.alphabet))]
 
         for i in range(len(contest["problems"])):

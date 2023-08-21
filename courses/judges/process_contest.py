@@ -24,6 +24,19 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
         if save_utc:
             empty_row[-1]["utc_time"] = 0
 
+    if 'required_users' in kwargs and kwargs['required_users']:
+        for user in kwargs['required_users']:
+            user_info[user.id] = []
+            for i in range(len(problems)):
+                user_info[user.id].append({
+                    'score': 0,
+                    'penalty': 0,
+                    'verdict': None,
+                    'time': 0,
+                })
+                if save_utc:
+                    user_info[user.id][-1]["utc_time"] = 0
+
     for run in runs_list:
         try:
             user_id = run['user_id']
