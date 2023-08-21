@@ -22,7 +22,7 @@ class CodeforcesLoader:
     STATUS_COMPLEX_STRING = '{}/contest.status?apiKey={}&contestId={}&time={}#{}'
 
     STANDINGS_API_METHOD = 'http://codeforces.com/api/contest.standings'
-    STANDINGS_COMPLEX_STRING = '{}/contest.standings?apiKey={}&contestId={}&time={}#{}'
+    STANDINGS_COMPLEX_STRING = '{}/contest.standings?asManager=true&apiKey={}&contestId={}&time={}#{}'
 
     def __init__(self, key, secret):
         self.key = key

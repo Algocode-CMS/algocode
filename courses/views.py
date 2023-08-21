@@ -361,8 +361,18 @@ class BattleshipAdminView(View):
         users = []
         for participant in participants:
             users.append(participant.participant)
-        standings = load_contest(battleship.contest, users, required_users=users)
-        problem_names = standings["problems"]
+        problem_names = []
+        if battleship.problems > 0:
+            for i in range(battleship.problems):
+                problem_names.append({
+                    'id': i + 1,
+                    'long': chr(i + ord('A')),
+                    'short': chr(i + ord('A')),
+                    'index': 0,
+                })
+        else:
+            standings = load_contest(battleship.contest, users, required_users=users)
+            problem_names = standings["problems"]
 
         fields = [
             {
