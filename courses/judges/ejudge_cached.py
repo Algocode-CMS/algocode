@@ -25,12 +25,18 @@ def load_ejudge_cached_contest(contest: Contest):
 
     if not should_reload:
         try:
+            stored_standings = mongo.load_standings(contest.id)
+            if len(stored_standings[0]) == 0:
+                should_reload = True
+                raise Exception("No stored standings")
+            else:
+                runs_list = stored_standings[1]
+
             ejudge_id_to_user = cached["ejudge_id_to_user"]
             contest_users_start = cached["contest_users_start"]
             contest_users_finished = cached["contest_users_finished"]
             problems = cached["problems"]
             problem_index = cached["problem_index"]
-            runs_list = cached["runs_list"]
             latest_loaded_run = cached["latest_loaded_run"]
         except Exception as e:
             should_reload = True
@@ -126,7 +132,6 @@ def load_ejudge_cached_contest(contest: Contest):
     cached["contest_users_finished"] = contest_users_finished
     cached["problems"] = problems
     cached["problem_index"] = problem_index
-    cached["runs_list"] = runs_list
     cached["latest_loaded_run"] = latest_loaded_run
 
     if not mongo.upload_ejudge_cache(contest, cached):
