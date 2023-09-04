@@ -12,7 +12,7 @@ def load_ejudge_cached_contest(contest: Contest):
         return None
 
     should_reload = False
-    if datetime.now(timezone.utc) - contest.latest_reload_time > timedelta(minutes=15):
+    if datetime.now(timezone.utc) - contest.latest_reload_time > timedelta(minutes=60):
         should_reload = True
         contest.latest_reload_time = datetime.now(timezone.utc)
         contest.save()
