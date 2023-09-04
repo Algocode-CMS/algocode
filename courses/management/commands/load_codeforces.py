@@ -19,18 +19,18 @@ CODEFORCES_API_DELAY = 0.5
 
 class CodeforcesLoader:
     STATUS_API_METHOD = 'http://codeforces.com/api/contest.status'
-    STATUS_COMPLEX_STRING = '{}/contest.status?apiKey={}&contestId={}&time={}#{}'
+    STATUS_COMPLEX_STRING = '{}/contest.status?apiKey={}&asManager=true&contestId={}&time={}#{}'
 
     STANDINGS_API_METHOD = 'http://codeforces.com/api/contest.standings'
-    STANDINGS_COMPLEX_STRING = '{}/contest.standings?asManager=true&apiKey={}&contestId={}&time={}#{}'
+    STANDINGS_COMPLEX_STRING = '{}/contest.standings?apiKey={}&asManager=true&contestId={}&time={}#{}'
 
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
 
     def get_json(self, contest_id, api_method, api_complex_string):
+        rand = 'aaaaaa'
         cur_time = int(time.time())
-        rand = ''.join([str(random.randint(0, 9)) for _ in range(6)])
         complex_string = api_complex_string.format(rand, self.key, contest_id, cur_time, self.secret)
 
         hash = hashlib.sha512(complex_string.encode('utf-8')).hexdigest()
@@ -39,6 +39,7 @@ class CodeforcesLoader:
                                 params={
                                     'contestId': contest_id,
                                     'apiKey': self.key,
+                                    'asManager': "true",
                                     'time': cur_time,
                                     'apiSig': rand + hash
                                 })
