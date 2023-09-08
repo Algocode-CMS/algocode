@@ -195,11 +195,13 @@ div.text-desc {
 div.select-row {
     display: flex;
     flex-wrap: wrap;
+    margin-top: 40px;
 }
 
 label.select-label {
     font: 400 30px 'Open Sans', sans-serif;
     padding-right: 10px;
+    color: rgba(0, 0, 0, 0.7);
 }
 
 select {
@@ -207,6 +209,9 @@ select {
     margin-top: 8px;
     min-width: 100px;
     font: 400 18px 'Open Sans', sans-serif;
+    color: rgba(0, 0, 0, 0.7);
+    border-color: rgba(0, 0, 0, 0.7);
+    border-radius: 3px;
 }
 
 button {
