@@ -204,16 +204,6 @@ label.select-label {
     color: rgba(0, 0, 0, 0.7);
 }
 
-select {
-    height: 30px;
-    margin-top: 8px;
-    min-width: 100px;
-    font: 400 18px 'Open Sans', sans-serif;
-    color: rgba(0, 0, 0, 0.7);
-    border-color: rgba(0, 0, 0, 0.7);
-    border-radius: 3px;
-}
-
 button {
     display: block;
     padding: 10px 30px;
@@ -233,3 +223,35 @@ button:hover {
     color: rgba(256, 256, 256, 0.8);
 }
 
+select.inp {
+  display: block;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  font-size: 30px;
+  transition: 0.3s ease;
+  font-family: 'Open Sans', sans-serif;
+}
+
+
+select:not(:placeholder-shown) + label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
+
+select:invalid:not(:placeholder-shown) + label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+select:focus{
+  outline: none;
+}
+
+select:focus ~ label.lab {
+  top: -30px;
+  font: 700 20px 'Open Sans', sans-serif;
+  color: #487de5;
+}
