@@ -442,7 +442,24 @@ class BattleshipAdminView(View):
 class FormView(View):
     def get(self, request, form_label):
         form = get_object_or_404(FormBuilder, label=form_label)
-        fields = form.fields.order_by("id")
+
+        fields = []
+
+        for field in form.fields.order_by("id"):
+            f = {
+                'id': field.id,
+                'label': field.label,
+                'type': field.type,
+                'required': field.required,
+                'internal_name': field.internal_name,
+                'description': field.description,
+            }
+            f.update(field.TYPES_DICT)
+            if field.type == FormField.SELECT:
+                f['options'] = field.select_options.order_by("id")
+            fields.append(f)
+
+        print(fields)
 
         return render(
             request,
@@ -471,7 +488,7 @@ class FormView(View):
                 return HttpResponse("Превышенно максимальное число запросов")
 
         for field in fields:
-            if field.type in [FormField.STR, FormField.MAIL, FormField.PHONE, FormField.LONG, FormField.DATE]:
+            if field.type in [FormField.STR, FormField.MAIL, FormField.PHONE, FormField.LONG, FormField.DATE, FormField.SELECT]:
                 result[field.internal_name] = request.POST.get(field.internal_name, '')
                 if field.type == FormField.MAIL:
                     user_mail = request.POST.get(field.internal_name, '')

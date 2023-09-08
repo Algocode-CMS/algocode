@@ -85,6 +85,16 @@
                     <div class="text-desc">{{ field.description }}</div>
                 {% endif %}
                 </div>
+            {% elif field.type == field.SELECT %}
+                <div class="select-row">
+                <label class="select-label" for="{{ field.internal_name }}">{{ field.label }}{% if field.required %}<span>*</span>{% endif %}</label>
+                <select name="{{ field.internal_name }}" id="{{ field.internal_name }}" {% if field.required %}required{% endif %}>
+                    {% if not field.required %}<option></option>{% endif %}
+                    {% for option in field.options %}
+                        <option value="{{ option.label }}">{{ option.label }}</option>
+                    {% endfor %}
+                </select>
+                </div>
             {% endif %}
         {% endfor %}
 

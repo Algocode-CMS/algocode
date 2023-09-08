@@ -291,6 +291,14 @@ class FormFieldInline(admin.TabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     model = FormField
+    show_change_link = True
+
+
+class FormFieldSelectOptionInline(admin.TabularInline):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    model = FormFieldSelectOption
 
 
 class FormExportInline(admin.TabularInline):
@@ -448,6 +456,15 @@ class FormAdmin(admin.ModelAdmin):
     }
     inlines = [FormFieldInline, FormExportInline]
     list_display = ['id', 'label', 'title', 'subtitle']
+
+
+@admin.register(FormField)
+class FormFieldAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
+    }
+    inlines = [FormFieldSelectOptionInline]
+    list_display = ['id', 'form', 'label', 'type', 'internal_name']
 
 
 class PoleChudesTeamInline(admin.TabularInline):

@@ -227,8 +227,10 @@ class Standings(models.Model, ContestType):
     olymp = models.BooleanField(default=False)
     contest_type = models.CharField(max_length=2, choices=ContestType.TYPES, default=ContestType.ACM)
     enable_marks = models.BooleanField(default=False)
-    js_for_contest_mark = models.TextField(blank=True, default="var newCalculateContestMark = function(\n    total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями\n    user_id,            // номер пользователя\n    contest_info        // информация о контесте\n) {\n    return useOldContestMark(total_scores, user_id)\n};")
-    js_for_total_mark = models.TextField(blank=True, default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
+    js_for_contest_mark = models.TextField(blank=True,
+                                           default="var newCalculateContestMark = function(\n    total_scores,       // двумерный массив пар балла и времени сдачи задач пользователями\n    user_id,            // номер пользователя\n    contest_info        // информация о контесте\n) {\n    return useOldContestMark(total_scores, user_id)\n};")
+    js_for_total_mark = models.TextField(blank=True,
+                                         default="var calculateTotalMark = function(\n\tmarks,              // массив оценок за контесты\n\tcoefficients,        //  массив коэффициентов контесто\n\ttotal_score,        // суммарный балл за все контесты\n\tcontest_score,      // массив баллов за контесты\n\tcontest_max_score,  // массив максимальных набранных баллов за контесты\n\tproblem_score,      // двумерный массив набранных баллов за задачи\n\tproblem_max_score,  // двумерный массив максимальных набранных баллов за задач\n\ttotal_users,        // общее количество участников\n\tproblem_accepted    // двумерный массив количества ОК по задаче\n){\n\treturn defaultTotalMark(marks, coefficients);\n};")
     js = models.TextField(blank=True)
 
     class Meta:
@@ -352,6 +354,7 @@ class FormFieldType:
     LONG = "LO"
     CHECKBOX = "CB"
     TEXT = "TX"
+    SELECT = "SL"
 
     TYPES = (
         (STR, "Small text field"),
@@ -362,7 +365,20 @@ class FormFieldType:
         (LONG, "Large textarea"),
         (CHECKBOX, "Check box"),
         (TEXT, "Text without field"),
+        (SELECT, "Select")
     )
+
+    TYPES_DICT = {
+        "STR": STR,
+        "INTEGER": INTEGER,
+        "MAIL": MAIL,
+        "PHONE": PHONE,
+        "DATE": DATE,
+        "LONG": LONG,
+        "CHECKBOX": CHECKBOX,
+        "TEXT": TEXT,
+        "SELECT": SELECT,
+    }
 
 
 class FormField(models.Model, FormFieldType):
@@ -372,6 +388,11 @@ class FormField(models.Model, FormFieldType):
     required = models.BooleanField(default=False)
     internal_name = models.TextField()
     description = models.TextField(blank=True)
+
+
+class FormFieldSelectOption(models.Model):
+    field = models.ForeignKey(FormField, related_name="select_options", on_delete=models.CASCADE)
+    label = models.TextField()
 
 
 class FormEntry(models.Model):
