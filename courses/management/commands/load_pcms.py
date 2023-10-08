@@ -12,7 +12,7 @@ class Command(BaseCommand):
         contests = Contest.objects.filter(judge=Contest.PCMS)
         users = dict()
         for contest in contests:
-            print("loading", contest.contest_id)
+            print("loading", contest.external_group_id)
             try:
                 problems, runs_list = pcms.load_pcms_contest(contest, users)
                 if not mongo.upload_standings(contest, [problems, runs_list]):

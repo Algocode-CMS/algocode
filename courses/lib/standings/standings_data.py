@@ -17,10 +17,9 @@ def get_standings_data(standings: Standings):
 
     contests_models = standings.contests.filter(contest_id__isnull=False)
     contests_models |= standings.contests.filter(judge=Contest.PCMS)
-    contests_models.order_by('-date', '-id')
+    contests_models = contests_models.order_by('-date', '-id')
     contests = []
     for contest_model in contests_models:
-        print("AAAAA")
         contest = load_contest(contest_model, users)
         if contest is None:
             continue

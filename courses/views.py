@@ -253,7 +253,8 @@ def register_user(ejudge_register_api: EjudgeRegisterApi, name: str, cf_login=No
                 name=group_name,
                 group=group.group,
                 course=group.group.course,
-                ejudge_id=user["user_id"]
+                ejudge_id=user["user_id"],
+                pcms_login=user["login"],
             )
         else:
             Participant.objects.create(
