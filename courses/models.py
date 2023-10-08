@@ -63,6 +63,7 @@ class Course(models.Model):
     ejudge_url = models.TextField(blank=True)
     codeforces_url = models.TextField(default="https://codeforces.com")
     contests_text = models.TextField(default="Занятия")
+    pcms_url = models.TextField(blank=True)
 
     def __str__(self):
         return "{} ({})".format(self.title, self.id)
@@ -83,6 +84,7 @@ class Contest(models.Model, ContestType):
     CODEFORCES = 'CF'
     INFORMATICS = 'IN'
     EJUDGE_CACHED = 'EC'
+    PCMS = 'PC'
 
     DEFAULT_RELOAD_TIME = datetime.fromtimestamp(0)
 
@@ -90,7 +92,8 @@ class Contest(models.Model, ContestType):
         (EJUDGE, 'Ejudge'),
         (CODEFORCES, 'Codeforces'),
         (INFORMATICS, 'Informatics'),
-        (EJUDGE_CACHED, 'Ejudge cache')
+        (EJUDGE_CACHED, 'Ejudge cache'),
+        (PCMS, 'PCMS')
     )
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
@@ -206,6 +209,7 @@ class Participant(models.Model):
     course = models.ForeignKey(Course, related_name='participants', on_delete=models.CASCADE)
     ejudge_id = models.IntegerField(blank=True, null=True)
     codeforces_handle = models.TextField(blank=True)
+    pcms_login = models.TextField(blank=True)
 
     def __str__(self):
         return "{} ()".format(self.name, self.id)

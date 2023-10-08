@@ -56,6 +56,7 @@ DEFAULT_PAGE = load_config("default_page")
 DEFAULT_HOME = load_config("default_home")
 MONGO = load_config('mongo_db')
 GOOGLE_SHEETS_CONFIG = load_secret('google_sheets_config')
+PCMS_STANDINGS = load_config('pcms_standings')
 
 LOGGING = {
     'version': 1,

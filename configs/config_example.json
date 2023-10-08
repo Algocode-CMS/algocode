@@ -30,7 +30,9 @@
 
     "default_page": "",
 
-    "default_home": "course"
+    "default_home": "course",
+
+    "pcms_standings": "path to pcms standings"
   },
 
   "secrets": {

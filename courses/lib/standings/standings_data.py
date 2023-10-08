@@ -1,8 +1,9 @@
 from courses.judges.judges import load_contest
-from courses.models import Standings
+from courses.models import Standings, Contest
 
 
 def get_standings_data(standings: Standings):
+    print(standings)
     group_list = standings.groups.all()
     if len(group_list) == 0:
         group_list = standings.course.groups.all()
@@ -14,9 +15,12 @@ def get_standings_data(standings: Standings):
 
     user_ids = set()
 
-    contests_models = standings.contests.order_by('-date', '-id').filter(contest_id__isnull=False)
+    contests_models = standings.contests.filter(contest_id__isnull=False)
+    contests_models |= standings.contests.filter(judge=Contest.PCMS)
+    contests_models.order_by('-date', '-id')
     contests = []
     for contest_model in contests_models:
+        print("AAAAA")
         contest = load_contest(contest_model, users)
         if contest is None:
             continue

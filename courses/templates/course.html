@@ -83,7 +83,7 @@
 
                 <div class="clear"></div>
 
-                {% if contest.contest.contest_id or contest.contest.other_link %}
+                {% if contest.contest.contest_id or contest.contest.other_lin or contest.contest.judge == 'PC' %}
                     <div class="contest_name">
                     Контест
                     </div>
@@ -96,6 +96,8 @@
                             <a href="{{ course.codeforces_url }}/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}">Вход</a>
                         {% elif contest.contest.judge == 'IN' %}
                             <a href="https://informatics.mccme.ru/mod/statements/view.php?id={{ contest.contest.contest_id }}">Вход</a>
+                        {% elif contest.contest.judge == 'PC' %}
+                            <a href="{{ course.pcms_url }}">Вход</a>
                         {% endif %}
                     </div>
                 {% endif %}

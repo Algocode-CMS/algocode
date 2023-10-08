@@ -5,6 +5,8 @@ judges_data/
 .idea/
 pyenv/
 venv/
+standings/
+sql.log
 *.pyc
 *.pyo
 algocode/__pycache__/
