@@ -39,7 +39,7 @@ def load_pcms_contest(c, users):
                 prob_id = problem_index[problem_id]
 
                 time = problem["time"] / 1000
-                if c.contest_type != contest.OLYMP and "run" in problem:
+                if c.contest_type != c.OLYMP and "run" in problem:
                     for attempt in problem["run"]:
                         if attempt["accepted"] == "yes":
                             verdict = EJUDGE_OK
