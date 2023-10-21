@@ -7,8 +7,8 @@ from courses.models import Participant
 from courses.judges.common_verdicts import EJUDGE_OK, EJUDGE_WA
 
 
-def load_pcms_contest(contest, users):
-    standings_file = os.path.join(PCMS_STANDINGS, contest.external_group_id)
+def load_pcms_contest(c, users):
+    standings_file = os.path.join(PCMS_STANDINGS, c.external_group_id)
     with open(standings_file) as standings_reader:
         data = json.load(standings_reader)
 
@@ -39,7 +39,7 @@ def load_pcms_contest(contest, users):
                 prob_id = problem_index[problem_id]
 
                 time = problem["time"] / 1000
-                if contest.contest_type != contest.OLYMP and "run" in problem:
+                if c.contest_type != contest.OLYMP and "run" in problem:
                     for attempt in problem["run"]:
                         if attempt["accepted"] == "yes":
                             verdict = EJUDGE_OK
