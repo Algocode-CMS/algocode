@@ -4,7 +4,7 @@ import json
 from algocode.settings import PCMS_STANDINGS
 from courses.models import Participant
 
-from courses.judges.common_verdicts import EJUDGE_OK
+from courses.judges.common_verdicts import EJUDGE_OK, EJUDGE_WA
 
 
 def load_pcms_contest(contest, users):
@@ -37,15 +37,38 @@ def load_pcms_contest(contest, users):
 
                 problem_id = problem["alias"]
                 prob_id = problem_index[problem_id]
-                score = problem["score"]
+
                 time = problem["time"] / 1000
-                runs_list.append({
-                    'user_id': user_id,
-                    'status': EJUDGE_OK,
-                    'time': time,
-                    'utc_time': time,
-                    'prob_id': prob_id,
-                    'score': score,
-                })
+                if contest.contest_type != contest.OLYMP and "run" in problem:
+                    for attempt in problem["run"]:
+                        if attempt["accepted"] == "yes":
+                            verdict = EJUDGE_OK
+                            score = 1
+                        elif attempt["accepted"] == "no":
+                            verdict = EJUDGE_WA
+                            score = 0
+                        else:
+                            continue
+                        runs_list.append({
+                            'user_id': user_id,
+                            'status': verdict,
+                            'time': attempt["time"] / 1000,
+                            'utc_time': attempt["time"] / 1000,
+                            'prob_id': prob_id,
+                            'score': score,
+                        })
+                else:
+                    if "score" in problem:
+                        score = problem["score"]
+                    else:
+                        score = 1
+                    runs_list.append({
+                        'user_id': user_id,
+                        'status': EJUDGE_OK,
+                        'time': time,
+                        'utc_time': time,
+                        'prob_id': prob_id,
+                        'score': score,
+                    })
 
     return [problems, runs_list]
