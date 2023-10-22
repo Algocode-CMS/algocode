@@ -77,9 +77,9 @@ def load_ejudge_contest(contest, users):
 
             prob_id = problem_index[run['prob_id']]
             score = (1 if status == EJUDGE_OK else 0)
-            if contest.contest_type == contest.OLYMP and 'score' in run:
+            if contest.contest_type == contest.OLYMP and run['score'] is not None:
                 score = int(run['score'])
-
+                status = EJUDGE_PT
 
             runs_list.append({
                 'user_id': user_id,
