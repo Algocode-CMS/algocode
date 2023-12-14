@@ -101,14 +101,20 @@ class CodeforcesLoader:
                     user_ids = Participant.objects.filter(codeforces_handle=handle)
                     status = CODEFORCES_EJUDGE_VERDICTS[submit['verdict']]
                     time_msk = datetime.datetime.fromtimestamp(submit['creationTimeSeconds'])
-                    start_time = datetime.datetime.fromtimestamp(submit['author']['startTimeSeconds'])
+                    if 'startTimeSeconds' in submit['author']:
+                        start_time = datetime.datetime.fromtimestamp(submit['author']['startTimeSeconds'])
+                    else:
+                        start_time = datetime.datetime.fromtimestamp(0)
                     submit_time = int((time_msk - start_time).total_seconds())
                     time_msk = pytz.timezone(settings.TIME_ZONE).localize(time_msk)
                     utc_time = time_msk.astimezone(pytz.timezone('UTC'))
                     prob_id = problem_index[submit['problem']['index']]
                     score = 0
                     if 'points' in submit:
-                        score = submit['points']
+                        if contest.contest_type == contest.ACM:
+                            score = submit['points'] / 100
+                        else:
+                            score = submit['points']
                     elif status == EJUDGE_OK:
                         score = 1
                     for cur_user in user_ids:
