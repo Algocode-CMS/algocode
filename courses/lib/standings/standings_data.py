@@ -3,7 +3,6 @@ from courses.models import Standings, Contest
 
 
 def get_standings_data(standings: Standings):
-    print(standings)
     group_list = standings.groups.all()
     if len(group_list) == 0:
         group_list = standings.course.groups.all()
