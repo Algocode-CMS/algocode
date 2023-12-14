@@ -4,7 +4,6 @@ from courses.judges.process_contest import process_contest
 
 
 def load_contest(contest, users, **kwargs):
-    print(contest, users)
     try:
         if contest.judge == contest.EJUDGE:
             problems, runs_list = load_ejudge_contest(contest, users)
