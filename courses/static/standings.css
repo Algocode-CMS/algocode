@@ -118,3 +118,13 @@ p.small {
     background-position: center;
     background-color: #E1E0DE !important;
 }
+
+table#standings_fixed {
+    position: fixed;
+}
+
+div.wrapper {
+    width: fit-content;
+    width: -moz-fit-content;
+    overflow-x: hidden;
+}
