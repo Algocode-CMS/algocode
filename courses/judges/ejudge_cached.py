@@ -113,6 +113,9 @@ def load_ejudge_cached_contest(contest: Contest):
             if contest.contest_type == contest.OLYMP and run['score'] is not None:
                 score = int(run['score'])
                 status = EJUDGE_PT
+            if 'status' in run and run['status'] == 'DQ':
+                score = 0
+                status = EJUDGE_DQ
 
             for user_id in user_ids:
                 runs_list.append({
