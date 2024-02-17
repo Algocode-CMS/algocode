@@ -112,6 +112,8 @@ class Contest(models.Model, ContestType):
     score_latest = models.BooleanField(default=False)
     score_only_finished = models.BooleanField(default=False)
     latest_reload_time = models.DateTimeField(default=DEFAULT_RELOAD_TIME)
+    enable_start_time = models.BooleanField(default=False)
+    start_time = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)

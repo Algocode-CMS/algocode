@@ -6,6 +6,7 @@ import re
 import random
 from time import sleep
 
+import pytz
 from django.contrib.auth import logout, authenticate, login
 from django.core import mail
 from django.shortcuts import render, get_object_or_404, redirect
@@ -62,6 +63,10 @@ class CourseView(View):
         contests = []
 
         for contest in contests_list:
+            if contest.enable_start_time and contest.start_time is not None:
+                print(datetime.datetime.now(tz=pytz.UTC), contest.start_time, datetime.datetime.now(tz=pytz.UTC) - contest.start_time)
+                if datetime.datetime.now(tz=pytz.UTC) < contest.start_time:
+                    continue
             contests.append({
                 'contest': contest,
                 'links': contest.links.order_by('id').order_by("priority"),
