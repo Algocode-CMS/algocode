@@ -38,7 +38,6 @@ def load_pcms_contest(c, users):
                 problem_id = problem["alias"]
                 prob_id = problem_index[problem_id]
 
-                time = problem["time"] / 1000
                 if c.contest_type != c.OLYMP and "run" in problem:
                     for attempt in problem["run"]:
                         if attempt["accepted"] == "yes":
@@ -65,8 +64,8 @@ def load_pcms_contest(c, users):
                     runs_list.append({
                         'user_id': user_id,
                         'status': EJUDGE_OK,
-                        'time': time,
-                        'utc_time': time,
+                        'time': 0,
+                        'utc_time': 0,
                         'prob_id': prob_id,
                         'score': score,
                     })
