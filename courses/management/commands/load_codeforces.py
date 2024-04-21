@@ -159,6 +159,11 @@ class Command(BaseCommand):
             action='store_true',
             help='Import contests older than month ago',
         )
+        parser.add_argument(
+            '--half-year',
+            action='store_true',
+            help='Import contests for last half year',
+        )
 
     def handle(self, *args, **options):
         loaders = []
@@ -170,6 +175,9 @@ class Command(BaseCommand):
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         elif options['old']:
             contests = Contest.objects.filter(judge=Contest.CODEFORCES)
+        elif options['half-year']:
+            date_start = datetime.datetime.now() - datetime.timedelta(days=180)
+            contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         else:
             date_start = datetime.datetime.now() - datetime.timedelta(days=31)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
