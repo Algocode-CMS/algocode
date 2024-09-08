@@ -160,7 +160,7 @@ class Command(BaseCommand):
             help='Import contests older than month ago',
         )
         parser.add_argument(
-            '--half-year',
+            '--halfyear',
             action='store_true',
             help='Import contests for last half year',
         )
@@ -171,11 +171,11 @@ class Command(BaseCommand):
             loaders.append(CodeforcesLoader(api_info["key"], api_info["secret"]))
 
         if options['today']:
-            date_start = datetime.datetime.now() - datetime.timedelta(days=2)
+            date_start = datetime.datetime.now() - datetime.timedelta(days=4)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         elif options['old']:
             contests = Contest.objects.filter(judge=Contest.CODEFORCES)
-        elif options['half_year']:
+        elif options['halfyear']:
             date_start = datetime.datetime.now() - datetime.timedelta(days=180)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         else:
