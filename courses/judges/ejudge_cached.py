@@ -119,7 +119,7 @@ def load_ejudge_cached_contest(contest: Contest):
 
             ejudge_user_id = int(ejudge_user_id_str)
 
-            if ejudge_user_id not in ejudge_id_to_user:
+            if ejudge_user_id_str not in ejudge_id_to_user:
                 users = [participant.id for participant in Participant.objects.filter(ejudge_id=ejudge_user_id)]
                 ejudge_id_to_user[ejudge_user_id_str] = users
 
