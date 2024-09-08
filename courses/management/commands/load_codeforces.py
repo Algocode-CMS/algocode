@@ -175,7 +175,7 @@ class Command(BaseCommand):
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         elif options['old']:
             contests = Contest.objects.filter(judge=Contest.CODEFORCES)
-        elif options['half-year']:
+        elif options['half_year']:
             date_start = datetime.datetime.now() - datetime.timedelta(days=180)
             contests = Contest.objects.filter(judge=Contest.CODEFORCES, date__gte=date_start)
         else:

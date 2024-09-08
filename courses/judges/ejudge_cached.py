@@ -44,6 +44,23 @@ def load_ejudge_cached_contest(contest: Contest):
     if should_reload:
         ejudge_id_to_user = dict()
 
+        groups = set()
+
+        for standings in contest.course.standings.all():
+            for g in standings.groups.all():
+                groups.add(g)
+
+        for g in groups:
+            users = g.participants.all()
+            for u in users:
+                if u.ejudge_id is None:
+                    continue
+                ejudge_id_str = str(u.ejudge_id)
+                if ejudge_id_str not in ejudge_id_to_user:
+                    ejudge_id_to_user[ejudge_id_str] = [u.id]
+                else:
+                    ejudge_id_to_user[ejudge_id_str].append(u.id)
+
         contest_users_start = dict()
         contest_users_finished = dict()
 
