@@ -400,6 +400,11 @@ class StandingsAdmin(admin.ModelAdmin):
     inlines = [ContestInStandingInline, SheetsExportInline]
     exclude = ['contests']
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'groups':
+            kwargs['queryset'] = ParticipantsGroup.objects.all().order_by('id')
+        return super(StandingsAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
 
 @admin.register(Page)
 class PagesAdmin(admin.ModelAdmin):
