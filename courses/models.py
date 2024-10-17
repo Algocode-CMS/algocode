@@ -111,6 +111,7 @@ class Contest(models.Model, ContestType):
     contest_info = models.TextField(default="{}")
     score_latest = models.BooleanField(default=False)
     score_only_finished = models.BooleanField(default=False)
+    deadline = models.DateTimeField(blank=True, null=True)
     latest_reload_time = models.DateTimeField(default=DEFAULT_RELOAD_TIME)
     enable_start_time = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True, null=True)

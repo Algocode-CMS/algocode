@@ -75,6 +75,11 @@ def load_ejudge_cached_contest(contest: Contest):
 
         runs_list = []
 
+        deadline = 10 ** 18
+        if contest.deadline is not None:
+            dt = pytz.timezone(TIME_ZONE).localize(contest.deadline)
+            deadline = dt.astimezone(pytz.timezone('UTC')).timestamp()
+
         if hasattr(data.runlog, "userrunheaders"):
             if data.runlog.userrunheaders is not None:
                 for user_header in data.runlog.userrunheaders.children:
@@ -114,6 +119,8 @@ def load_ejudge_cached_contest(contest: Contest):
             if ejudge_user_id_str not in contest_users_start:
                 contest_users_start[ejudge_user_id_str] = 0
             time -= contest_users_start[ejudge_user_id_str]
+            if contest.deadline is not None and deadline < utc_time:
+                continue
             if contest.duration != 0 and time > contest.duration * 60:
                 continue
 

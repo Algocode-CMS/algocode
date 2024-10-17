@@ -44,6 +44,10 @@ def load_ejudge_contest(contest, users):
 
     runs_list = []
 
+    deadline = 10 ** 18
+    if contest.deadline is not None:
+        deadline = contest.deadline.timestamp()
+
     if hasattr(data.runlog, "userrunheaders"):
         if data.runlog.userrunheaders is not None:
             for user_header in data.runlog.userrunheaders.children:
@@ -70,6 +74,10 @@ def load_ejudge_contest(contest, users):
                 contest_users_start[ejudge_id] = time
                 continue
             time -= contest_users_start[ejudge_id]
+            if ejudge_id == 33175:
+                print(status, problem_index[run['prob_id']], time, utc_time, deadline)
+            if contest.deadline is not None and deadline < utc_time:
+                continue
             if contest.duration != 0 and time > contest.duration * 60:
                 continue
 
