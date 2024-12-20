@@ -37,6 +37,8 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
                 if save_utc:
                     user_info[user.id][-1]["utc_time"] = 0
 
+    group_scores = dict()
+
     for run in runs_list:
         try:
             user_id = run['user_id']
@@ -52,6 +54,20 @@ def process_contest(runs_list, problems, contest, users, **kwargs):
 
             prob_id = run['prob_id']
             score = run['score']
+
+            if not contest.score_latest and 'groups' in run:
+                if user_id not in group_scores:
+                    group_scores[user_id] = dict()
+                if prob_id not in group_scores[user_id]:
+                    group_scores[user_id][prob_id] = []
+                scores = run['groups']
+                while len(group_scores[user_id][prob_id]) < len(scores):
+                    group_scores[user_id][prob_id].append(0)
+                score_groups = 0
+                for i in range(len(scores)):
+                    group_scores[user_id][prob_id][i] = max(group_scores[user_id][prob_id][i], scores[i])
+                    score_groups += group_scores[user_id][prob_id][i]
+                score = max(score, score_groups)
 
             if user_id not in user_info:
                 user_info[user_id] = []

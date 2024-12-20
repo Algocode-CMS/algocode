@@ -74,8 +74,6 @@ def load_ejudge_contest(contest, users):
                 contest_users_start[ejudge_id] = time
                 continue
             time -= contest_users_start[ejudge_id]
-            if ejudge_id == 33175:
-                print(status, problem_index[run['prob_id']], time, utc_time, deadline)
             if contest.deadline is not None and deadline < utc_time:
                 continue
             if contest.duration != 0 and time > contest.duration * 60:
@@ -92,14 +90,18 @@ def load_ejudge_contest(contest, users):
                 score = 0
                 status = EJUDGE_DQ
 
-            runs_list.append({
+            rn = {
                 'user_id': user_id,
                 'status': status,
                 'time': time,
                 'utc_time': utc_time,
                 'prob_id': prob_id,
                 'score': score,
-            })
+            }
+
+            if run['group_scores'] is not None:
+                rn['groups'] = [int(i) for i in run['group_scores'].split()]
+            runs_list.append(rn)
         except:
             pass
 
