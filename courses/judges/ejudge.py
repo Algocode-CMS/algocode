@@ -48,6 +48,10 @@ def load_ejudge_contest(contest, users):
     if contest.deadline is not None:
         deadline = contest.deadline.timestamp()
 
+    now_time = datetime.datetime.now()
+    now_time = pytz.timezone(TIME_ZONE).localize(now_time)
+    now_timestamp = now_time.astimezone(pytz.timezone('UTC')).timestamp()
+
     if hasattr(data.runlog, "userrunheaders"):
         if data.runlog.userrunheaders is not None:
             for user_header in data.runlog.userrunheaders.children:
@@ -55,10 +59,14 @@ def load_ejudge_contest(contest, users):
                 if ejudge_id not in ejudge_ids:
                     continue
                 if user_header.get_attribute("start_time") is not None:
-                    time = localize_time(user_header["start_time"]) - start_time
+                    user_start_utc = localize_time(user_header["start_time"])
+                    time = user_start_utc - start_time
                     contest_users_start[ejudge_id] = time
+                    if contest.duration != 0 and contest.duration * 60 + user_start_utc < now_timestamp:
+                        contest_users_finished.add(ejudge_id)
                 if user_header.get_attribute("stop_time") is not None:
                     contest_users_finished.add(ejudge_id)
+
 
     for run in data.runlog.runs.children:
         try:
