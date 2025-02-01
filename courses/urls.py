@@ -12,6 +12,7 @@ urlpatterns = [
     path('standings/<str:standings_label>/', cache_page(0)(StandingsView.as_view()), name='standings'),
     path('standings/<str:standings_label>/<int:contest_id>/', cache_page(0)(StandingsView.as_view()), name='standings'),
     path('standings_data/<str:standings_label>/', cache_page(0)(StandingsDataView.as_view()), name='standings_data'),
+    path('participants_group/<int:group_id>', cache_page(0)(ParticipantsGroupView.as_view()), name='participants_group'),
     path('serve_control/', ServeControl.as_view(), name='serve_control'),
     path('serve_control/restart_ejudge/', RestartEjudge.as_view(), name='restart_ejudge'),
     path('serve_control/create_valuer/', CreateValuer.as_view(), name='create_valuer'),

@@ -22,9 +22,10 @@ from courses.judges.common_verdicts import EJUDGE_OK
 from courses.judges.pole_chudes import recalc_pole_chudes_standings
 from courses.lib.form.table import get_form_columns, get_form_entry_row
 from courses.lib.standings.standings_data import get_standings_data
+from courses.lib.participants_group.participants_group import get_participants_group
 from courses.models import Course, Main, Standings, Page, Contest, BlitzProblem, BlitzProblemStart, EjudgeRegisterApi, \
     Participant, Battleship, FormBuilder, FormField, FormEntry, PoleChudesTeam, PoleChudesGuess, PoleChudesGame, \
-    BattleshipShip
+    BattleshipShip, ParticipantsGroup
 from courses.judges.judges import load_contest
 
 from django.views import View
@@ -108,6 +109,12 @@ class StandingsDataView(View):
             'users': users_data,
             'contests': contests,
         })
+
+
+class ParticipantsGroupView(View):
+    def get(self, request, group_id: int):
+        group = get_object_or_404(ParticipantsGroup, id=group_id)
+        return JsonResponse(get_participants_group(group))
 
 
 class PageView(View):
