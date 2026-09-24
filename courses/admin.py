@@ -358,7 +358,8 @@ class ContestAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     inlines = [ContestLinkInline, ContestUserLoadInline, BlitzProblemInline]
-    list_display = ['id', 'title', 'date', 'contest_type', 'judge']
+    list_display = ['id', 'title', 'date', 'track', 'level', 'contest_type', 'judge']
+    list_filter = ['track', 'level']
 
 
 @admin.register(Participant)

@@ -90,6 +90,20 @@ class Contest(models.Model, ContestType):
     EJUDGE_CACHED = 'EC'
     PCMS = 'PC'
 
+    TRACK_MATH = 'math'
+    TRACK_ML = 'ml'
+    TRACKS = (
+        (TRACK_MATH, 'Математика'),
+        (TRACK_ML, 'ML'),
+    )
+
+    LEVEL_BASIC = 'basic'
+    LEVEL_ADVANCED = 'advanced'
+    LEVELS = (
+        (LEVEL_BASIC, 'Основной'),
+        (LEVEL_ADVANCED, 'Продвинутый'),
+    )
+
     DEFAULT_RELOAD_TIME = datetime.fromtimestamp(0)
 
     JUDGES = (
@@ -103,6 +117,8 @@ class Contest(models.Model, ContestType):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
     date = models.DateField()
     title = models.TextField()
+    track = models.CharField('Трек', max_length=20, choices=TRACKS, blank=True, default='')
+    level = models.CharField('Уровень', max_length=20, choices=LEVELS, blank=True, default='')
     statements = models.FileField(upload_to=get_statements_file_path, blank=True)
     show_statements = models.BooleanField(default=False)
     duration = models.IntegerField(default=0)
