@@ -42,7 +42,7 @@ class ContestInline(admin.TabularInline):
     model = Contest
     form = ContestInlineForm
     show_change_link = True
-    exclude = ['latest_reload_time', 'enable_start_time', 'start_time', 'deadline']
+    exclude = ['latest_reload_time', 'enable_start_time', 'start_time', 'deadline', 'track', 'level']
 
 
 class CourseLinkInline(admin.TabularInline):
@@ -358,7 +358,7 @@ class ContestAdmin(admin.ModelAdmin):
         models.TextField: {'widget': Textarea(attrs={'rows': 1, 'cols': 40})},
     }
     inlines = [ContestLinkInline, ContestUserLoadInline, BlitzProblemInline]
-    list_display = ['id', 'title', 'date', 'track', 'level', 'contest_type', 'judge']
+    list_display = ['id', 'title', 'date', 'contest_type', 'judge']
     list_filter = ['track', 'level']
 
 

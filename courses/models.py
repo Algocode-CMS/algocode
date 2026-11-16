@@ -117,8 +117,6 @@ class Contest(models.Model, ContestType):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='contests')
     date = models.DateField()
     title = models.TextField()
-    track = models.CharField('Трек', max_length=20, choices=TRACKS, blank=True, default='')
-    level = models.CharField('Уровень', max_length=20, choices=LEVELS, blank=True, default='')
     statements = models.FileField(upload_to=get_statements_file_path, blank=True)
     show_statements = models.BooleanField(default=False)
     duration = models.IntegerField(default=0)
@@ -135,6 +133,8 @@ class Contest(models.Model, ContestType):
     latest_reload_time = models.DateTimeField(default=DEFAULT_RELOAD_TIME)
     enable_start_time = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True, null=True)
+    track = models.CharField('Трек', max_length=20, choices=TRACKS, blank=True, default='')
+    level = models.CharField('Уровень', max_length=20, choices=LEVELS, blank=True, default='')
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)
