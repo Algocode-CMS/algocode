@@ -1,0 +1,872 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ course.title }} — расписание и материалы курса">
+    <title>{{ course.title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Unbounded:wght@500;600;700&amp;display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --page: #f6f1eb;
+            --paper: #fffefa;
+            --ink: #1a1a1a;
+            --muted: #777276;
+            --line: #dfd8d2;
+            --accent: #a097c2;
+            --accent-light: #eeeaf7;
+            --accent-dark: #584c70;
+            --accent-card: #716484;
+            --olymp: #da823b;
+            --shadow: 0 16px 50px rgba(49, 39, 62, 0.08);
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+            background: var(--page);
+            color: var(--ink);
+            font-family: "Manrope", Arial, sans-serif;
+            font-size: 16px;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background: var(--page);
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        a:focus-visible {
+            outline: 3px solid rgba(88, 76, 112, 0.38);
+            outline-offset: 3px;
+        }
+
+        .site-header {
+            position: sticky;
+            z-index: 20;
+            top: 0;
+            display: flex;
+            min-height: 68px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 10px clamp(18px, 4vw, 48px);
+            border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+            background: rgba(246, 241, 235, 0.97);
+            backdrop-filter: blur(12px);
+        }
+
+        .brand {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            display: block;
+            width: 78px;
+            height: auto;
+            max-height: 42px;
+            flex: 0 0 auto;
+            object-fit: contain;
+        }
+
+        .brand-title {
+            overflow: hidden;
+            color: var(--accent-dark);
+            font-weight: 750;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: clamp(18px, 3vw, 34px);
+            font-weight: 750;
+        }
+
+        .nav a { transition: color 160ms ease, background-color 160ms ease; }
+        .nav a:hover { color: var(--accent-dark); }
+
+        .nav-button {
+            padding: 12px 20px;
+            border-radius: 6px;
+            background: var(--ink);
+            color: #fff;
+        }
+
+        .nav .nav-button:hover { background: var(--accent-dark); color: #fff; }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            min-height: 490px;
+            padding: clamp(68px, 9vw, 96px) clamp(20px, 5vw, 54px) 82px;
+            background: var(--accent);
+        }
+
+        .hero::before {
+            position: absolute;
+            top: -175px;
+            right: -115px;
+            width: 460px;
+            height: 460px;
+            border: 8px dashed rgba(255, 255, 255, 0.24);
+            border-radius: 50%;
+            content: "";
+        }
+
+        .hero::after {
+            position: absolute;
+            right: 170px;
+            bottom: -116px;
+            width: 235px;
+            height: 235px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+            content: "";
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 1080px);
+            margin: 0 auto;
+        }
+
+        .hero-label {
+            margin: 0 0 22px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            max-width: 850px;
+            margin: 0;
+            font-family: "Unbounded", Arial, sans-serif;
+            font-size: clamp(2.8rem, 6vw, 4.4rem);
+            font-weight: 650;
+            letter-spacing: -0.055em;
+            line-height: 1.02;
+        }
+
+        .hero-subtitle {
+            max-width: 800px;
+            margin: 16px 0 0;
+            color: #fff;
+            font-family: "Unbounded", Arial, sans-serif;
+            font-size: clamp(1.7rem, 3.7vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.035em;
+            line-height: 1.18;
+        }
+
+        .hero-copy {
+            max-width: 660px;
+            margin: 26px 0 0;
+            font-size: 1.08rem;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .button {
+            display: inline-flex;
+            min-height: 48px;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 24px;
+            border: 1px solid var(--ink);
+            border-radius: 6px;
+            background: var(--ink);
+            color: #fff;
+            font-weight: 750;
+            transition: transform 160ms ease, background-color 160ms ease;
+        }
+
+        .button:hover { transform: translateY(-1px); background: #302c32; }
+
+        .button-light {
+            border-color: var(--page);
+            background: var(--page);
+            color: var(--ink);
+        }
+
+        .button-light:hover { background: #fff; }
+
+        .content {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(290px, 0.86fr);
+            gap: clamp(32px, 5vw, 54px);
+            width: min(calc(100% - 40px), 1080px);
+            margin: 0 auto;
+            padding: 68px 0 94px;
+            align-items: start;
+        }
+
+        .lessons-heading {
+            margin: 0 0 12px;
+            font-family: "Unbounded", Arial, sans-serif;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            letter-spacing: -0.045em;
+        }
+
+        .lessons-intro {
+            margin: 0 0 24px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .lesson-filters {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid #e2ddda;
+            border-radius: 7px;
+            background: #fff;
+        }
+
+        .filter-button {
+            min-height: 42px;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 5px;
+            background: transparent;
+            color: var(--ink);
+            font: inherit;
+            font-size: 0.87rem;
+            font-weight: 750;
+            cursor: pointer;
+            transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+        }
+
+        .filter-button:hover { background: #f3eff9; }
+        .filter-button:active { transform: translateY(1px); }
+
+        .filter-button:focus-visible {
+            outline: 3px solid rgba(162, 149, 199, 0.38);
+            outline-offset: 2px;
+        }
+
+        .filter-button.is-active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 5px 13px rgba(84, 69, 107, 0.18);
+        }
+
+        .lesson-search {
+            margin-bottom: 14px;
+            padding: 15px 16px 17px;
+            border: 1px solid #e2ddda;
+            border-radius: 7px;
+            background: #fff;
+        }
+
+        .lesson-search label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8b858b;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .lesson-search input {
+            width: 100%;
+            min-height: 46px;
+            padding: 10px 13px;
+            border: 1px solid #dcd6d1;
+            border-radius: 5px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: 0.92rem;
+        }
+
+        .lesson-search input:focus {
+            border-color: var(--accent);
+            outline: 3px solid rgba(162, 149, 199, 0.2);
+        }
+
+        .lesson-summary {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 9px 14px;
+            margin-bottom: 18px;
+        }
+
+        .lesson-summary-text {
+            color: var(--muted);
+            font-size: 0.84rem;
+        }
+
+        .lessons-count {
+            display: inline-flex;
+            padding: 8px 13px;
+            border: 1px solid #d6cee8;
+            border-radius: 5px;
+            background: var(--accent-light);
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .lessons-count::before {
+            margin-right: 8px;
+            color: var(--accent-dark);
+            content: "•";
+        }
+
+        .lesson-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .lesson {
+            display: grid;
+            grid-template-columns: 104px minmax(0, 1fr);
+            gap: 18px;
+            padding: 22px 24px;
+            border: 1px solid #e2ddda;
+            border-left: 5px solid var(--accent);
+            border-radius: var(--radius);
+            background: #fff;
+            box-shadow: 0 7px 22px rgba(42, 35, 51, 0.04);
+        }
+
+        .lesson[hidden],
+        .filter-empty[hidden] { display: none; }
+
+        .filter-empty { margin-top: 14px; }
+
+        .lesson--olymp { border-left-color: var(--olymp); }
+
+        .lesson-date {
+            display: grid;
+            width: 94px;
+            height: 82px;
+            place-content: center;
+            border-radius: 5px;
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            text-align: center;
+        }
+
+        .lesson--olymp .lesson-date {
+            background: #fbede2;
+            color: #97511b;
+        }
+
+        .lesson-day {
+            font-family: "Unbounded", Arial, sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .lesson-month {
+            margin-top: 6px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .lesson-type {
+            margin: 2px 0 8px;
+            color: #7f748e;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .lesson--olymp .lesson-type { color: #a8612b; }
+
+        .lesson-topic {
+            margin: 0;
+            font-family: "Unbounded", Arial, sans-serif;
+            font-size: 1.12rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            line-height: 1.35;
+        }
+
+        .lesson-full-date {
+            margin: 9px 0 0;
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+
+        .lesson-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .lesson-link,
+        .lesson-label {
+            display: inline-flex;
+            min-height: 36px;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 14px;
+            border: 1px solid #ded7d0;
+            border-radius: 5px;
+            background: var(--page);
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .lesson-link:hover {
+            border-color: #cfc4e2;
+            background: var(--accent-light);
+        }
+
+        .lesson-label { color: var(--muted); }
+
+        .sidebar {
+            display: grid;
+            gap: 15px;
+        }
+
+        .sidebar-card {
+            padding: 24px;
+            border: 1px solid #e0dad6;
+            border-radius: var(--radius);
+            background: #fff;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-title {
+            margin: 0 0 18px;
+            color: #8b858b;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .links-card {
+            border-color: var(--accent-dark);
+            background: var(--accent-dark);
+            color: #fff;
+        }
+
+        .links-card .sidebar-title { color: #d3cadf; }
+
+        .useful-links {
+            display: grid;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .useful-link,
+        .useful-text {
+            display: flex;
+            min-height: 46px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 10px 14px;
+            border-radius: 5px;
+            background: var(--accent-card);
+            font-weight: 700;
+        }
+
+        .useful-link::after {
+            flex: 0 0 auto;
+            color: #d9d1e5;
+            content: "→";
+        }
+
+        .useful-link:hover { background: #7c6e91; }
+
+        .teacher-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .teacher {
+            display: grid;
+            grid-template-columns: 66px minmax(0, 1fr);
+            gap: 14px;
+            align-items: center;
+            padding: 11px 12px;
+            border: 1px solid #e3deeb;
+            border-radius: 6px;
+            background: #faf8fd;
+        }
+
+        .teacher-photo,
+        .teacher-placeholder {
+            width: 62px;
+            height: 62px;
+            border: 3px solid var(--accent);
+            border-radius: 50%;
+            background: var(--accent-light);
+        }
+
+        .teacher-photo { display: block; object-fit: cover; object-position: center 25%; }
+
+        .teacher-placeholder {
+            display: grid;
+            place-items: center;
+            color: var(--accent-dark);
+            font-family: "Unbounded", Arial, sans-serif;
+            font-weight: 700;
+        }
+
+        .teacher-name { margin: 0 0 4px; font-weight: 800; line-height: 1.3; }
+        .teacher-note { margin: 0 0 7px; color: var(--muted); font-size: 0.84rem; line-height: 1.4; }
+        .teacher-contacts { display: flex; flex-wrap: wrap; gap: 5px 12px; font-size: 0.8rem; font-weight: 700; }
+        .teacher-contacts a { color: var(--accent-dark); }
+        .teacher-contacts a:hover { text-decoration: underline; }
+
+        .empty-state {
+            padding: 28px;
+            border: 1px dashed #cdc4bd;
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.58);
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .footer {
+            padding: 26px 20px;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 0.82rem;
+            text-align: center;
+        }
+
+        @media (max-width: 860px) {
+            .nav a:not(.nav-button) { display: none; }
+            .content { grid-template-columns: 1fr; }
+            .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 620px) {
+            .site-header { min-height: 60px; padding-inline: 14px; }
+            .brand-title { max-width: 145px; font-size: 0.82rem; }
+            .brand-logo { width: 68px; max-height: 38px; }
+            .nav-button { padding: 10px 13px; font-size: 0.82rem; }
+            .hero { min-height: 0; padding: 60px 20px 68px; }
+            .hero::before { right: -310px; opacity: 0.65; }
+            .hero::after { right: -72px; }
+            .hero h1 { font-size: clamp(2.5rem, 13vw, 3.8rem); }
+            .hero-subtitle { font-size: clamp(1.6rem, 8vw, 2.15rem); }
+            .hero-copy { font-size: 1rem; }
+            .hero-actions { flex-direction: column; }
+            .button { width: 100%; }
+            .content { width: min(calc(100% - 28px), 1080px); padding: 48px 0 72px; }
+            .lesson-filters { grid-template-columns: 1fr; }
+            .lesson { grid-template-columns: 78px minmax(0, 1fr); gap: 13px; padding: 18px 14px; }
+            .lesson-date { width: 74px; height: 72px; }
+            .lesson-day { font-size: 1.55rem; }
+            .lesson-topic { font-size: 1rem; }
+            .sidebar { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="#top" aria-label="К началу страницы">
+            <img class="brand-logo" src="https://algocode.ru/files/page_algo_kruzhok_2026_2027/як_kL8Wy7g.svg" alt="Яндекс Кружок">
+            <span class="brand-title">{% if course.subtitle %}{{ course.subtitle }}{% else %}{{ course.title }}{% endif %}</span>
+        </a>
+        <nav class="nav" aria-label="Навигация по странице">
+            <a href="#lessons">Занятия</a>
+            {% if teachers %}<a href="#teachers">Преподаватели</a>{% endif %}
+            {% if links %}<a class="nav-button" href="#materials">Материалы</a>{% endif %}
+        </nav>
+    </header>
+
+    <main id="top">
+        <section class="hero">
+            <div class="hero-inner">
+                <p class="hero-label">Страница курса</p>
+                <h1>{{ course.title }}</h1>
+                {% if course.subtitle %}<p class="hero-subtitle">{{ course.subtitle }}</p>{% endif %}
+                <p class="hero-copy">Расписание занятий, материалы и ссылки курса — в одном месте.</p>
+                <div class="hero-actions">
+                    <a class="button" href="#lessons">Расписание занятий</a>
+                    {% if links %}<a class="button button-light" href="#materials">Материалы курса</a>{% endif %}
+                </div>
+            </div>
+        </section>
+
+        <div class="content">
+            <section id="lessons" aria-labelledby="lessons-title">
+                <h2 class="lessons-heading" id="lessons-title">{{ course.contests_text|default:"Занятия" }}</h2>
+                <p class="lessons-intro">Выберите трек и уровень — расписание и материалы обновляются по мере проведения занятий.</p>
+
+                <div class="lesson-filters" aria-label="Фильтры занятий">
+                    <div class="filter-group" role="group" aria-label="Трек курса">
+                        <button class="filter-button is-active" type="button" data-filter-group="track" data-filter-value="математика" aria-pressed="true">Математика</button>
+                        <button class="filter-button" type="button" data-filter-group="track" data-filter-value="ml" aria-pressed="false">ML</button>
+                    </div>
+                    <div class="filter-group" role="group" aria-label="Уровень курса">
+                        <button class="filter-button is-active" type="button" data-filter-group="level" data-filter-value="основной" aria-pressed="true">Основной</button>
+                        <button class="filter-button" type="button" data-filter-group="level" data-filter-value="продвинутый" aria-pressed="false">Продвинутый</button>
+                    </div>
+                </div>
+
+                <div class="lesson-search">
+                    <label for="lesson-search-input">Поиск занятия по дате или теме</label>
+                    <input id="lesson-search-input" type="search" placeholder="Например: 2026-10-05, 12 окт, Python" autocomplete="off" data-lesson-search>
+                </div>
+
+                <div class="lesson-summary" aria-live="polite">
+                    <div class="lessons-count" data-visible-count>{{ contests|length }} занятий</div>
+                    <span class="lesson-summary-text" data-active-filter>Математика · Основной</span>
+                </div>
+
+                {% if contests %}
+                    <div class="lesson-list">
+                        {% for contest in contests %}
+                            <article
+                                class="lesson{% if contest.contest.contest_type == contest.contest.OLYMP %} lesson--olymp{% endif %}"
+                                id="lesson_{{ contest.contest.id }}"
+                                data-lesson
+                                data-track="{{ contest.contest.track|default:''|lower }}"
+                                data-level="{{ contest.contest.level|default:''|lower }}"
+                                data-search="{{ contest.contest.date }} {{ contest.contest.title }} {{ contest.contest.track|default:'' }} {{ contest.contest.level|default:'' }}"
+                            >
+                                <time class="lesson-date" datetime="{{ contest.contest.date|date:'Y-m-d' }}">
+                                    <span class="lesson-day">{{ contest.contest.date|date:"d" }}</span>
+                                    <span class="lesson-month">{{ contest.contest.date|date:"M" }}</span>
+                                </time>
+
+                                <div>
+                                    <p class="lesson-type">
+                                        {% if contest.contest.contest_type == contest.contest.OLYMP %}Олимпиада{% else %}Занятие{% endif %}
+                                    </p>
+                                    <h3 class="lesson-topic">{{ contest.contest.title }}</h3>
+                                    <p class="lesson-full-date">{{ contest.contest.date }}</p>
+
+                                    <div class="lesson-links">
+                                        {% for link in contest.links %}
+                                            {% if link.file %}
+                                                <a class="lesson-link" href="{{ link.file.url }}"{% if link.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link.text }}</a>
+                                            {% elif link.link %}
+                                                <a class="lesson-link" href="{{ link.link }}"{% if link.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link.text }}</a>
+                                            {% else %}
+                                                <span class="lesson-label">{{ link.text }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if contest.contest.contest_id or contest.contest.other_link or contest.contest.judge == 'PC' %}
+                                            {% if contest.contest.other_link %}
+                                                <a class="lesson-link" href="{{ contest.contest.other_link }}" target="_blank" rel="noopener noreferrer">Вход в контест</a>
+                                            {% elif contest.contest.judge == 'EJ' or contest.contest.judge == 'EC' %}
+                                                <a class="lesson-link" href="{{ ejudge_url }}{{ contest.contest.contest_id }}" target="_blank" rel="noopener noreferrer">Вход в контест</a>
+                                            {% elif contest.contest.judge == 'CF' %}
+                                                <a class="lesson-link" href="{{ course.codeforces_url }}/group/{{ contest.contest.external_group_id }}/contest/{{ contest.contest.contest_id }}" target="_blank" rel="noopener noreferrer">Вход в контест</a>
+                                            {% elif contest.contest.judge == 'IN' %}
+                                                <a class="lesson-link" href="https://informatics.mccme.ru/mod/statements/view.php?id={{ contest.contest.contest_id }}" target="_blank" rel="noopener noreferrer">Вход в контест</a>
+                                            {% elif contest.contest.judge == 'PC' %}
+                                                <a class="lesson-link" href="{{ course.pcms_url }}" target="_blank" rel="noopener noreferrer">Вход в контест</a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if contest.contest.show_statements and contest.contest.statements %}
+                                            <a class="lesson-link" href="{{ contest.contest.statements.url }}" target="_blank" rel="noopener noreferrer">Условия</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                    <div class="empty-state filter-empty" data-filter-empty hidden>По выбранным параметрам занятий пока нет.</div>
+                {% else %}
+                    <div class="empty-state">Занятия скоро появятся.</div>
+                {% endif %}
+            </section>
+
+            <aside class="sidebar">
+                {% if links %}
+                    <section class="sidebar-card links-card" id="materials">
+                        <h2 class="sidebar-title">Полезные ссылки</h2>
+                        <ul class="useful-links">
+                            {% for link in links %}
+                                <li>
+                                    {% if link.file %}
+                                        <a class="useful-link" href="{{ link.file.url }}"{% if link.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link.text }}</a>
+                                    {% elif link.link %}
+                                        <a class="useful-link" href="{{ link.link }}"{% if link.new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ link.text }}</a>
+                                    {% else %}
+                                        <span class="useful-text">{{ link.text }}</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+
+                {% if teachers %}
+                    <section class="sidebar-card" id="teachers">
+                        <h2 class="sidebar-title">Преподаватели</h2>
+                        <div class="teacher-list">
+                            {% for teacher in teachers %}
+                                <article class="teacher">
+                                    {% if teacher.teacher.photo %}
+                                        <img class="teacher-photo" src="{{ teacher.teacher.photo.url }}" alt="{{ teacher.teacher.name }}">
+                                    {% else %}
+                                        <span class="teacher-placeholder" aria-hidden="true">{{ teacher.teacher.name|slice:":1" }}</span>
+                                    {% endif %}
+
+                                    <div>
+                                        <p class="teacher-name">{{ teacher.teacher.name }}</p>
+                                        {% if teacher.note %}<p class="teacher-note">{{ teacher.note }}</p>{% endif %}
+                                        {% if teacher.teacher.telegram_id or teacher.teacher.vk_id %}
+                                            <div class="teacher-contacts">
+                                                {% if teacher.teacher.telegram_id %}
+                                                    <a href="https://t.me/{{ teacher.teacher.telegram_id }}" target="_blank" rel="noopener noreferrer">@{{ teacher.teacher.telegram_id }}</a>
+                                                {% endif %}
+                                                {% if teacher.teacher.vk_id %}
+                                                    <a href="https://vk.com/{{ teacher.teacher.vk_id }}" target="_blank" rel="noopener noreferrer">ВКонтакте</a>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    </section>
+                {% endif %}
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">{{ course.title }}{% if course.subtitle %} · {{ course.subtitle }}{% endif %}</footer>
+
+    <script>
+        (function () {
+            var lessons = Array.prototype.slice.call(document.querySelectorAll('[data-lesson]'));
+            if (!lessons.length) return;
+
+            var buttons = Array.prototype.slice.call(document.querySelectorAll('[data-filter-group]'));
+            var search = document.querySelector('[data-lesson-search]');
+            var count = document.querySelector('[data-visible-count]');
+            var description = document.querySelector('[data-active-filter]');
+            var empty = document.querySelector('[data-filter-empty]');
+            var state = { track: 'математика', level: 'основной', query: '' };
+
+            var labels = {
+                track: { 'математика': 'Математика', 'ml': 'ML' },
+                level: { 'основной': 'Основной', 'продвинутый': 'Продвинутый' }
+            };
+
+            var aliases = {
+                track: {
+                    'math': 'математика',
+                    'mathematics': 'математика',
+                    'машинное обучение': 'ml',
+                    'machine learning': 'ml'
+                },
+                level: {
+                    'basic': 'основной',
+                    'base': 'основной',
+                    'advanced': 'продвинутый'
+                }
+            };
+
+            function normalize(value) {
+                return String(value || '').toLowerCase().replace(/ё/g, 'е').trim();
+            }
+
+            function canonical(group, value) {
+                var normalized = normalize(value);
+                return aliases[group][normalized] || normalized;
+            }
+
+            function lessonWord(number) {
+                var lastTwo = number % 100;
+                var last = number % 10;
+                if (lastTwo >= 11 && lastTwo <= 14) return 'занятий';
+                if (last === 1) return 'занятие';
+                if (last >= 2 && last <= 4) return 'занятия';
+                return 'занятий';
+            }
+
+            function updateLessons() {
+                var visible = 0;
+
+                lessons.forEach(function (lesson) {
+                    var track = canonical('track', lesson.dataset.track);
+                    var level = canonical('level', lesson.dataset.level);
+                    var haystack = normalize(lesson.dataset.search);
+
+                    /* Пустые track/level не скрываем: старые занятия продолжат отображаться. */
+                    var trackMatches = !track || track === state.track;
+                    var levelMatches = !level || level === state.level;
+                    var searchMatches = !state.query || haystack.indexOf(state.query) !== -1;
+                    var matches = trackMatches && levelMatches && searchMatches;
+
+                    lesson.hidden = !matches;
+                    if (matches) visible += 1;
+                });
+
+                count.textContent = visible + ' ' + lessonWord(visible);
+                description.textContent = labels.track[state.track] + ' · ' + labels.level[state.level];
+                empty.hidden = visible !== 0;
+            }
+
+            buttons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var group = button.dataset.filterGroup;
+                    state[group] = button.dataset.filterValue;
+
+                    buttons.forEach(function (candidate) {
+                        if (candidate.dataset.filterGroup !== group) return;
+                        var active = candidate === button;
+                        candidate.classList.toggle('is-active', active);
+                        candidate.setAttribute('aria-pressed', active ? 'true' : 'false');
+                    });
+
+                    updateLessons();
+                });
+            });
+
+            search.addEventListener('input', function () {
+                state.query = normalize(search.value);
+                updateLessons();
+            });
+
+            updateLessons();
+        }());
+    </script>
+</body>
+</html>

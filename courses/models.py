@@ -90,6 +90,20 @@ class Contest(models.Model, ContestType):
     EJUDGE_CACHED = 'EC'
     PCMS = 'PC'
 
+    TRACK_MATH = 'math'
+    TRACK_ML = 'ml'
+    TRACKS = (
+        (TRACK_MATH, 'Математика'),
+        (TRACK_ML, 'ML'),
+    )
+
+    LEVEL_BASIC = 'basic'
+    LEVEL_ADVANCED = 'advanced'
+    LEVELS = (
+        (LEVEL_BASIC, 'Основной'),
+        (LEVEL_ADVANCED, 'Продвинутый'),
+    )
+
     DEFAULT_RELOAD_TIME = datetime.fromtimestamp(0)
 
     JUDGES = (
@@ -119,6 +133,8 @@ class Contest(models.Model, ContestType):
     latest_reload_time = models.DateTimeField(default=DEFAULT_RELOAD_TIME)
     enable_start_time = models.BooleanField(default=False)
     start_time = models.DateTimeField(blank=True, null=True)
+    track = models.CharField('Трек', max_length=20, choices=TRACKS, blank=True, default='')
+    level = models.CharField('Уровень', max_length=20, choices=LEVELS, blank=True, default='')
 
     def __str__(self):
         return '[{}] {}'.format(self.course.label, self.title)
