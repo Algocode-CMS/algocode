@@ -1,0 +1,30 @@
+services:
+  memcached:
+    restart: always
+    image: "memcached"
+    container_name: "memcached"
+    networks:
+      - algosystem_net
+  
+  algocode:
+    build: 
+      context: .
+    restart: always
+    image: "algocode:latest"
+    container_name: "algocode"
+    ports:
+      - "127.0.0.1:8002:80"
+    volumes:
+      - ejudge_data:/home/judges
+      - algocode_data:/home/algocode
+    depends_on:
+      - memcached
+    networks:
+      - algosystem_net
+
+volumes:
+  ejudge_data:
+  algocode_data:
+
+networks:
+  algosystem_net:
